@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "workspaces": ["parser", "cli"],
   "scripts": {
-    "pretest": "npx tsc -p parser/tsconfig.json",
-    "test": "npx ts-node parser/tests/parser.test.ts && node tests/e2e.test.js"
+    "pretest": "npx tsc -p parser/tsconfig.json && npx tsc -p cli/tsconfig.json",
+    "test": "npx ts-node parser/tests/parser.test.ts && node tests/e2e.test.js && node cli/tests/cli.test.ts"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

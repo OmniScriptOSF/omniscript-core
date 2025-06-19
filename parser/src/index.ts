@@ -1,2 +1,2 @@
-export { parse } from './parser';
-export { serialize } from './serializer';
+export { parse, serialize } from './parser';
+export * from './types';
