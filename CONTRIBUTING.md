@@ -81,6 +81,8 @@ We value respectful, constructive collaboration. Your contributions help build t
 
 ---
 
-## 📄 License
+## 📄 License & Ownership
 
 By contributing, you agree that your contributions will be licensed under the terms of the [MIT License](LICENSE).
+
+OmniScript Format (OSF) is led and maintained by **Alphin Tom** ([alpha912](https://github.com/alpha912)). Please credit the creator when referencing the project.
