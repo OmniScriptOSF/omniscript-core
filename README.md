@@ -49,6 +49,8 @@ omniscript-core/
  └── package.json
 ```
 
+See [docs/spec-v0.5-overview.md](docs/spec-v0.5-overview.md) for an introduction to the draft specification.
+
 ---
 
 ## 🚀 Quick Example
