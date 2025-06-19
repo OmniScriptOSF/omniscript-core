@@ -10,3 +10,10 @@ const sheet = result.blocks.find(b => b.type === 'sheet');
 if (!Array.isArray(sheet.cols)) {
   throw new Error('sheet cols not parsed');
 }
+if (!sheet.formulas || sheet.formulas[0].expr !== '=A1') {
+  throw new Error('sheet formula missing');
+}
+const slide = result.blocks.find(b => b.type === 'slide');
+if (!slide || slide.bullets[1] !== 'Second') {
+  throw new Error('slide bullets missing');
+}

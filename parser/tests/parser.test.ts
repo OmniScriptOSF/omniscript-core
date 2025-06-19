@@ -23,3 +23,12 @@ const sheet = doc.blocks.find(b => b.type === 'sheet');
 if (!sheet || !Array.isArray(sheet.cols) || sheet.cols[0] !== 'A') {
   throw new Error('sheet cols parse failed');
 }
+if (!sheet.formulas || sheet.formulas[0].expr !== '=A1') {
+  throw new Error('sheet formulas parse failed');
+}
+
+const extras = parse('@meta { draft: true; tags: [1, 2, 3]; }');
+const meta2 = extras.blocks[0];
+if (meta2.props.draft !== true) throw new Error('boolean value failed');
+if (!Array.isArray(meta2.props.tags) || meta2.props.tags[2] !== 3)
+  throw new Error('array value failed');
