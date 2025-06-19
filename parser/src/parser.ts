@@ -20,18 +20,36 @@ function findBlocks(input: string): { type: string; content: string }[] {
   return blocks;
 }
 
+function parsePrimitive(str: string): any {
+  const value = str.trim();
+  if (value.startsWith('"') && value.endsWith('"')) {
+    return value.slice(1, -1);
+  }
+  if (!isNaN(Number(value))) {
+    return Number(value);
+  }
+  if (value === 'true' || value === 'false') {
+    return value === 'true';
+  }
+  return value;
+}
+
 function parseKV(content: string): Record<string, any> {
   const result: Record<string, any> = {};
   const kvRegex = /(\w+)\s*:\s*([^;]+);/g;
   let m: RegExpExecArray | null;
   while ((m = kvRegex.exec(content))) {
-    let value: any = m[2].trim();
-    if (value.startsWith('"') && value.endsWith('"')) {
-      value = value.slice(1, -1);
-    } else if (!isNaN(Number(value))) {
-      value = Number(value);
+    let valueStr = m[2].trim();
+    if (valueStr.startsWith('[') && valueStr.endsWith(']')) {
+      const inner = valueStr.slice(1, -1);
+      valueStr = inner.trim();
+      const arr = valueStr
+        ? inner.split(',').map(s => parsePrimitive(s))
+        : [];
+      result[m[1]] = arr;
+    } else {
+      result[m[1]] = parsePrimitive(valueStr);
     }
-    result[m[1]] = value;
   }
   return result;
 }
