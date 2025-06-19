@@ -1,0 +1,32 @@
+@meta {
+  title: "Q2 Business Review";
+  author: "Alphin Tom";
+  date: "2025-06-07";
+  theme: "CorporateBlue";
+}
+
+@doc {
+  # Executive Summary
+  Revenue grew by **15%** in Q2, exceeding targets and prior quarter performance.
+  We continued to invest in customer success, resulting in higher retention.
+}
+
+@slide {
+  title: "Q2 Highlights";
+  layout: TitleAndBullets;
+  bullets {
+    "Revenue ↑ 15%";
+    "Churn ↓ 3%";
+  }
+}
+
+@sheet {
+  name: "SalesData";
+  cols: [Region, Q1, Q2, Growth%];
+  data {
+    (2,1) = "North";   (2,2) = 100000;   (2,3) = 115000;
+    (3,1) = "South";   (3,2) =  80000;   (3,3) =  92000;
+  }
+  formula (2,4): "=(C2-B2)/B2*100";
+  formula (3,4): "=(C3-B3)/B3*100";
+}
