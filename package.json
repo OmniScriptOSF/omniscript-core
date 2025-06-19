@@ -5,7 +5,7 @@
   "workspaces": ["parser", "cli"],
   "scripts": {
     "pretest": "npx tsc -p parser/tsconfig.json && npx tsc -p cli/tsconfig.json",
-    "test": "npx ts-node parser/tests/parser.test.ts && node tests/e2e.test.js && node cli/tests/cli.test.ts"
+    "test": "npx ts-node parser/tests/parser.test.ts && node tests/e2e.test.js && node cli/tests/cli.test.ts && node cli/tests/lint.test.ts && node cli/tests/diff.test.ts && node cli/tests/error.test.ts"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
