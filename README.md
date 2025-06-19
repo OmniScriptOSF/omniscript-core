@@ -42,7 +42,7 @@ omniscript-core/
  │   └── roadmap.md
  ├── parser/             # Reference parser
  ├── cli/                # CLI tools
- ├── examples/           # Minimal test examples
+ ├── examples/           # OSF sample documents (spec example + tests)
  ├── tests/              # Unit + integration tests
  ├── docs/               # Architecture and design docs
  ├── .github/            # GitHub configs
@@ -100,7 +100,14 @@ The reference CLI implements several spec-defined commands:
 
 ### Using the reference CLI
 
-After compiling the project (`npm test`), invoke the CLI to parse a document:
+After compiling the project (`npm test`), invoke the CLI to parse a document.
+For the full spec example:
+
+```bash
+node cli/bin/osf.js parse examples/v0.5_spec_example.osf
+```
+
+Or to parse a minimal test file:
 
 ```bash
 node cli/bin/osf.js parse examples/test_minimal.osf
