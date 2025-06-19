@@ -87,13 +87,15 @@ omniscript-core/
 
 ---
 
-## 🚀 Planned CLI Features
+## 🚀 CLI Features
+
+The reference CLI implements several spec-defined commands:
 
 * `osf parse <file>` → Parse and validate OSF file syntax.
 * `osf lint <file>` → Style and structure checks.
-* `osf render <file> --format <html|pdf|docx|pptx|xlsx>` → Render to desired output.
 * `osf diff <file1> <file2>` → Semantic diff of two OSF files.
-* `osf export <file> --target <format>` → Export OSF to target format preserving fidelity.
+* `osf render <file> --format <html>` → Render to HTML output.
+* `osf export <file> --target <md>` → Export OSF to Markdown.
 * `osf format <file>` → Auto-format OSF for style consistency.
 
 ### Using the reference CLI
