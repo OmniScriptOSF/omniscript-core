@@ -1,0 +1,4 @@
+# EBNF grammar outline for OSF v1.0
+
+Document = { Block } ;
+Block = Meta | Doc | Slide | Sheet ;

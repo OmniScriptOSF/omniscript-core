@@ -1,0 +1,8 @@
+@sheet {
+  name: "Data";
+  cols: [A, B];
+  data {
+    (2,1)=1;
+    (2,2)=2;
+  }
+}

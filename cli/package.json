@@ -1,0 +1,12 @@
+{
+  "name": "@osf/cli",
+  "version": "0.1.0",
+  "main": "dist/osf.js",
+  "bin": {
+    "osf": "bin/osf.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "node ../parser/tests/parser.test.ts"
+  }
+}

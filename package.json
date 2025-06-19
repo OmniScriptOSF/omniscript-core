@@ -1,0 +1,14 @@
+{
+  "name": "omniscript-core",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["parser", "cli"],
+  "scripts": {
+    "pretest": "npx tsc -p parser/tsconfig.json",
+    "test": "npx ts-node parser/tests/parser.test.ts && node tests/e2e.test.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "ts-node": "^10.0.0"
+  }
+}
