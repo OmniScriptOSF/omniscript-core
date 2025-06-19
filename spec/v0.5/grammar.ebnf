@@ -1,0 +1,36 @@
+# OSF v0.5 EBNF Grammar
+
+Document   = { S Block } ;
+
+Block      = MetaBlock | DocBlock | SlideBlock | SheetBlock ;
+
+MetaBlock  = "@meta" S "{" S { MetaEntry } "}" ;
+MetaEntry  = Identifier S ":" S Value S ";" S ;
+
+DocBlock   = "@doc" S "{" DocContent "}" ;
+DocContent = { ~"}" } ;
+
+SlideBlock = "@slide" S "{" S { SlideEntry } "}" ;
+SlideEntry = Bullets | (Identifier S ":" S Value S ";" S) ;
+Bullets    = "bullets" S "{" S { String S ";" S } "}" ;
+
+SheetBlock = "@sheet" S "{" S { SheetEntry } "}" ;
+SheetEntry = DataBlock | FormulaLine | (Identifier S ":" S Value S ";" S) ;
+DataBlock  = "data" S "{" S { CellAssign } "}" ;
+CellAssign = "(" Number "," Number ")" S "=" S Value S ";" S ;
+FormulaLine= "formula" S "(" Number "," Number ")" S ":" S String S ";" S ;
+
+Value      = String | Number | Boolean | Identifier | Array | Object ;
+Array      = "[" S [ Value { S "," S Value } ] S "]" ;
+Object     = "{" S { Identifier S ":" S Value S ";" S } "}" ;
+Identifier = Letter { Letter | Digit | "_" | "%" } ;
+String     = '"' { Character - '"' } '"' ;
+Number     = Digit { Digit } [ "." Digit { Digit } ] ;
+Boolean    = "true" | "false" ;
+
+S          = { Whitespace | Comment } ;
+Whitespace = " " | "\t" | "\n" | "\r" ;
+Comment    = "//" { Character - "\n" } "\n" ;
+Letter     = "A".."Z" | "a".."z" ;
+Digit      = "0".."9" ;
+Character  = ? any Unicode character ? ;

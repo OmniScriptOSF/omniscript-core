@@ -1,0 +1,45 @@
+openapi: 3.0.0
+info:
+  title: OSF Service
+  version: 0.5.0
+paths:
+  /parse:
+    post:
+      summary: Parse an OSF document
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '200':
+          description: Parsed representation
+          content:
+            application/json:
+              schema:
+                $ref: './osf.schema.json'
+  /render:
+    post:
+      summary: Render an OSF document to a target format
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                osf:
+                  type: string
+                format:
+                  type: string
+                  enum: [html, pdf, docx, pptx, xlsx]
+              required: [osf, format]
+      responses:
+        '200':
+          description: Rendered output
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
