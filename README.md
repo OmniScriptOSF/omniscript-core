@@ -36,15 +36,17 @@ OmniScript Format (OSF) unifies the strengths of:
 
 ```
 omniscript-core/
- ├── spec/           # Grammar, JSON schema, OpenAPI spec
- ├── parser/         # Reference parser code
- ├── cli/            # CLI tooling (parse, lint, render, diff)
- ├── examples/       # Example .osf documents
- ├── tests/          # Unit + integration tests
- ├── README.md
- ├── LICENSE
- ├── CONTRIBUTING.md
- └── CODE_OF_CONDUCT.md
+ ├── spec/               # Versioned specifications
+ │   ├── v0.5/
+ │   ├── v1.0/
+ │   └── roadmap.md
+ ├── parser/             # Reference parser
+ ├── cli/                # CLI tools
+ ├── examples/           # Minimal test examples
+ ├── tests/              # Unit + integration tests
+ ├── docs/               # Architecture and design docs
+ ├── .github/            # GitHub configs
+ └── package.json
 ```
 
 ---
