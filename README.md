@@ -101,19 +101,35 @@ The reference CLI implements several spec-defined commands:
 * `osf format <file>` → Auto-format OSF for style consistency.
 
 ### Using the reference CLI
+Follow these steps to build and run the CLI:
 
-After compiling the project (`npm test`), invoke the CLI to parse a document.
-For the full spec example:
+1. **Install dependencies**
 
-```bash
-node cli/bin/osf.js parse examples/v0.5_spec_example.osf
-```
+   ```bash
+   npm install
+   ```
 
-Or to parse a minimal test file:
+2. **Compile the TypeScript sources**
 
-```bash
-node cli/bin/osf.js parse examples/test_minimal.osf
-```
+   ```bash
+   npm run build
+   # or run the test suite which also triggers the build
+   npm test
+   ```
+
+3. **Invoke the CLI from the compiled `dist` directory**
+
+   For the full spec example:
+
+   ```bash
+   node cli/dist/osf.js parse examples/v0.5_spec_example.osf
+   ```
+
+   Or to parse a minimal test file:
+
+   ```bash
+   node cli/dist/osf.js parse examples/test_minimal.osf
+   ```
 
 ---
 
