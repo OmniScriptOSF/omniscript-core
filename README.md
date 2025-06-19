@@ -96,6 +96,14 @@ omniscript-core/
 * `osf export <file> --target <format>` → Export OSF to target format preserving fidelity.
 * `osf format <file>` → Auto-format OSF for style consistency.
 
+### Using the reference CLI
+
+After compiling the project (`npm test`), invoke the CLI to parse a document:
+
+```bash
+node cli/bin/osf.js parse examples/test_minimal.osf
+```
+
 ---
 
 ## 🤝 Contributing

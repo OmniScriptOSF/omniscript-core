@@ -1,3 +1,26 @@
+@meta {
+  title: "Demo";
+  author: "Test";
+}
+
 @doc {
   Hello World
+}
+
+@slide {
+  title: "Intro";
+  bullets {
+    "First";
+    "Second";
+  }
+}
+
+@sheet {
+  name: "Data";
+  cols: [A, B];
+  data {
+    (2,1)=1;
+    (2,2)=2;
+  }
+  formula (2,2): "=A1";
 }

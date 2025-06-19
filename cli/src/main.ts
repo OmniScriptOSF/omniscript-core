@@ -1,1 +1,1 @@
-import './osf-parse';
+import './osf';
