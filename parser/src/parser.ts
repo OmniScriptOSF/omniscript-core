@@ -20,20 +20,101 @@ function findBlocks(input: string): { type: string; content: string }[] {
   return blocks;
 }
 
-function parseKV(content: string): Record<string, any> {
-  const result: Record<string, any> = {};
-  const kvRegex = /(\w+)\s*:\s*([^;]+);/g;
-  let m: RegExpExecArray | null;
-  while ((m = kvRegex.exec(content))) {
-    let value: any = m[2].trim();
-    if (value.startsWith('"') && value.endsWith('"')) {
-      value = value.slice(1, -1);
-    } else if (!isNaN(Number(value))) {
-      value = Number(value);
+function removeComments(str: string): string {
+  return str.replace(/\/\/.*$/gm, '');
+}
+
+function skipWS(str: string, i: number): number {
+  while (i < str.length) {
+    const ch = str[i];
+    if (ch === ' ' || ch === '\t' || ch === '\n' || ch === '\r') {
+      i++;
+      continue;
     }
-    result[m[1]] = value;
+    if (str.slice(i).startsWith('//')) {
+      i = str.indexOf('\n', i);
+      if (i === -1) return str.length;
+      i++;
+      continue;
+    }
+    break;
   }
-  return result;
+  return i;
+}
+
+function parseIdentifier(str: string, i: number): { id: string; index: number } {
+  let start = i;
+  while (i < str.length && /[A-Za-z0-9_%]/.test(str[i])) i++;
+  return { id: str.slice(start, i), index: i };
+}
+
+function parseString(str: string, i: number): { value: string; index: number } {
+  let j = i + 1;
+  let out = '';
+  while (j < str.length && str[j] !== '"') {
+    out += str[j++];
+  }
+  return { value: out, index: j + 1 };
+}
+
+function parseNumber(str: string, i: number): { value: number; index: number } {
+  let j = i;
+  while (j < str.length && /[0-9.]/.test(str[j])) j++;
+  return { value: Number(str.slice(i, j)), index: j };
+}
+
+function parseValue(str: string, i: number): { value: any; index: number } {
+  i = skipWS(str, i);
+  const ch = str[i];
+  if (ch === '"') return parseString(str, i);
+  if (ch === '[') {
+    i++;
+    const arr: any[] = [];
+    i = skipWS(str, i);
+    while (i < str.length && str[i] !== ']') {
+      const v = parseValue(str, i);
+      arr.push(v.value);
+      i = skipWS(str, v.index);
+      if (str[i] === ',') {
+        i++;
+        i = skipWS(str, i);
+      }
+    }
+    return { value: arr, index: i + 1 };
+  }
+  if (ch === '{') {
+    const res = parseKVInternal(str, i + 1);
+    return { value: res.obj, index: res.index + 1 };
+  }
+  if (/\d/.test(ch)) return parseNumber(str, i);
+  if (str.startsWith('true', i)) return { value: true, index: i + 4 };
+  if (str.startsWith('false', i)) return { value: false, index: i + 5 };
+  const id = parseIdentifier(str, i);
+  return { value: id.id, index: id.index };
+}
+
+function parseKVInternal(str: string, i: number): { obj: Record<string, any>; index: number } {
+  const obj: Record<string, any> = {};
+  while (i < str.length) {
+    i = skipWS(str, i);
+    if (i >= str.length || str[i] === '}') break;
+    const keyRes = parseIdentifier(str, i);
+    const key = keyRes.id;
+    i = skipWS(str, keyRes.index);
+    if (str[i] !== ':') throw new Error('Expected :');
+    i++;
+    const valRes = parseValue(str, i);
+    i = skipWS(str, valRes.index);
+    if (str[i] !== ';') throw new Error('Expected ;');
+    i++;
+    obj[key] = valRes.value;
+  }
+  return { obj, index: i };
+}
+
+function parseKV(content: string): Record<string, any> {
+  const cleaned = removeComments(content);
+  return parseKVInternal(cleaned, 0).obj;
 }
 
 export function parse(input: string): OSFDocument {
@@ -88,13 +169,25 @@ export function parse(input: string): OSFDocument {
   return { blocks };
 }
 
+function serializeValue(v: any): string {
+  if (Array.isArray(v)) return `[${v.map(serializeValue).join(', ')}]`;
+  if (v && typeof v === 'object') {
+    const inner = Object.entries(v)
+      .map(([k, val]) => `${k}: ${serializeValue(val)};`)
+      .join(' ');
+    return `{ ${inner} }`;
+  }
+  if (typeof v === 'string') return `"${v}"`;
+  return String(v);
+}
+
 export function serialize(doc: OSFDocument): string {
   return doc.blocks
     .map(b => {
       switch (b.type) {
         case 'meta':
           const entries = Object.entries(b.props)
-            .map(([k, v]) => `${k}: ${typeof v === 'string' ? '"' + v + '"' : v};`)
+            .map(([k, v]) => `${k}: ${serializeValue(v)};`)
             .join(' ');
           return `@meta {\n  ${entries}\n}`;
         case 'doc':
@@ -107,7 +200,7 @@ export function serialize(doc: OSFDocument): string {
           delete other.type;
           delete other.bullets;
           const kv = Object.entries(other)
-            .map(([k, v]) => `${k}: ${typeof v === 'string' ? '"' + v + '"' : v};`)
+            .map(([k, v]) => `${k}: ${serializeValue(v)};`)
             .join(' ');
           return `@slide {\n  ${kv}\n  ${bulletStr}}`;
         case 'sheet':
@@ -117,12 +210,12 @@ export function serialize(doc: OSFDocument): string {
           const dataObj = otherSheet.data; delete otherSheet.data;
           const formulas = otherSheet.formulas; delete otherSheet.formulas;
           const kvs = Object.entries(otherSheet)
-            .map(([k, v]) => `${k}: ${Array.isArray(v) ? `[${(v as any[]).join(', ')}]` : (typeof v === 'string' ? '"' + v + '"' : v)};`)
+            .map(([k, v]) => `${k}: ${serializeValue(v)};`)
             .join(' ');
           if (kvs) parts.push(kvs);
           if (dataObj && Object.keys(dataObj).length) {
             const rows = Object.entries(dataObj)
-              .map(([cell, val]) => `(${cell})=${typeof val === 'string' ? '"' + val + '"' : val};`)
+              .map(([cell, val]) => `(${cell})=${serializeValue(val)};`)
               .join(' ');
             parts.push(`data {\n    ${rows}\n  }`);
           }
