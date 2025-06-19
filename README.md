@@ -26,6 +26,10 @@ OmniScript Format (OSF) unifies the strengths of:
 
 ✅ **Git-native diff & merge** — meaningful, human-readable text changes.
 
+✅ **Extensible syntax** — designed for future support of diagrams, forms, citations, references, macros.
+
+✅ **LLM function-call ready** — OSF's schema can map cleanly to AI agent tools for parsing, editing, or generating content.
+
 ---
 
 ## 📂 Project Structure
@@ -45,14 +49,12 @@ omniscript-core/
 
 ---
 
-## ⚡ Quick Example
-
-### OSF file excerpt:
+## 🚀 Quick Example
 
 ```osf
 @meta {
   title   : "Q2 Business Review";
-  author  : "Alice";
+  author  : "Alphin Tom";
   date    : "2025-06-07";
   theme   : "CorporateBlue";
 }
@@ -89,6 +91,8 @@ omniscript-core/
 * `osf lint <file>` → Style and structure checks.
 * `osf render <file> --format <html|pdf|docx|pptx|xlsx>` → Render to desired output.
 * `osf diff <file1> <file2>` → Semantic diff of two OSF files.
+* `osf export <file> --target <format>` → Export OSF to target format preserving fidelity.
+* `osf format <file>` → Auto-format OSF for style consistency.
 
 ---
 
@@ -100,11 +104,19 @@ We welcome contributions!
 
 ➡ All contributors must adhere to our [Code of Conduct](CODE_OF_CONDUCT.md).
 
+➡ Maintainer: **Alphin Tom** ([alpha912](https://github.com/alpha912))
+
 ---
 
 ## 📄 License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE) © 2025 Alphin Tom.
+
+---
+
+## 💬 Community
+
+Join us on [GitHub Discussions](https://github.com/OmniScriptOSF/omniscript-core/discussions) to propose ideas, ask questions, or share feedback.
 
 ---
 
@@ -114,6 +126,7 @@ This project is licensed under the [MIT License](LICENSE).
 * Interactive OSF viewer
 * Conversion tools
 * Example repository
+* Roadmap and specification drafts
 
 ---
 
