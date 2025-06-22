@@ -33,7 +33,10 @@ npm install
 
 ### 5️⃣ Run tests
 
+Before running the test suite, make sure all dependencies are installed:
+
 ```bash
+npm install
 npm test
 # or cargo test / pytest etc., depending on the language used
 ```
