@@ -13,3 +13,13 @@ if (parsed.blocks[0].type !== 'meta' || parsed.blocks[0].props.tags[1] !== 'b') 
 }
 const out = serialize(parsed);
 parse(out); // should round trip without throwing
+
+let threw = false;
+try {
+  parse('@doc {\nHello');
+} catch (err) {
+  threw = /Missing closing/.test(String(err));
+}
+if (!threw) {
+  throw new Error('expected error for incomplete block');
+}
