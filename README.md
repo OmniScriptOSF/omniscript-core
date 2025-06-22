@@ -87,6 +87,9 @@ See [docs/spec-v0.5-overview.md](docs/spec-v0.5-overview.md) for an introduction
 }
 ```
 
+For a more complete example with multiple slides and a sheet, see
+[`examples/rich_demo.osf`](examples/rich_demo.osf).
+
 ---
 
 ## 🚀 CLI Features
@@ -123,6 +126,12 @@ Follow these steps to build and run the CLI:
 
    ```bash
    node cli/dist/osf.js parse examples/v0.5_spec_example.osf
+   ```
+
+   For a richer demo:
+
+   ```bash
+   node cli/dist/osf.js parse examples/rich_demo.osf
    ```
 
    Or to parse a minimal test file:
