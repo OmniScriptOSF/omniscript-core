@@ -1,0 +1,9 @@
+@meta {
+  title: "No Title Slide";
+}
+
+@slide {
+  bullets {
+    "Only bullet";
+  }
+}
