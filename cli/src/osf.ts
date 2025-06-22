@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { parse, serialize, OSFDocument, OSFBlock } from '../../parser/dist';
+import { parse, serialize, OSFDocument, OSFBlock } from '@osf/parser';
 
 function renderHtml(doc: OSFDocument): string {
   const parts: string[] = ['<html><body>'];

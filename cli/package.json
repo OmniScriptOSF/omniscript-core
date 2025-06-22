@@ -8,5 +8,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "node ../parser/tests/parser.test.ts"
+  },
+  "dependencies": {
+    "@osf/parser": "file:../parser"
   }
 }
