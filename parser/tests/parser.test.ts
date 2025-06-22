@@ -13,3 +13,13 @@ if (parsed.blocks[0].type !== 'meta' || parsed.blocks[0].props.tags[1] !== 'b') 
 }
 const out = serialize(parsed);
 parse(out); // should round trip without throwing
+
+let errorCaught = false;
+try {
+  parse('@doc {\nmissing');
+} catch {
+  errorCaught = true;
+}
+if (!errorCaught) {
+  throw new Error('expected parse to throw for unterminated block');
+}
