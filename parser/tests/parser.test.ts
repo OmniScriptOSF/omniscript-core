@@ -13,3 +13,16 @@ if (parsed.blocks[0].type !== 'meta' || parsed.blocks[0].props.tags[1] !== 'b') 
 }
 const out = serialize(parsed);
 parse(out); // should round trip without throwing
+
+const { readFileSync } = require('fs');
+const { join } = require('path');
+const invalid = readFileSync(join(__dirname, '../../examples/invalid_syntax.osf'), 'utf8');
+let threw = false;
+try {
+  parse(invalid);
+} catch (e) {
+  threw = true;
+}
+if (!threw) {
+  throw new Error('parser should throw on invalid syntax');
+}
