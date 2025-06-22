@@ -43,7 +43,11 @@ function skipWS(str: string, i: number): number {
 }
 
 function parseIdentifier(str: string, i: number): { id: string; index: number } {
-  let start = i;
+  const start = i;
+  if (i >= str.length || !/[A-Za-z]/.test(str[i])) {
+    throw new Error('Expected identifier starting with a letter');
+  }
+  i++; // consume first letter
   while (i < str.length && /[A-Za-z0-9_%]/.test(str[i])) i++;
   return { id: str.slice(start, i), index: i };
 }
