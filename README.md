@@ -109,7 +109,9 @@ Follow these steps to build and run the CLI:
    npm install
    ```
 
-2. **Compile the TypeScript sources**
+   Installing will automatically run the build thanks to the `prepare` script.
+
+2. **Compile the TypeScript sources** (if you need to rebuild manually)
 
    ```bash
    npm run build
