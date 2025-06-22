@@ -1,4 +1,5 @@
 import { readFileSync } from 'fs';
+import { join } from 'path';
 import { parse, serialize, OSFDocument, OSFBlock } from '../../parser/dist';
 
 function renderHtml(doc: OSFDocument): string {
@@ -78,11 +79,40 @@ function exportMarkdown(doc: OSFDocument): string {
   return out.join('\n');
 }
 
+const pkg = JSON.parse(readFileSync(join(__dirname, '..', 'package.json'), 'utf8'));
+const VERSION = pkg.version;
+
+const HELP = `Usage: osf <command> [options]
+
+Commands:
+  parse <file>           Parse OSF file to JSON
+  lint <file>            Validate OSF syntax
+  diff <fileA> <fileB>   Compare two OSF files
+  render <file>          Render OSF to HTML
+  export <file>          Export OSF to Markdown
+  format <file>         Format OSF document
+
+Options:
+  -h, --help             Show this help message
+  -v, --version          Show CLI version`;
+
 function load(file: string): string {
   return readFileSync(file, 'utf8');
 }
 
-const [, , command, ...rest] = process.argv;
+const args = process.argv.slice(2);
+
+if (args.includes('--help') || args.includes('-h')) {
+  console.log(HELP);
+  process.exit(0);
+}
+
+if (args.includes('--version') || args.includes('-v')) {
+  console.log(VERSION);
+  process.exit(0);
+}
+
+const [command, ...rest] = args;
 
 switch (command) {
   case 'parse': {
@@ -142,5 +172,5 @@ switch (command) {
     break;
   }
   default:
-    console.log('Usage: osf <parse|lint|diff|render|export|format> <file>');
+    console.log(HELP);
 }
