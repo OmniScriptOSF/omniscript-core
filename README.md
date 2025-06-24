@@ -118,7 +118,7 @@ The reference CLI implements several spec-defined commands:
 ### Using the reference CLI
 Follow these steps to build and run the CLI:
 
-1. **Install dependencies**
+1. **Install dependencies** (required before running tests)
 
    ```bash
    npm install
