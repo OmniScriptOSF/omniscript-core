@@ -14,6 +14,9 @@ function findBlocks(input: string): { type: string; content: string }[] {
       else if (ch === '}') depth--;
       end++;
     }
+    if (depth > 0) {
+      throw new Error(`Missing closing } for block ${type}`);
+    }
     const content = input.slice(match.index + match[0].length, end - 1);
     blocks.push({ type, content: content.trim() });
   }
@@ -43,7 +46,11 @@ function skipWS(str: string, i: number): number {
 }
 
 function parseIdentifier(str: string, i: number): { id: string; index: number } {
-  let start = i;
+  const start = i;
+  if (i >= str.length || !/[A-Za-z]/.test(str[i])) {
+    throw new Error('Expected identifier starting with a letter');
+  }
+  i++; // consume first letter
   while (i < str.length && /[A-Za-z0-9_%]/.test(str[i])) i++;
   return { id: str.slice(start, i), index: i };
 }

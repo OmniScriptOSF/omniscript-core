@@ -87,6 +87,21 @@ See [docs/spec-v0.5-overview.md](docs/spec-v0.5-overview.md) for an introduction
 }
 ```
 
+For a more complete example with multiple slides and a sheet, see
+[`examples/rich_demo.osf`](examples/rich_demo.osf).
+
+---
+
+## 🛠 Getting Started
+
+Ensure **Node.js 18+** is installed, then run:
+
+```bash
+npm install
+npm run build
+npm test
+```
+
 ---
 
 ## 🚀 CLI Features
@@ -103,13 +118,15 @@ The reference CLI implements several spec-defined commands:
 ### Using the reference CLI
 Follow these steps to build and run the CLI:
 
-1. **Install dependencies**
+1. **Install dependencies** (required before running tests)
 
    ```bash
    npm install
    ```
 
-2. **Compile the TypeScript sources**
+   Installing will automatically run the build thanks to the `prepare` script.
+
+2. **Compile the TypeScript sources** (if you need to rebuild manually)
 
    ```bash
    npm run build
@@ -123,6 +140,12 @@ Follow these steps to build and run the CLI:
 
    ```bash
    node cli/dist/osf.js parse examples/v0.5_spec_example.osf
+   ```
+
+   For a richer demo:
+
+   ```bash
+   node cli/dist/osf.js parse examples/rich_demo.osf
    ```
 
    Or to parse a minimal test file:

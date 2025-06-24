@@ -1,5 +1,14 @@
 import { readFileSync } from 'fs';
+import { join } from 'path';
+import Ajv from 'ajv';
 import { parse, serialize, OSFDocument, OSFBlock } from '../../parser/dist';
+
+const schema = JSON.parse(
+  readFileSync(join(__dirname, '../../spec/v0.5/osf.schema.json'), 'utf8')
+);
+const ajv = new Ajv();
+ajv.addFormat('date', /^\d{4}-\d{2}-\d{2}$/);
+const validateOsf = ajv.compile(schema);
 
 function renderHtml(doc: OSFDocument): string {
   const parts: string[] = ['<html><body>'];
@@ -117,6 +126,46 @@ function exportMarkdown(doc: OSFDocument): string {
   return out.join('\n');
 }
 
+function toSchema(doc: OSFDocument): any {
+  const out: any = { docs: [], slides: [], sheets: [] };
+  for (const block of doc.blocks) {
+    switch (block.type) {
+      case 'meta':
+        out.meta = block.props;
+        break;
+      case 'doc':
+        out.docs.push({ content: (block as any).content });
+        break;
+      case 'slide': {
+        const s: any = { ...block };
+        delete s.type;
+        out.slides.push(s);
+        break;
+      }
+      case 'sheet': {
+        const s: any = { ...block };
+        delete s.type;
+        if (s.data) {
+          s.data = Object.entries(s.data).map(([cell, value]) => {
+            const [r, c] = cell.split(',').map(Number);
+            return { row: r, col: c, value };
+          });
+        }
+        if (s.formulas) {
+          s.formulas = s.formulas.map((f: any) => ({
+            row: f.cell[0],
+            col: f.cell[1],
+            expr: f.expr,
+          }));
+        }
+        out.sheets.push(s);
+        break;
+      }
+    }
+  }
+  return out;
+}
+
 function load(file: string): string {
   return readFileSync(file, 'utf8');
 }
@@ -132,8 +181,15 @@ switch (command) {
   }
   case 'lint': {
     try {
-      parse(load(rest[0]));
-      console.log('OK');
+      const doc = parse(load(rest[0]));
+      const obj = toSchema(doc);
+      if (!validateOsf(obj)) {
+        console.error('Lint error: schema validation failed');
+        console.error(ajv.errorsText(validateOsf.errors || undefined));
+        process.exit(1);
+      } else {
+        console.log('OK');
+      }
     } catch (err: any) {
       console.error(`Lint error: ${err.message}`);
       process.exit(1);
