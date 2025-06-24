@@ -1,0 +1,46 @@
+// Rich OSF document showcasing slides and a sheet
+@meta {
+  title: "Rich OSF Demo";
+  author: "Example Bot";
+  date: "2025-07-04";
+  theme: "Modern";
+}
+
+// Opening slide with notes
+@slide {
+  title: "Welcome";
+  layout: TitleOnly;
+  notes: "Introductory remarks";
+}
+
+// Agenda slide outlining the talk
+@slide {
+  title: "Agenda";
+  bullets {
+    "Overview";
+    "Data Review";
+    "Next Steps";
+  }
+}
+
+// Growth metrics slide
+@slide {
+  title: "Quarterly Growth";
+  layout: TitleAndBullets;
+  bullets {
+    "Q1 \u2191 10%";
+    "Q2 \u2191 12%";
+    "Q3 forecast \u2191 15%";
+  }
+}
+
+// Sheet with formulas to calculate growth percentage
+@sheet {
+  name: "GrowthData";
+  cols: [Quarter, Sales, Increase%];
+  data {
+    (2,1) = "Q1"; (2,2) = 100;
+    (3,1) = "Q2"; (3,2) = 112;
+  }
+  formula (3,3): "=(B3-B2)/B2*100";
+}
