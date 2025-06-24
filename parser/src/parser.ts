@@ -14,6 +14,9 @@ function findBlocks(input: string): { type: string; content: string }[] {
       else if (ch === '}') depth--;
       end++;
     }
+    if (depth > 0) {
+      throw new Error(`Missing closing } for block ${type}`);
+    }
     const content = input.slice(match.index + match[0].length, end - 1);
     blocks.push({ type, content: content.trim() });
   }
