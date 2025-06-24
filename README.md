@@ -89,6 +89,18 @@ See [docs/spec-v0.5-overview.md](docs/spec-v0.5-overview.md) for an introduction
 
 ---
 
+## 🛠 Getting Started
+
+Ensure **Node.js 18+** is installed, then run:
+
+```bash
+npm install
+npm run build
+npm test
+```
+
+---
+
 ## 🚀 CLI Features
 
 The reference CLI implements several spec-defined commands:
