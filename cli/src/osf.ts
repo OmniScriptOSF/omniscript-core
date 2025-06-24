@@ -70,6 +70,15 @@ function exportMarkdown(doc: OSFDocument): string {
   const out: string[] = [];
   for (const block of doc.blocks) {
     switch (block.type) {
+      case 'meta':
+        out.push('---');
+        for (const [k, v] of Object.entries((block as any).props)) {
+          if (typeof v === 'string') out.push(`${k}: ${v}`);
+          else out.push(`${k}: ${JSON.stringify(v)}`);
+        }
+        out.push('---');
+        out.push('');
+        break;
       case 'doc':
         out.push((block as any).content);
         break;
@@ -82,6 +91,36 @@ function exportMarkdown(doc: OSFDocument): string {
         }
         out.push('');
         break;
+      case 'sheet': {
+        const sheet = block as any;
+        if (sheet.cols) {
+          const cols = Array.isArray(sheet.cols)
+            ? sheet.cols
+            : String(sheet.cols)
+                .replace(/[\[\]]/g, '')
+                .split(',')
+                .map((s: string) => s.trim());
+          out.push('| ' + cols.join(' | ') + ' |');
+          out.push('|' + cols.map(() => '---').join('|') + '|');
+        }
+        if (sheet.data) {
+          const rows: Record<string, any> = sheet.data;
+          const coords = Object.keys(rows).map(k => k.split(',').map(Number));
+          const maxRow = Math.max(...coords.map(c => c[0]));
+          const maxCol = Math.max(...coords.map(c => c[1]));
+          for (let r = 1; r <= maxRow; r++) {
+            const cells: string[] = [];
+            for (let c = 1; c <= maxCol; c++) {
+              const key = `${r},${c}`;
+              const val = rows[key] ?? '';
+              cells.push(String(val));
+            }
+            out.push('| ' + cells.join(' | ') + ' |');
+          }
+        }
+        out.push('');
+        break;
+      }
     }
   }
   return out.join('\n');
