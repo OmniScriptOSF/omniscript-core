@@ -1,0 +1,5 @@
+# File: pnpm-workspace.yaml
+
+packages:
+  - 'parser'
+  - 'cli' 

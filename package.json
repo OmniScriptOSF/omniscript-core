@@ -1,17 +1,69 @@
 {
   "name": "omniscript-core",
-  "private": true,
   "version": "0.1.0",
-  "workspaces": ["parser", "cli"],
-  "scripts": {
-    "build": "npx tsc -p parser/tsconfig.json && npx tsc -p cli/tsconfig.json",
-    "prepare": "npm run build",
-    "pretest": "npx tsc -p parser/tsconfig.json && npx tsc -p cli/tsconfig.json",
-    "test": "npx ts-node parser/tests/parser.test.ts && node tests/e2e.test.js && node cli/tests/cli.test.ts && node cli/tests/lint.test.ts && node cli/tests/diff.test.ts && node cli/tests/export.test.ts && node cli/tests/error.test.ts"
+  "description": "OmniScript Format (OSF) - universal document DSL for LLMs, agentic AI, and Git-native workflows",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
   },
+  "packageManager": "pnpm@10.12.1",
+  "workspaces": [
+    "parser",
+    "cli"
+  ],
+  "scripts": {
+    "build": "pnpm run build:parser && pnpm run build:cli",
+    "build:parser": "pnpm --filter ./parser run build",
+    "build:cli": "pnpm --filter ./cli run build",
+    "clean": "rimraf parser/dist cli/dist coverage",
+    "dev": "pnpm run build --watch",
+    "format": "prettier --write \"**/*.{ts,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,js,json,md}\"",
+    "lint": "eslint . --ext .ts,.js --fix",
+    "lint:check": "eslint . --ext .ts,.js",
+    "prepare": "pnpm run build",
+    "pretest": "pnpm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit -p parser/tsconfig.json && tsc --noEmit -p cli/tsconfig.json"
+  },
+  "keywords": [
+    "document",
+    "dsl",
+    "llm",
+    "ai",
+    "osf",
+    "omniscript",
+    "parser",
+    "markdown",
+    "slides",
+    "spreadsheet"
+  ],
+  "author": "Alphin Tom <alpha912@github.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OmniScriptOSF/omniscript-core.git"
+  },
+  "bugs": {
+    "url": "https://github.com/OmniScriptOSF/omniscript-core/issues"
+  },
+  "homepage": "https://github.com/OmniScriptOSF/omniscript-core#readme",
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "ts-node": "^10.0.0",
-    "@types/node": "^20.9.0"
+    "@types/node": "^22.15.31",
+    "@typescript-eslint/eslint-plugin": "^8.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.5.3",
+    "rimraf": "^6.0.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.8"
   }
 }

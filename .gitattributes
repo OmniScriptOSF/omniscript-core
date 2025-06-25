@@ -1,0 +1,48 @@
+# File: .gitattributes
+
+# Set default behavior to automatically normalize line endings
+* text=auto eol=lf
+
+# Force specific files to use LF line endings
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.osf text eol=lf
+
+# Declare files that will always have CRLF line endings on checkout
+*.bat text eol=crlf
+
+# Denote all files that are truly binary and should not be modified
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.mov binary
+*.mp4 binary
+*.mp3 binary
+*.flv binary
+*.fla binary
+*.swf binary
+*.gz binary
+*.zip binary
+*.7z binary
+*.ttf binary
+*.eot binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+
+# Archive files
+*.tar linguist-generated=true
+*.zip linguist-generated=true
+
+# Generated files
+dist/ linguist-generated=true
+coverage/ linguist-generated=true
+*.min.js linguist-generated=true
+*.min.css linguist-generated=true 

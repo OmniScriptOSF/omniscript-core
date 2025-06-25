@@ -1,25 +1,37 @@
 import { OSFDocument, OSFBlock, MetaBlock, DocBlock, SlideBlock, SheetBlock } from './types';
 
-function findBlocks(input: string): { type: string; content: string }[] {
-  const blocks: { type: string; content: string }[] = [];
+interface RawBlock {
+  type: string;
+  content: string;
+}
+
+function findBlocks(input: string): RawBlock[] {
+  const blocks: RawBlock[] = [];
   const regex = /@(\w+)\s*\{/g;
   let match: RegExpExecArray | null;
+
   while ((match = regex.exec(input))) {
     const type = match[1];
+    if (!type) continue;
+
     let depth = 1;
     let end = match.index + match[0].length;
+
     while (end < input.length && depth > 0) {
       const ch = input[end];
       if (ch === '{') depth++;
       else if (ch === '}') depth--;
       end++;
     }
+
     if (depth > 0) {
       throw new Error(`Missing closing } for block ${type}`);
     }
+
     const content = input.slice(match.index + match[0].length, end - 1);
     blocks.push({ type, content: content.trim() });
   }
+
   return blocks;
 }
 
@@ -47,11 +59,11 @@ function skipWS(str: string, i: number): number {
 
 function parseIdentifier(str: string, i: number): { id: string; index: number } {
   const start = i;
-  if (i >= str.length || !/[A-Za-z]/.test(str[i])) {
+  if (i >= str.length || !/[A-Za-z]/.test(str[i]!)) {
     throw new Error('Expected identifier starting with a letter');
   }
   i++; // consume first letter
-  while (i < str.length && /[A-Za-z0-9_%]/.test(str[i])) i++;
+  while (i < str.length && /[A-Za-z0-9_%]/.test(str[i]!)) i++;
   return { id: str.slice(start, i), index: i };
 }
 
@@ -66,13 +78,15 @@ function parseString(str: string, i: number): { value: string; index: number } {
 
 function parseNumber(str: string, i: number): { value: number; index: number } {
   let j = i;
-  while (j < str.length && /[0-9.]/.test(str[j])) j++;
+  while (j < str.length && /[0-9.]/.test(str[j]!)) j++;
   return { value: Number(str.slice(i, j)), index: j };
 }
 
 function parseValue(str: string, i: number): { value: any; index: number } {
   i = skipWS(str, i);
   const ch = str[i];
+  if (!ch) throw new Error('Unexpected end of input');
+
   if (ch === '"') return parseString(str, i);
   if (ch === '[') {
     i++;
@@ -128,49 +142,80 @@ export function parse(input: string): OSFDocument {
   const blocksRaw = findBlocks(input);
   const blocks: OSFBlock[] = blocksRaw.map(b => {
     switch (b.type) {
-      case 'meta':
+      case 'meta': {
         const props = parseKV(b.content);
         return { type: 'meta', props } as MetaBlock;
-      case 'doc':
+      }
+      case 'doc': {
         return { type: 'doc', content: b.content } as DocBlock;
-      case 'slide':
+      }
+      case 'slide': {
         const slide: SlideBlock = { type: 'slide' };
         const bulletMatch = /bullets\s*\{([\s\S]*?)\}/.exec(b.content);
         if (bulletMatch) {
-          const items = bulletMatch[1].split(/;\s*/).map(s => s.trim()).filter(Boolean);
-          slide.bullets = items.map(it => it.replace(/^"|"$/g, ''));
+          const bulletContent = bulletMatch[1];
+          if (bulletContent) {
+            const items = bulletContent
+              .split(/;\s*/)
+              .map(s => s.trim())
+              .filter(Boolean);
+            slide.bullets = items.map(it => it.replace(/^"|"$/g, ''));
+          }
         }
         const rest = b.content.replace(/bullets\s*\{[\s\S]*?\}/, '');
         Object.assign(slide, parseKV(rest));
         return slide;
-      case 'sheet':
+      }
+      case 'sheet': {
         const sheet: SheetBlock = { type: 'sheet', data: {}, formulas: [] };
         const dataMatch = /data\s*\{([\s\S]*?)\}/.exec(b.content);
         if (dataMatch) {
-          const assigns = dataMatch[1].split(/;\s*/).map(s => s.trim()).filter(Boolean);
-          for (const a of assigns) {
-            const m = /^\((\d+),(\d+)\)\s*=\s*(.+)$/.exec(a);
-            if (m) {
-              const key = `${m[1]},${m[2]}`;
-              let val: any = m[3];
-              if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
-              else if (!isNaN(Number(val))) val = Number(val);
-              sheet.data![key] = val;
+          const dataContent = dataMatch[1];
+          if (dataContent) {
+            const assigns = dataContent
+              .split(/;\s*/)
+              .map(s => s.trim())
+              .filter(Boolean);
+            for (const a of assigns) {
+              const m = /^\((\d+),(\d+)\)\s*=\s*(.+)$/.exec(a);
+              if (m) {
+                const row = m[1];
+                const col = m[2];
+                const value = m[3];
+                if (row && col && value !== undefined) {
+                  const key = `${row},${col}`;
+                  let val: any = value;
+                  if (val.startsWith('"') && val.endsWith('"')) {
+                    val = val.slice(1, -1);
+                  } else if (!isNaN(Number(val))) {
+                    val = Number(val);
+                  }
+                  sheet.data![key] = val;
+                }
+              }
             }
           }
         }
         const formulaRegex = /formula\s*\((\d+),(\d+)\)\s*:\s*"([^"]*)";/g;
         let fm: RegExpExecArray | null;
         while ((fm = formulaRegex.exec(b.content))) {
-          sheet.formulas!.push({ cell: [Number(fm[1]), Number(fm[2])], expr: fm[3] });
+          const row = fm[1];
+          const col = fm[2];
+          const expr = fm[3];
+          if (row && col && expr) {
+            sheet.formulas!.push({
+              cell: [Number(row), Number(col)],
+              expr,
+            });
+          }
         }
-        const restSheet = b.content
-          .replace(/data\s*\{[\s\S]*?\}/, '')
-          .replace(formulaRegex, '');
+        const restSheet = b.content.replace(/data\s*\{[\s\S]*?\}/, '').replace(formulaRegex, '');
         Object.assign(sheet, parseKV(restSheet));
         return sheet;
-      default:
+      }
+      default: {
         return { type: 'doc', content: b.content } as DocBlock;
+      }
     }
   });
   return { blocks };
@@ -192,48 +237,74 @@ export function serialize(doc: OSFDocument): string {
   return doc.blocks
     .map(b => {
       switch (b.type) {
-        case 'meta':
-          const entries = Object.entries(b.props)
-            .map(([k, v]) => `${k}: ${serializeValue(v)};`)
-            .join(' ');
-          return `@meta {\n  ${entries}\n}`;
-        case 'doc':
-          return `@doc {\n${b.content}\n}`;
-        case 'slide':
-          const bulletStr = b.bullets && b.bullets.length
-            ? `bullets {\n    ${b.bullets.map(i => '"' + i + '";').join(' ')}\n  }\n`
-            : '';
-          const other = { ...b } as any;
-          delete other.type;
-          delete other.bullets;
-          const kv = Object.entries(other)
-            .map(([k, v]) => `${k}: ${serializeValue(v)};`)
-            .join(' ');
-          return `@slide {\n  ${kv}\n  ${bulletStr}}`;
-        case 'sheet':
+        case 'meta': {
+          const metaBlock = b as MetaBlock;
+          const entries = Object.entries(metaBlock.props)
+            .map(([k, v]) => `  ${k}: ${serializeValue(v)};`)
+            .join('\n');
+          return `@meta {\n${entries}\n}`;
+        }
+        case 'doc': {
+          const docBlock = b as DocBlock;
+          return `@doc {\n${docBlock.content}\n}`;
+        }
+        case 'slide': {
+          const slideBlock = b as SlideBlock;
           const parts: string[] = [];
-          const otherSheet = { ...b } as any;
-          delete otherSheet.type;
-          const dataObj = otherSheet.data; delete otherSheet.data;
-          const formulas = otherSheet.formulas; delete otherSheet.formulas;
-          const kvs = Object.entries(otherSheet)
-            .map(([k, v]) => `${k}: ${serializeValue(v)};`)
-            .join(' ');
-          if (kvs) parts.push(kvs);
-          if (dataObj && Object.keys(dataObj).length) {
-            const rows = Object.entries(dataObj)
-              .map(([cell, val]) => `(${cell})=${serializeValue(val)};`)
-              .join(' ');
-            parts.push(`data {\n    ${rows}\n  }`);
-          }
-          if (formulas && formulas.length) {
-            for (const f of formulas) {
-              parts.push(`formula (${f.cell[0]},${f.cell[1]}): "${f.expr}";`);
+
+          // Add other properties first
+          const { bullets, ...otherProps } = slideBlock;
+          Object.entries(otherProps).forEach(([k, v]) => {
+            if (k !== 'type' && v !== undefined) {
+              parts.push(`  ${k}: ${serializeValue(v)};`);
             }
+          });
+
+          // Add bullets if they exist
+          if (bullets && bullets.length > 0) {
+            parts.push('  bullets {');
+            bullets.forEach(bullet => {
+              parts.push(`    "${bullet}";`);
+            });
+            parts.push('  }');
           }
-          return `@sheet {\n  ${parts.join('\n  ')}\n}`;
-        default:
-          return '';
+
+          return `@slide {\n${parts.join('\n')}\n}`;
+        }
+        case 'sheet': {
+          const sheetBlock = b as SheetBlock;
+          const parts: string[] = [];
+
+          // Add other properties first
+          const { data, formulas, ...otherProps } = sheetBlock;
+          Object.entries(otherProps).forEach(([k, v]) => {
+            if (k !== 'type' && v !== undefined) {
+              parts.push(`  ${k}: ${serializeValue(v)};`);
+            }
+          });
+
+          // Add data if it exists
+          if (data && Object.keys(data).length > 0) {
+            parts.push('  data {');
+            Object.entries(data).forEach(([key, value]) => {
+              parts.push(`    (${key}) = ${serializeValue(value)};`);
+            });
+            parts.push('  }');
+          }
+
+          // Add formulas if they exist
+          if (formulas && formulas.length > 0) {
+            formulas.forEach(formula => {
+              const [row, col] = formula.cell;
+              parts.push(`  formula (${row},${col}): "${formula.expr}";`);
+            });
+          }
+
+          return `@sheet {\n${parts.join('\n')}\n}`;
+        }
+        default: {
+          return `@doc {\n${(b as any).content || ''}\n}`;
+        }
       }
     })
     .join('\n\n');

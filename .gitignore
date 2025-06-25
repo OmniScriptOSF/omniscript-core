@@ -134,3 +134,40 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Additional modern tooling artifacts
+.vitest/
+.eslintcache
+.prettierrc.cache
+.swc/
+.turbo/
+
+# Package manager lockfiles (when using different managers)
+# yarn.lock
+# pnpm-lock.yaml
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Test fixtures and temporary files
+**/fixtures/*.tmp
+**/fixtures/output.*
+test-output/
+tmp/
+
+# Release artifacts
+release/
+dist-release/

@@ -1,12 +1,314 @@
-name: CI
-on: [push, pull_request]
+name: CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22.16.0'
+  PNPM_VERSION: '10.12.1'
+
 jobs:
-  build:
+  test:
+    name: Test
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
-      - run: npm install
-      - run: npm test
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+            
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Type check
+        run: pnpm run typecheck
+        
+      - name: Build packages
+        run: pnpm run build
+        
+      - name: Run tests
+        run: pnpm run test:coverage
+        
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+          
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+            
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Check formatting
+        run: pnpm run format:check
+        
+      - name: Run linter
+        run: pnpm run lint:check
+
+  cli-integration:
+    name: CLI Integration Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Build packages
+        run: pnpm run build
+        
+      - name: Test CLI - Parse
+        run: node cli/dist/osf.js parse examples/v0.5_spec_example.osf
+        
+      - name: Test CLI - Lint
+        run: node cli/dist/osf.js lint examples/v0.5_spec_example.osf
+        
+      - name: Test CLI - Format
+        run: node cli/dist/osf.js format examples/v0.5_spec_example.osf
+        
+      - name: Test CLI - Render HTML
+        run: node cli/dist/osf.js render examples/v0.5_spec_example.osf --format html
+        
+      - name: Test CLI - Export Markdown
+        run: node cli/dist/osf.js export examples/v0.5_spec_example.osf --target md
+        
+      - name: Test CLI - Export JSON
+        run: node cli/dist/osf.js export examples/v0.5_spec_example.osf --target json
+        
+      - name: Test CLI - Help
+        run: node cli/dist/osf.js --help
+        
+      - name: Test CLI - Version
+        run: node cli/dist/osf.js --version
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Run security audit
+        run: pnpm audit
+        continue-on-error: true
+        
+      - name: Run Semgrep security scan
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: auto
+        continue-on-error: true
+
+  compatibility:
+    name: Node.js Compatibility
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: ['18.x', '20.x', '22.x']
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Build packages
+        run: pnpm run build
+        
+      - name: Run tests
+        run: pnpm run test
+
+  publish:
+    name: Publish to NPM
+    runs-on: ubuntu-latest
+    needs: [test, lint, cli-integration, security]
+    if: github.event_name == 'release' && github.event.action == 'published'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Build packages
+        run: pnpm run build
+        
+      - name: Publish to NPM
+        run: |
+          cd parser && npm publish --access public
+          cd ../cli && npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  release-assets:
+    name: Build Release Assets
+    runs-on: ubuntu-latest
+    needs: [test, lint, cli-integration]
+    if: github.event_name == 'release' && github.event.action == 'published'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        
+      - name: Build packages
+        run: pnpm run build
+        
+      - name: Create CLI bundle
+        run: |
+          mkdir -p release/osf-cli
+          cp -r cli/dist release/osf-cli/
+          cp cli/package.json release/osf-cli/
+          cp README.md release/osf-cli/
+          cp LICENSE release/osf-cli/
+          
+      - name: Create archives
+        run: |
+          cd release
+          tar -czf osf-cli-${{ github.event.release.tag_name }}.tar.gz osf-cli/
+          zip -r osf-cli-${{ github.event.release.tag_name }}.zip osf-cli/
+          
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./release/osf-cli-${{ github.event.release.tag_name }}.tar.gz
+          asset_name: osf-cli-${{ github.event.release.tag_name }}.tar.gz
+          asset_content_type: application/gzip
+          
+      - name: Upload release assets (zip)
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./release/osf-cli-${{ github.event.release.tag_name }}.zip
+          asset_name: osf-cli-${{ github.event.release.tag_name }}.zip
+          asset_content_type: application/zip
