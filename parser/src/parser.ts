@@ -70,10 +70,35 @@ function parseIdentifier(str: string, i: number): { id: string; index: number } 
 function parseString(str: string, i: number): { value: string; index: number } {
   let j = i + 1;
   let out = '';
-  while (j < str.length && str[j] !== '"') {
-    out += str[j++];
+  while (j < str.length) {
+    const ch = str[j++];
+    if (ch === '\\') {
+      const next = str[j++];
+      if (next === undefined) throw new Error('Unexpected end of input in string');
+      switch (next) {
+        case 'n':
+          out += '\n';
+          break;
+        case 't':
+          out += '\t';
+          break;
+        case '"':
+          out += '"';
+          break;
+        case '\\':
+          out += '\\';
+          break;
+        default:
+          out += next;
+          break;
+      }
+    } else if (ch === '"') {
+      return { value: out, index: j };
+    } else {
+      out += ch;
+    }
   }
-  return { value: out, index: j + 1 };
+  throw new Error('Unterminated string');
 }
 
 function parseNumber(str: string, i: number): { value: number; index: number } {
@@ -229,7 +254,14 @@ function serializeValue(v: any): string {
       .join(' ');
     return `{ ${inner} }`;
   }
-  if (typeof v === 'string') return `"${v}"`;
+  if (typeof v === 'string') {
+    const escaped = v
+      .replace(/\\/g, '\\\\')
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\t/g, '\\t');
+    return `"${escaped}"`;
+  }
   return String(v);
 }
 

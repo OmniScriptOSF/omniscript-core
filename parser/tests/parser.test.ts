@@ -236,6 +236,28 @@ describe('OSF Parser', () => {
       expect(result).toContain('(1,2) = 100;');
       expect(result).toContain('formula (1,3): "=A1+B1";');
     });
+
+    it('should serialize strings with escapes', () => {
+      const doc: OSFDocument = {
+        blocks: [
+          {
+            type: 'meta',
+            props: {
+              title: 'A "Complex" Title',
+              note: 'Line1\nLine2',
+            },
+          } as MetaBlock,
+        ],
+      };
+
+      const result = serialize(doc);
+      expect(result).toContain('title: "A \\"Complex\\" Title";');
+      expect(result).toContain('note: "Line1\\nLine2";');
+      const parsed = parse(result);
+      const metaBlock = parsed.blocks[0] as MetaBlock;
+      expect(metaBlock.props.title).toBe('A "Complex" Title');
+      expect(metaBlock.props.note).toBe('Line1\nLine2'.replace('\\n', '\n'));
+    });
   });
 
   describe('round-trip parsing', () => {
