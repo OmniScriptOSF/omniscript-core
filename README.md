@@ -10,7 +10,7 @@ OmniScript Format (OSF) unifies the strengths of:
 - **XLSX / YAML / JSON**: data tables, live formulas, charts
 
 `omniscript-core` provides the formal specification, parser, serializer, and
-reference CLI tooling for OSF.
+reference CLI tooling for OSF. **Current version: v0.5.0.**
 
 ---
 

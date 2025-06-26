@@ -1,6 +1,6 @@
 {
   "name": "@osf/cli",
-  "version": "0.1.0",
+  "version": "0.5.0",
   "description": "OmniScript Format (OSF) CLI tools",
   "main": "dist/osf.js",
   "bin": {
