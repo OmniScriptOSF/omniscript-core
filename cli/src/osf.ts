@@ -114,6 +114,44 @@ function saveFile(filePath: string, content: string): void {
   }
 }
 
+// --- Spreadsheet formula helpers ---
+
+function columnToNumber(col: string): number {
+  let n = 0;
+  for (const ch of col.toUpperCase()) {
+    n = n * 26 + (ch.charCodeAt(0) - 64);
+  }
+  return n;
+}
+
+function evalExpr(expr: string, get: (r: number, c: number) => any): number {
+  const inner = expr.startsWith('=') ? expr.slice(1) : expr;
+  const replaced = inner.replace(/[A-Za-z]+\d+/g, ref => {
+    const m = /^([A-Za-z]+)(\d+)$/.exec(ref);
+    if (!m) return '0';
+    const col = columnToNumber(m[1]!);
+    const row = Number(m[2]!);
+    const val = get(row, col);
+    return String(val ?? 0);
+  });
+  try {
+    return Function(`"use strict"; return (${replaced});`)();
+  } catch {
+    return NaN;
+  }
+}
+
+function applyFormulas(sheet: any): Record<string, any> {
+  const result: Record<string, any> = { ...(sheet.data || {}) };
+  if (sheet.data && sheet.formulas) {
+    const getter = (r: number, c: number) => result[`${r},${c}`];
+    for (const f of sheet.formulas) {
+      result[`${f.cell[0]},${f.cell[1]}`] = evalExpr(f.expr, getter);
+    }
+  }
+  return result;
+}
+
 function renderHtml(doc: OSFDocument): string {
   const parts: string[] = [
     '<!DOCTYPE html>',
@@ -196,7 +234,7 @@ function renderHtml(doc: OSFDocument): string {
 
         if (sheet.data) {
           parts.push('    <tbody>');
-          const rows: Record<string, any> = sheet.data;
+          const rows: Record<string, any> = applyFormulas(sheet);
           const coords = Object.keys(rows).map(k => k.split(',').map(Number));
           const maxRow = Math.max(...coords.map(c => c[0]!));
           const maxCol = Math.max(...coords.map(c => c[1]!));
@@ -278,7 +316,7 @@ function exportMarkdown(doc: OSFDocument): string {
         }
 
         if (sheet.data) {
-          const rows: Record<string, any> = sheet.data;
+          const rows: Record<string, any> = applyFormulas(sheet);
           const coords = Object.keys(rows).map(k => k.split(',').map(Number));
           const maxRow = Math.max(...coords.map(c => c[0]!));
           const maxCol = Math.max(...coords.map(c => c[1]!));
@@ -323,7 +361,8 @@ function exportJson(doc: OSFDocument): string {
         const sheet: any = { ...block };
         delete sheet.type;
         if (sheet.data) {
-          sheet.data = Object.entries(sheet.data).map(([cell, value]) => {
+          const rows = applyFormulas(sheet);
+          sheet.data = Object.entries(rows).map(([cell, value]) => {
             const [r, c] = cell.split(',').map(Number);
             return { row: r, col: c, value };
           });

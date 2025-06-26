@@ -170,6 +170,12 @@ describe('OSF CLI', () => {
       expect(result).toContain('<table>');
     });
 
+    it('should compute formulas in rendered HTML', () => {
+      const result = execSync(`node "${CLI_PATH}" render "${testFile}"`, { encoding: 'utf8' });
+      expect(result).toContain('<td>0</td>');
+      expect(result).toContain('<td>15</td>');
+    });
+
     it('should render OSF to HTML file', () => {
       execSync(`node "${CLI_PATH}" render "${testFile}" --output "${outputFile}"`, {
         encoding: 'utf8',
@@ -198,6 +204,8 @@ describe('OSF CLI', () => {
       expect(result).toContain('## Test Slide');
       expect(result).toContain('- First bullet');
       expect(result).toContain('| Column1 | Column2 | Growth |');
+      expect(result).toContain('| Q1 | 100 | 0 |');
+      expect(result).toContain('| Q2 | 115 | 15 |');
     });
 
     it('should export OSF to JSON', () => {
@@ -210,6 +218,12 @@ describe('OSF CLI', () => {
       expect(exported.docs).toHaveLength(1);
       expect(exported.slides).toHaveLength(1);
       expect(exported.sheets).toHaveLength(1);
+      const cells: Record<string, any> = {};
+      exported.sheets[0].data.forEach((d: any) => {
+        cells[`${d.row},${d.col}`] = d.value;
+      });
+      expect(cells['2,3']).toBe(0);
+      expect(cells['3,3']).toBe(15);
     });
 
     it('should export OSF to file', () => {
