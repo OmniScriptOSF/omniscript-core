@@ -22,6 +22,13 @@ describe('OSF Parser', () => {
       expect(metaBlock.props.date).toBe('2025-01-01');
     });
 
+    it('should parse negative numbers', () => {
+      const input = `@meta { value: -42; }`;
+      const result = parse(input);
+      const metaBlock = result.blocks[0] as MetaBlock;
+      expect(metaBlock.props.value).toBe(-42);
+    });
+
     it('should parse a doc block', () => {
       const input = `@doc {
         # Test Document
