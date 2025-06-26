@@ -2,7 +2,7 @@
 
 This project follows the OSF v0.5 specification located under `spec/v0.5`. The
 core blocks – `@meta`, `@doc`, `@slide` and `@sheet` – are implemented as
-described in that draft.
+described in that release.
 
 - **Parser simplicity** – The reference parser mirrors the grammar in
   `spec/v0.5/grammar.ebnf` to keep implementations easy to understand.
