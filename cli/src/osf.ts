@@ -31,8 +31,9 @@ const commands: CliCommand[] = [
   },
   {
     name: 'render',
-    description: 'Render OSF to HTML output',
-    usage: 'osf render <file> [--format <html>] [--output <file>]',
+    description: 'Render OSF to various output formats',
+    usage:
+      'osf render <file> [--format <html|pdf|docx|pptx|xlsx>] [--output <file>]',
     args: ['file'],
   },
   {
@@ -71,6 +72,7 @@ function showHelp(): void {
   console.log('\nExamples:');
   console.log('  osf parse document.osf');
   console.log('  osf render slides.osf --format html');
+  console.log('  osf render slides.osf --format pdf');
   console.log('  osf export data.osf --target md --output output.md');
 }
 
@@ -221,6 +223,31 @@ function renderHtml(doc: OSFDocument): string {
 
   parts.push('</body>', '</html>');
   return parts.join('\n');
+}
+
+// Basic stubs for additional formats
+function renderPdf(doc: OSFDocument): string {
+  void doc; // placeholder usage
+  // TODO: real PDF rendering
+  return 'PDF rendering not implemented.';
+}
+
+function renderDocx(doc: OSFDocument): string {
+  void doc;
+  // TODO: real DOCX rendering
+  return 'DOCX rendering not implemented.';
+}
+
+function renderPptx(doc: OSFDocument): string {
+  void doc;
+  // TODO: real PPTX rendering
+  return 'PPTX rendering not implemented.';
+}
+
+function renderXlsx(doc: OSFDocument): string {
+  void doc;
+  // TODO: real XLSX rendering
+  return 'XLSX rendering not implemented.';
 }
 
 function exportMarkdown(doc: OSFDocument): string {
@@ -418,8 +445,22 @@ function main(): void {
           case 'html':
             output = renderHtml(doc);
             break;
+          case 'pdf':
+            output = renderPdf(doc);
+            break;
+          case 'docx':
+            output = renderDocx(doc);
+            break;
+          case 'pptx':
+            output = renderPptx(doc);
+            break;
+          case 'xlsx':
+            output = renderXlsx(doc);
+            break;
           default:
-            throw new Error(`Unknown format: ${format}. Supported: html`);
+            throw new Error(
+              `Unknown format: ${format}. Supported: html, pdf, docx, pptx, xlsx`
+            );
         }
 
         if (outputFile) {
