@@ -60,6 +60,21 @@ describe('OSF Parser', () => {
       expect(slideBlock.bullets).toEqual(['First bullet', 'Second bullet', 'Third bullet']);
     });
 
+    it('should parse bullets containing braces', () => {
+      const input = `@slide {
+        bullets {
+          "Item with } brace";
+          "Another";
+        }
+      }`;
+
+      const result = parse(input);
+
+      expect(result.blocks).toHaveLength(1);
+      const slideBlock = result.blocks[0] as SlideBlock;
+      expect(slideBlock.bullets).toEqual(['Item with } brace', 'Another']);
+    });
+
     it('should parse a sheet block with data and formulas', () => {
       const input = `@sheet {
         name: "TestSheet";

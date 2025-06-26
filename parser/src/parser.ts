@@ -114,6 +114,55 @@ function parseValue(str: string, i: number): { value: any; index: number } {
   return { value: id.id, index: id.index };
 }
 
+function parseBullets(str: string, i: number): { bullets: string[]; index: number } {
+  i = skipWS(str, i);
+  if (str[i] !== '{') throw new Error('Expected {');
+  i++;
+  const bullets: string[] = [];
+  while (i < str.length) {
+    i = skipWS(str, i);
+    if (i >= str.length) break;
+    if (str[i] === '}') {
+      i++;
+      break;
+    }
+    const res = parseValue(str, i);
+    if (typeof res.value !== 'string') throw new Error('Bullets must be strings');
+    bullets.push(res.value);
+    i = skipWS(str, res.index);
+    if (str[i] !== ';') throw new Error('Expected ;');
+    i++;
+  }
+  return { bullets, index: i };
+}
+
+function parseSlideContent(str: string): SlideBlock {
+  const slide: SlideBlock = { type: 'slide' };
+  let i = 0;
+  while (i < str.length) {
+    i = skipWS(str, i);
+    if (i >= str.length) break;
+    if (str.startsWith('bullets', i)) {
+      i += 'bullets'.length;
+      const res = parseBullets(str, i);
+      slide.bullets = res.bullets;
+      i = res.index;
+      continue;
+    }
+    const keyRes = parseIdentifier(str, i);
+    const key = keyRes.id;
+    i = skipWS(str, keyRes.index);
+    if (str[i] !== ':') throw new Error('Expected :');
+    i++;
+    const valRes = parseValue(str, i);
+    i = skipWS(str, valRes.index);
+    if (str[i] !== ';') throw new Error('Expected ;');
+    i++;
+    (slide as any)[key] = valRes.value;
+  }
+  return slide;
+}
+
 function parseKVInternal(str: string, i: number): { obj: Record<string, any>; index: number } {
   const obj: Record<string, any> = {};
   while (i < str.length) {
@@ -150,21 +199,7 @@ export function parse(input: string): OSFDocument {
         return { type: 'doc', content: b.content } as DocBlock;
       }
       case 'slide': {
-        const slide: SlideBlock = { type: 'slide' };
-        const bulletMatch = /bullets\s*\{([\s\S]*?)\}/.exec(b.content);
-        if (bulletMatch) {
-          const bulletContent = bulletMatch[1];
-          if (bulletContent) {
-            const items = bulletContent
-              .split(/;\s*/)
-              .map(s => s.trim())
-              .filter(Boolean);
-            slide.bullets = items.map(it => it.replace(/^"|"$/g, ''));
-          }
-        }
-        const rest = b.content.replace(/bullets\s*\{[\s\S]*?\}/, '');
-        Object.assign(slide, parseKV(rest));
-        return slide;
+        return parseSlideContent(b.content);
       }
       case 'sheet': {
         const sheet: SheetBlock = { type: 'sheet', data: {}, formulas: [] };
