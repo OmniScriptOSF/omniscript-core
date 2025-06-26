@@ -254,9 +254,12 @@ describe('OSF CLI', () => {
       writeFileSync(testFile2, differentOSF, 'utf8');
 
       try {
-        expect(() => {
-          execSync(`node "${CLI_PATH}" diff "${testFile}" "${testFile2}"`, { encoding: 'utf8' });
-        }).toThrow();
+        execSync(`node "${CLI_PATH}" diff "${testFile}" "${testFile2}"`, { encoding: 'utf8' });
+        throw new Error('diff should fail');
+      } catch (err: any) {
+        const output = (err.stdout || '') as string;
+        expect(output).toContain('❌ Documents differ');
+        expect(output).toContain('title');
       } finally {
         if (existsSync(testFile2)) {
           unlinkSync(testFile2);
