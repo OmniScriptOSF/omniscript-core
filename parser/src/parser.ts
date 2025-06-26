@@ -138,6 +138,45 @@ function parseKV(content: string): Record<string, any> {
   return parseKVInternal(cleaned, 0).obj;
 }
 
+function parseBulletItems(content: string): string[] {
+  const items: string[] = [];
+  const regex = /"([^"\\]*(?:\\.[^"\\]*)*)"\s*;/g;
+  let m: RegExpExecArray | null;
+  while ((m = regex.exec(content))) {
+    if (m[1] !== undefined) {
+      items.push(m[1]);
+    }
+  }
+  return items;
+}
+
+function parseDataAssignments(content: string): Record<string, any> {
+  const data: Record<string, any> = {};
+  let i = 0;
+  while (i < content.length) {
+    i = skipWS(content, i);
+    if (i >= content.length) break;
+    if (content[i] !== '(') break;
+    const endCoords = content.indexOf(')', i);
+    if (endCoords === -1) break;
+    const coords = content
+      .slice(i + 1, endCoords)
+      .split(',')
+      .map(n => Number(n.trim()));
+    const row = coords[0];
+    const col = coords[1];
+    i = skipWS(content, endCoords + 1);
+    if (content[i] !== '=') break;
+    i++;
+    const valRes = parseValue(content, i);
+    i = skipWS(content, valRes.index);
+    if (content[i] !== ';') break;
+    i++;
+    data[`${row},${col}`] = valRes.value;
+  }
+  return data;
+}
+
 export function parse(input: string): OSFDocument {
   const blocksRaw = findBlocks(input);
   const blocks: OSFBlock[] = blocksRaw.map(b => {
@@ -155,11 +194,7 @@ export function parse(input: string): OSFDocument {
         if (bulletMatch) {
           const bulletContent = bulletMatch[1];
           if (bulletContent) {
-            const items = bulletContent
-              .split(/;\s*/)
-              .map(s => s.trim())
-              .filter(Boolean);
-            slide.bullets = items.map(it => it.replace(/^"|"$/g, ''));
+            slide.bullets = parseBulletItems(bulletContent);
           }
         }
         const rest = b.content.replace(/bullets\s*\{[\s\S]*?\}/, '');
@@ -172,28 +207,7 @@ export function parse(input: string): OSFDocument {
         if (dataMatch) {
           const dataContent = dataMatch[1];
           if (dataContent) {
-            const assigns = dataContent
-              .split(/;\s*/)
-              .map(s => s.trim())
-              .filter(Boolean);
-            for (const a of assigns) {
-              const m = /^\((\d+),(\d+)\)\s*=\s*(.+)$/.exec(a);
-              if (m) {
-                const row = m[1];
-                const col = m[2];
-                const value = m[3];
-                if (row && col && value !== undefined) {
-                  const key = `${row},${col}`;
-                  let val: any = value;
-                  if (val.startsWith('"') && val.endsWith('"')) {
-                    val = val.slice(1, -1);
-                  } else if (!isNaN(Number(val))) {
-                    val = Number(val);
-                  }
-                  sheet.data![key] = val;
-                }
-              }
-            }
+            Object.assign(sheet.data!, parseDataAssignments(dataContent));
           }
         }
         const formulaRegex = /formula\s*\((\d+),(\d+)\)\s*:\s*"([^"]*)";/g;

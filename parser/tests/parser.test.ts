@@ -60,6 +60,21 @@ describe('OSF Parser', () => {
       expect(slideBlock.bullets).toEqual(['First bullet', 'Second bullet', 'Third bullet']);
     });
 
+    it('should parse bullets containing semicolons', () => {
+      const input = `@slide {
+        bullets {
+          "Item with; semicolon";
+          "Another";
+        }
+      }`;
+
+      const result = parse(input);
+
+      expect(result.blocks).toHaveLength(1);
+      const slideBlock = result.blocks[0] as SlideBlock;
+      expect(slideBlock.bullets).toEqual(['Item with; semicolon', 'Another']);
+    });
+
     it('should parse a sheet block with data and formulas', () => {
       const input = `@sheet {
         name: "TestSheet";
@@ -92,6 +107,22 @@ describe('OSF Parser', () => {
         { cell: [1, 3], expr: '=B1*2' },
         { cell: [2, 3], expr: '=B2*2' },
       ]);
+    });
+
+    it('should parse sheet data with semicolons in string values', () => {
+      const input = `@sheet {
+        data {
+          (1,1) = "Hello; world";
+          (1,2) = 5;
+        }
+      }`;
+
+      const result = parse(input);
+      const sheetBlock = result.blocks[0] as SheetBlock;
+      expect(sheetBlock.data).toEqual({
+        '1,1': 'Hello; world',
+        '1,2': 5,
+      });
     });
 
     it('should parse multiple blocks', () => {
