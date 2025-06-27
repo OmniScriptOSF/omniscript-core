@@ -40,6 +40,25 @@ const SAMPLE_OSF = `@meta {
   formula (3,3): "=(B3-100)/100*100";
 }`;
 
+const FORMULA_TEST_OSF = `@meta {
+  title: "Formula Test";
+}
+
+@sheet {
+  name: "CalculationSheet";
+  cols: [A, B, C, D];
+  data {
+    (1,1) = 10;
+    (1,2) = 20;
+    (2,1) = 5;
+    (2,2) = 15;
+  }
+  formula (1,3): "=A1+B1";
+  formula (1,4): "=A1*B1";
+  formula (2,3): "=A2+B2";
+  formula (2,4): "=C1+C2";
+}`;
+
 const INVALID_OSF = `@meta {
   title: "Unclosed Block"
   // Missing closing brace`;
@@ -170,6 +189,29 @@ describe('OSF CLI', () => {
       expect(result).toContain('<table>');
     });
 
+    it('should render OSF with computed formula values to HTML', () => {
+      const formulaFile = join(TEST_FIXTURES_DIR, 'formula_test.osf');
+      writeFileSync(formulaFile, FORMULA_TEST_OSF, 'utf8');
+
+      try {
+        const result = execSync(`node "${CLI_PATH}" render "${formulaFile}"`, { encoding: 'utf8' });
+
+        expect(result).toContain('<!DOCTYPE html>');
+        expect(result).toContain('CalculationSheet');
+        expect(result).toContain('<table>');
+        // Check that formulas are evaluated: A1+B1 = 10+20 = 30
+        expect(result).toContain('30');
+        // Check that formulas are evaluated: A1*B1 = 10*20 = 200
+        expect(result).toContain('200');
+        // Check CSS class for computed cells
+        expect(result).toContain('class="computed"');
+      } finally {
+        if (existsSync(formulaFile)) {
+          unlinkSync(formulaFile);
+        }
+      }
+    });
+
     it('should render OSF to PDF', () => {
       const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format pdf`, {
         encoding: 'utf8',
@@ -230,6 +272,30 @@ describe('OSF CLI', () => {
       expect(result).toContain('## Test Slide');
       expect(result).toContain('- First bullet');
       expect(result).toContain('| Column1 | Column2 | Growth |');
+      // Check that formulas are evaluated in markdown
+      expect(result).toContain('0 *(calc)*'); // (100-100)/100*100 = 0
+      expect(result).toContain('15 *(calc)*'); // (115-100)/100*100 = 15
+    });
+
+    it('should export OSF with formulas to Markdown', () => {
+      const formulaFile = join(TEST_FIXTURES_DIR, 'formula_test.osf');
+      writeFileSync(formulaFile, FORMULA_TEST_OSF, 'utf8');
+
+      try {
+        const result = execSync(`node "${CLI_PATH}" export "${formulaFile}"`, { encoding: 'utf8' });
+
+        expect(result).toContain('CalculationSheet');
+        expect(result).toContain('| A | B | C | D |');
+        // Check computed values are shown with calc indicator
+        expect(result).toContain('30 *(calc)*'); // A1+B1 = 10+20 = 30
+        expect(result).toContain('200 *(calc)*'); // A1*B1 = 10*20 = 200
+        expect(result).toContain('20 *(calc)*'); // A2+B2 = 5+15 = 20
+        expect(result).toContain('50 *(calc)*'); // C1+C2 = 30+20 = 50
+      } finally {
+        if (existsSync(formulaFile)) {
+          unlinkSync(formulaFile);
+        }
+      }
     });
 
     it('should export OSF to JSON', () => {
@@ -242,6 +308,56 @@ describe('OSF CLI', () => {
       expect(exported.docs).toHaveLength(1);
       expect(exported.slides).toHaveLength(1);
       expect(exported.sheets).toHaveLength(1);
+      
+      // Check that computed values are included
+      const sheet = exported.sheets[0];
+      expect(sheet.data).toBeDefined();
+      expect(Array.isArray(sheet.data)).toBe(true);
+      
+      // Find computed cells
+      const computedCells = sheet.data.filter((cell: any) => cell.computed === true);
+      expect(computedCells.length).toBeGreaterThan(0);
+      
+      // Check specific computed values
+      const growthCell1 = sheet.data.find((cell: any) => cell.row === 2 && cell.col === 3);
+      const growthCell2 = sheet.data.find((cell: any) => cell.row === 3 && cell.col === 3);
+      expect(growthCell1?.value).toBe(0); // (100-100)/100*100 = 0
+      expect(growthCell2?.value).toBe(15); // (115-100)/100*100 = 15
+    });
+
+    it('should export OSF with complex formulas to JSON', () => {
+      const formulaFile = join(TEST_FIXTURES_DIR, 'formula_test.osf');
+      writeFileSync(formulaFile, FORMULA_TEST_OSF, 'utf8');
+
+      try {
+        const result = execSync(`node "${CLI_PATH}" export "${formulaFile}" --target json`, {
+          encoding: 'utf8',
+        });
+
+        const exported = JSON.parse(result);
+        const sheet = exported.sheets[0];
+        
+        // Check computed values
+        const cellC1 = sheet.data.find((cell: any) => cell.row === 1 && cell.col === 3);
+        const cellD1 = sheet.data.find((cell: any) => cell.row === 1 && cell.col === 4);
+        const cellC2 = sheet.data.find((cell: any) => cell.row === 2 && cell.col === 3);
+        const cellD2 = sheet.data.find((cell: any) => cell.row === 2 && cell.col === 4);
+        
+        expect(cellC1?.value).toBe(30); // A1+B1 = 10+20 = 30
+        expect(cellD1?.value).toBe(200); // A1*B1 = 10*20 = 200
+        expect(cellC2?.value).toBe(20); // A2+B2 = 5+15 = 20
+        expect(cellD2?.value).toBe(50); // C1+C2 = 30+20 = 50
+        
+        // Check computed flags
+        expect(cellC1?.computed).toBe(true);
+        expect(cellD1?.computed).toBe(true);
+        expect(cellC2?.computed).toBe(true);
+        expect(cellD2?.computed).toBe(true);
+      } finally {
+        if (existsSync(formulaFile)) {
+          unlinkSync(formulaFile);
+        }
+      }
     });
 
     it('should export OSF to file', () => {

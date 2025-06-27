@@ -55,6 +55,207 @@ const ajv = new Ajv();
 ajv.addFormat('date', /^\d{4}-\d{2}-\d{2}$/);
 const validateOsf = ajv.compile(schema);
 
+// Formula evaluator for spreadsheet calculations
+class FormulaEvaluator {
+  private data: Record<string, any>;
+  private formulas: Map<string, string>;
+  private computed: Map<string, any>;
+  private evaluating: Set<string>; // For circular reference detection
+
+  constructor(data: Record<string, any>, formulas: { cell: [number, number]; expr: string }[]) {
+    this.data = { ...data };
+    this.formulas = new Map();
+    this.computed = new Map();
+    this.evaluating = new Set();
+
+    // Convert formulas to map with string keys
+    for (const formula of formulas) {
+      const key = `${formula.cell[0]},${formula.cell[1]}`;
+      this.formulas.set(key, formula.expr);
+    }
+  }
+
+  // Convert cell reference (like "A1", "B2") to row,col coordinates
+  private cellRefToCoords(cellRef: string): [number, number] {
+    const match = cellRef.match(/^([A-Z]+)(\d+)$/);
+    if (!match) {
+      throw new Error(`Invalid cell reference: ${cellRef}`);
+    }
+
+    const colStr = match[1]!;
+    const rowStr = match[2]!;
+
+    // Convert column letters to number (A=1, B=2, ..., Z=26, AA=27, etc.)
+    let col = 0;
+    for (let i = 0; i < colStr.length; i++) {
+      col = col * 26 + (colStr.charCodeAt(i) - 64); // A=1, B=2, etc.
+    }
+
+    const row = parseInt(rowStr, 10);
+    return [row, col];
+  }
+
+  // Convert row,col coordinates to cell reference
+  private coordsToCellRef(row: number, col: number): string {
+    let colStr = '';
+    let temp = col;
+    while (temp > 0) {
+      temp--;
+      colStr = String.fromCharCode(65 + (temp % 26)) + colStr;
+      temp = Math.floor(temp / 26);
+    }
+    return `${colStr}${row}`;
+  }
+
+  // Get cell value, evaluating formulas if needed
+  getCellValue(row: number, col: number): any {
+    const key = `${row},${col}`;
+
+    // Check for circular reference
+    if (this.evaluating.has(key)) {
+      throw new Error(`Circular reference detected at cell ${this.coordsToCellRef(row, col)}`);
+    }
+
+    // Return cached computed value if available
+    if (this.computed.has(key)) {
+      return this.computed.get(key);
+    }
+
+    // Check if there's a formula for this cell
+    if (this.formulas.has(key)) {
+      this.evaluating.add(key);
+      try {
+        const formula = this.formulas.get(key)!;
+        const result = this.evaluateFormula(formula);
+        this.computed.set(key, result);
+        this.evaluating.delete(key);
+        return result;
+      } catch (error) {
+        this.evaluating.delete(key);
+        throw error;
+      }
+    }
+
+    // Return raw data value or empty string
+    return this.data[key] ?? '';
+  }
+
+  // Evaluate a formula expression
+  private evaluateFormula(expr: string): any {
+    // Remove leading = if present
+    if (expr.startsWith('=')) {
+      expr = expr.slice(1);
+    }
+
+    // Replace cell references with actual values
+    const cellRefRegex = /\b([A-Z]+\d+)\b/g;
+    const processedExpr = expr.replace(cellRefRegex, (match) => {
+      const [row, col] = this.cellRefToCoords(match);
+      const value = this.getCellValue(row, col);
+      
+      // Convert to number if possible, otherwise use as string
+      if (typeof value === 'number') {
+        return value.toString();
+      } else if (typeof value === 'string' && !isNaN(Number(value))) {
+        return value;
+      } else {
+        // For string values in formulas, wrap in quotes
+        return `"${value}"`;
+      }
+    });
+
+    try {
+      // Evaluate the mathematical expression
+      return this.evaluateExpression(processedExpr);
+    } catch (error) {
+      throw new Error(`Formula evaluation error: ${(error as Error).message}`);
+    }
+  }
+
+  // Safe expression evaluator supporting basic arithmetic
+  private evaluateExpression(expr: string): number {
+    // Remove whitespace
+    expr = expr.replace(/\s+/g, '');
+
+    // Handle parentheses first
+    while (expr.includes('(')) {
+      const innerMatch = expr.match(/\(([^()]+)\)/);
+      if (!innerMatch) break;
+      
+      const innerResult = this.evaluateExpression(innerMatch[1]!);
+      expr = expr.replace(innerMatch[0]!, innerResult.toString());
+    }
+
+    // Handle multiplication and division (left to right, same precedence)
+    expr = this.evaluateOperatorsLeftToRight(expr, ['*', '/']);
+    
+    // Handle addition and subtraction (left to right, same precedence)
+    expr = this.evaluateOperatorsLeftToRight(expr, ['+', '-']);
+
+    // Parse final result
+    const result = parseFloat(expr);
+    if (isNaN(result)) {
+      throw new Error(`Invalid expression: ${expr}`);
+    }
+    
+    return result;
+  }
+
+  // Evaluate operators with left-to-right precedence
+  private evaluateOperatorsLeftToRight(expr: string, operators: string[]): string {
+    // Create a regex that matches any of the operators
+    const opPattern = operators.map(op => `\\${op}`).join('|');
+    const regex = new RegExp(`(-?\\d+(?:\\.\\d+)?)(${opPattern})(-?\\d+(?:\\.\\d+)?)`, 'g');
+    
+    // Keep evaluating until no more matches
+    while (regex.test(expr)) {
+      regex.lastIndex = 0; // Reset regex
+      expr = expr.replace(regex, (_, left, op, right) => {
+        const leftNum = parseFloat(left);
+        const rightNum = parseFloat(right);
+        let result: number;
+        
+        switch (op) {
+          case '+': result = leftNum + rightNum; break;
+          case '-': result = leftNum - rightNum; break;
+          case '*': result = leftNum * rightNum; break;
+          case '/': 
+            if (rightNum === 0) throw new Error('Division by zero');
+            result = leftNum / rightNum; 
+            break;
+          default: throw new Error(`Unknown operator: ${op}`);
+        }
+        
+        return result.toString();
+      });
+    }
+    
+    return expr;
+  }
+
+  // Get all computed values for a sheet
+  getAllComputedValues(maxRow: number, maxCol: number): Record<string, any> {
+    const result: Record<string, any> = {};
+    
+    for (let r = 1; r <= maxRow; r++) {
+      for (let c = 1; c <= maxCol; c++) {
+        const key = `${r},${c}`;
+        try {
+          const value = this.getCellValue(r, c);
+          if (value !== '') {
+            result[key] = value;
+          }
+        } catch (error) {
+          // Store error message for cells that can't be computed
+          result[key] = `#ERROR: ${(error as Error).message}`;
+        }
+      }
+    }
+    
+    return result;
+  }
+}
+
 function showHelp(): void {
   console.log('OmniScript Format (OSF) CLI v0.5.0');
   console.log('Universal document DSL for LLMs and Git-native workflows\n');
@@ -130,6 +331,8 @@ function renderHtml(doc: OSFDocument): string {
     '    table { border-collapse: collapse; width: 100%; margin: 20px 0; }',
     '    th, td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }',
     '    th { background-color: #f5f5f5; font-weight: 600; }',
+    '    .computed { background-color: #f0f8ff; font-style: italic; }',
+    '    .error { background-color: #ffe6e6; color: #d00; }',
     '  </style>',
     '</head>',
     '<body>',
@@ -197,18 +400,33 @@ function renderHtml(doc: OSFDocument): string {
         }
 
         if (sheet.data) {
-          parts.push('    <tbody>');
-          const rows: Record<string, any> = sheet.data;
-          const coords = Object.keys(rows).map(k => k.split(',').map(Number));
-          const maxRow = Math.max(...coords.map(c => c[0]!));
-          const maxCol = Math.max(...coords.map(c => c[1]!));
+          // Evaluate formulas
+          const evaluator = new FormulaEvaluator(sheet.data, sheet.formulas || []);
+          
+          // Calculate dimensions including formula cells
+          const dataCoords = Object.keys(sheet.data).map(k => k.split(',').map(Number));
+          const formulaCoords = (sheet.formulas || []).map((f: any) => f.cell);
+          const allCoords = [...dataCoords, ...formulaCoords];
+          
+          const maxRow = Math.max(...allCoords.map(c => c[0]!));
+          const maxCol = Math.max(...allCoords.map(c => c[1]!));
+          
+          // Get all computed values including formulas
+          const allValues = evaluator.getAllComputedValues(maxRow, maxCol);
 
+          parts.push('    <tbody>');
           for (let r = 1; r <= maxRow; r++) {
             parts.push('      <tr>');
             for (let c = 1; c <= maxCol; c++) {
               const key = `${r},${c}`;
-              const val = rows[key] ?? '';
-              parts.push(`        <td>${val}</td>`);
+              const val = allValues[key] ?? '';
+              const hasFormula = sheet.formulas?.some((f: any) => f.cell[0] === r && f.cell[1] === c);
+              const isError = typeof val === 'string' && val.startsWith('#ERROR:');
+              
+              const cssClass = isError ? 'error' : (hasFormula ? 'computed' : '');
+              const cellContent = isError ? val.replace('#ERROR: ', '') : val;
+              
+              parts.push(`        <td class="${cssClass}">${cellContent}</td>`);
             }
             parts.push('      </tr>');
           }
@@ -305,17 +523,33 @@ function exportMarkdown(doc: OSFDocument): string {
         }
 
         if (sheet.data) {
-          const rows: Record<string, any> = sheet.data;
-          const coords = Object.keys(rows).map(k => k.split(',').map(Number));
-          const maxRow = Math.max(...coords.map(c => c[0]!));
-          const maxCol = Math.max(...coords.map(c => c[1]!));
+          // Evaluate formulas
+          const evaluator = new FormulaEvaluator(sheet.data, sheet.formulas || []);
+          
+          // Calculate dimensions including formula cells
+          const dataCoords = Object.keys(sheet.data).map(k => k.split(',').map(Number));
+          const formulaCoords = (sheet.formulas || []).map((f: any) => f.cell);
+          const allCoords = [...dataCoords, ...formulaCoords];
+          
+          const maxRow = Math.max(...allCoords.map(c => c[0]!));
+          const maxCol = Math.max(...allCoords.map(c => c[1]!));
+          
+          // Get all computed values including formulas
+          const allValues = evaluator.getAllComputedValues(maxRow, maxCol);
 
           for (let r = 1; r <= maxRow; r++) {
             const cells: string[] = [];
             for (let c = 1; c <= maxCol; c++) {
               const key = `${r},${c}`;
-              const val = rows[key] ?? '';
-              cells.push(String(val));
+              const val = allValues[key] ?? '';
+              const hasFormula = sheet.formulas?.some((f: any) => f.cell[0] === r && f.cell[1] === c);
+              
+              if (hasFormula && typeof val === 'number') {
+                // Show computed value with indication it's calculated
+                cells.push(`${val} *(calc)*`);
+              } else {
+                cells.push(String(val));
+              }
             }
             out.push('| ' + cells.join(' | ') + ' |');
           }
@@ -349,12 +583,35 @@ function exportJson(doc: OSFDocument): string {
       case 'sheet': {
         const sheet: any = { ...block };
         delete sheet.type;
+        
         if (sheet.data) {
-          sheet.data = Object.entries(sheet.data).map(([cell, value]) => {
+          // Evaluate formulas and include computed values
+          const evaluator = new FormulaEvaluator(sheet.data, sheet.formulas || []);
+          
+          // Calculate dimensions including formula cells
+          const dataCoords = Object.keys(sheet.data).map((k: string) => k.split(',').map(Number));
+          const formulaCoords = (sheet.formulas || []).map((f: any) => f.cell);
+          const allCoords = [...dataCoords, ...formulaCoords];
+          
+          const maxRow = Math.max(...allCoords.map(c => c[0]!));
+          const maxCol = Math.max(...allCoords.map(c => c[1]!));
+          
+          // Get all computed values including formulas
+          const allValues = evaluator.getAllComputedValues(maxRow, maxCol);
+          
+          // Convert to array format with computed values
+          sheet.data = Object.entries(allValues).map(([cell, value]) => {
             const [r, c] = cell.split(',').map(Number);
-            return { row: r, col: c, value };
+            const hasFormula = sheet.formulas?.some((f: any) => f.cell[0] === r && f.cell[1] === c);
+            return { 
+              row: r, 
+              col: c, 
+              value,
+              computed: hasFormula 
+            };
           });
         }
+        
         if (sheet.formulas) {
           sheet.formulas = sheet.formulas.map((f: any) => ({
             row: f.cell[0],

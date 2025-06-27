@@ -1,0 +1,18 @@
+@meta {
+  title: "Complex Formula Test";
+}
+
+@sheet {
+  name: "ErrorTestSheet";
+  cols: [A, B, C, Error];
+  data {
+    (1,1) = 10;
+    (1,2) = 0;
+    (2,1) = "text";
+    (2,2) = 5;
+  }
+  formula (1,3): "=A1/B1";
+  formula (1,4): "=A1+C1";
+  formula (2,3): "=A2+B2";
+  formula (2,4): "=C2*2";
+} 
