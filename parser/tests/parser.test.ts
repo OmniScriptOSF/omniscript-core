@@ -283,6 +283,126 @@ describe('OSF Parser', () => {
       expect(docBlock.content).toBe('');
     });
 
+    it('should parse negative numeric literals', () => {
+      const input = `@meta {
+        temperature: -25;
+        balance: -1000.50;
+        offset: -0.5;
+        zero: 0;
+        positive: 42;
+      }`;
+
+      const result = parse(input);
+
+      expect(result.blocks).toHaveLength(1);
+      expect(result.blocks[0]?.type).toBe('meta');
+
+      const metaBlock = result.blocks[0] as MetaBlock;
+      expect(metaBlock.props.temperature).toBe(-25);
+      expect(metaBlock.props.balance).toBe(-1000.50);
+      expect(metaBlock.props.offset).toBe(-0.5);
+      expect(metaBlock.props.zero).toBe(0);
+      expect(metaBlock.props.positive).toBe(42);
+    });
+
+    it('should parse negative numbers in arrays', () => {
+      const input = `@meta {
+        values: [-10, -5.5, 0, 5.5, 10];
+        coordinates: [-1, -2, -3];
+      }`;
+
+      const result = parse(input);
+      const metaBlock = result.blocks[0] as MetaBlock;
+      
+      expect(metaBlock.props.values).toEqual([-10, -5.5, 0, 5.5, 10]);
+      expect(metaBlock.props.coordinates).toEqual([-1, -2, -3]);
+    });
+
+    it('should parse negative numbers in nested objects', () => {
+      const input = `@meta {
+        position: { x: -10; y: -20.5; z: -0.1; };
+        range: { min: -100; max: 100; };
+      }`;
+
+      const result = parse(input);
+      const metaBlock = result.blocks[0] as MetaBlock;
+      
+      expect(metaBlock.props.position).toEqual({ x: -10, y: -20.5, z: -0.1 });
+      expect(metaBlock.props.range).toEqual({ min: -100, max: 100 });
+    });
+
+    it('should parse negative numbers in sheet data', () => {
+      const input = `@sheet {
+        name: "NegativeNumbers";
+        data {
+          (1,1) = -42;
+          (1,2) = -3.14159;
+          (2,1) = -0.001;
+          (2,2) = 100;
+        }
+      }`;
+
+      const result = parse(input);
+      const sheetBlock = result.blocks[0] as SheetBlock;
+      
+      expect(sheetBlock.data).toEqual({
+        '1,1': -42,
+        '1,2': -3.14159,
+        '2,1': -0.001,
+        '2,2': 100
+      });
+    });
+
+    it('should handle edge cases for negative numbers', () => {
+      const input = `@meta {
+        minusZero: -0;
+        largeNegative: -999999999;
+        smallNegative: -0.000001;
+      }`;
+
+      const result = parse(input);
+      const metaBlock = result.blocks[0] as MetaBlock;
+      
+      expect(metaBlock.props.minusZero).toBe(-0);
+      expect(metaBlock.props.largeNegative).toBe(-999999999);
+      expect(metaBlock.props.smallNegative).toBe(-0.000001);
+    });
+
+    it('should throw error for invalid negative number formats', () => {
+      const invalidInputs = [
+        `@meta { invalid: -; }`,
+        `@meta { invalid: -abc; }`,
+        `@meta { invalid: --5; }`,
+      ];
+
+      invalidInputs.forEach(input => {
+        expect(() => parse(input)).toThrow();
+      });
+    });
+
+    it('should serialize negative numbers correctly', () => {
+      const doc: OSFDocument = {
+        blocks: [
+          {
+            type: 'meta',
+            props: {
+              negative: -42,
+              decimal: -3.14,
+              zero: -0,
+              positive: 100
+            }
+          } as MetaBlock
+        ]
+      };
+
+      const serialized = serialize(doc);
+      
+      expect(serialized).toContain('negative: -42');
+      expect(serialized).toContain('decimal: -3.14');
+      expect(serialized).toContain('zero: 0'); // -0 should serialize as 0
+      expect(serialized).toContain('positive: 100');
+    });
+
   });
 
   describe('serialize', () => {

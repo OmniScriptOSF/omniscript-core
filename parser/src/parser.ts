@@ -90,7 +90,20 @@ function parseString(str: string, i: number): { value: string; index: number } {
 
 function parseNumber(str: string, i: number): { value: number; index: number } {
   let j = i;
+  
+  // Handle optional negative sign
+  if (j < str.length && str[j] === '-') {
+    j++;
+  }
+  
+  // Parse digits and decimal point
   while (j < str.length && /[0-9.]/.test(str[j]!)) j++;
+  
+  // Ensure we actually parsed some digits after the optional minus sign
+  if (j === i || (j === i + 1 && str[i] === '-')) {
+    throw new Error('Invalid number format');
+  }
+  
   return { value: Number(str.slice(i, j)), index: j };
 }
 
@@ -120,6 +133,7 @@ function parseValue(str: string, i: number): { value: any; index: number } {
     return { value: res.obj, index: res.index + 1 };
   }
   if (/\d/.test(ch)) return parseNumber(str, i);
+  if (ch === '-' && i + 1 < str.length && /\d/.test(str[i + 1]!)) return parseNumber(str, i);
   if (str.startsWith('true', i)) return { value: true, index: i + 4 };
   if (str.startsWith('false', i)) return { value: false, index: i + 5 };
   const id = parseIdentifier(str, i);
