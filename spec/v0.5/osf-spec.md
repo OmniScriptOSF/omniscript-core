@@ -1,4 +1,4 @@
-# OmniScript Format (OSF) – Specification Draft
+# OmniScript Format (OSF) – v0.5 Specification
 
 **OmniScript Format (OSF)** is a new domain-specific language (DSL) designed as
 _“the universal document DSL for LLMs, agentic AI, and Git-native workflows.”_
@@ -492,7 +492,7 @@ outlines the tooling and how users can work with OSF documents:
   features as they become necessary. For now, typical use (a few hundred pages
   or slides, moderate data) is easily handled by modern computers.
 
-The **implementation status**: At the time of this draft, the core parser and
+The **implementation status**: At the time of this release, the core parser and
 initial CLI commands are under development in the `omniscript-core` repository.
 Example OSF documents and tests are provided there to illustrate usage.
 Community contributions are welcome to expand the tooling (see **Contributing**
@@ -500,12 +500,12 @@ guidelines in the repository).
 
 ## Roadmap
 
-OSF is currently a draft specification and prototype. The roadmap below outlines
+OSF is currently an early-stage specification and prototype. The roadmap below outlines
 the path toward a stable 1.0 release and beyond, indicating both technical
 milestones and standardization efforts:
 
-- **v0.5 – Draft Specification & Prototype (2025):** The focus is on validating
-  the core ideas. Deliverables include this draft spec, the reference parser,
+- **v0.5 – Initial Specification & Prototype (2025):** The focus is on validating
+  the core ideas. Deliverables include this specification, the reference parser,
   and basic CLI functionality (parse, render to a couple of formats, basic
   lint). Feedback is solicited from early adopters, especially regarding the
   syntax choices and conversion fidelity.
@@ -592,7 +592,7 @@ robust and widely adopted.
 
 _The following appendices will provide detailed technical specifications and
 references in a future revision of this document. They are outlined here for
-completeness but are not yet included in this draft._
+completeness but are not yet included in this release._
 
 ### Appendix A: OSF Grammar Definition (BNF)
 

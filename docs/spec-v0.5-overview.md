@@ -1,6 +1,6 @@
 # OSF v0.5 Overview
 
-This document summarises the key elements of the OmniScript Format v0.5 draft.
+This document summarises the key elements of the OmniScript Format v0.5 specification.
 Refer to the files under `spec/v0.5/` for the authoritative specification.
 
 ## Core Blocks
