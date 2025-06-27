@@ -71,7 +71,19 @@ function parseString(str: string, i: number): { value: string; index: number } {
   let j = i + 1;
   let out = '';
   while (j < str.length && str[j] !== '"') {
-    out += str[j++];
+          if (str[j] === '\\' && j + 1 < str.length) {
+        // Handle escape sequences
+        const nextChar = str[j + 1];
+        if (nextChar === '"' || nextChar === '\\') {
+          out += nextChar;
+        } else {
+          out += str[j]! + nextChar!;
+        }
+        j += 2;
+    } else {
+      out += str[j];
+      j++;
+    }
   }
   return { value: out, index: j + 1 };
 }
@@ -138,6 +150,133 @@ function parseKV(content: string): Record<string, any> {
   return parseKVInternal(cleaned, 0).obj;
 }
 
+function parseBullets(content: string): string[] {
+  // Find the bullets block with proper brace matching
+  const bulletMatch = /bullets\s*\{/.exec(content);
+  if (!bulletMatch) return [];
+
+  let i = bulletMatch.index + bulletMatch[0].length;
+  let depth = 1;
+  let bulletContent = '';
+
+  // Find the matching closing brace, respecting quoted strings
+  while (i < content.length && depth > 0) {
+    const ch = content[i];
+    if (ch === '"') {
+      // Add the opening quote
+      bulletContent += ch;
+      i++;
+      // Process the string content, preserving escape sequences
+      while (i < content.length && content[i] !== '"') {
+        if (content[i] === '\\' && i + 1 < content.length) {
+          // Keep escape sequences as-is for now
+          bulletContent += content[i]! + content[i + 1]!;
+          i += 2;
+        } else {
+          bulletContent += content[i];
+          i++;
+        }
+      }
+      if (i < content.length) {
+        bulletContent += content[i]; // closing quote
+        i++;
+      }
+    } else if (ch === '{') {
+      depth++;
+      bulletContent += ch;
+      i++;
+    } else if (ch === '}') {
+      depth--;
+      if (depth > 0) {
+        bulletContent += ch;
+      }
+      i++;
+    } else {
+      bulletContent += ch;
+      i++;
+    }
+  }
+
+  if (depth > 0) {
+    throw new Error('Unclosed bullets block');
+  }
+
+  // Parse individual bullet items more carefully
+  const bullets: string[] = [];
+  let j = 0;
+  
+  while (j < bulletContent.length) {
+    j = skipWS(bulletContent, j);
+    if (j >= bulletContent.length) break;
+
+    if (bulletContent[j] === '"') {
+      // Parse quoted string using the existing parseString function
+      const result = parseString(bulletContent, j);
+      bullets.push(result.value);
+      j = result.index;
+      
+      // Skip whitespace and optional semicolon
+      j = skipWS(bulletContent, j);
+      if (j < bulletContent.length && bulletContent[j] === ';') {
+        j++;
+      }
+    } else {
+      // Handle unquoted content (skip to next semicolon or end)
+      const start = j;
+      while (j < bulletContent.length && bulletContent[j] !== ';') {
+        j++;
+      }
+      const item = bulletContent.slice(start, j).trim();
+      if (item) {
+        bullets.push(item);
+      }
+      if (j < bulletContent.length && bulletContent[j] === ';') {
+        j++;
+      }
+    }
+  }
+
+  return bullets;
+}
+
+function removeBulletsBlock(content: string): string {
+  const bulletMatch = /bullets\s*\{/.exec(content);
+  if (!bulletMatch) return content;
+
+  let i = bulletMatch.index + bulletMatch[0].length;
+  let depth = 1;
+
+  // Find the matching closing brace, respecting quoted strings
+  while (i < content.length && depth > 0) {
+    const ch = content[i];
+    if (ch === '"') {
+      // Skip over quoted string
+      i++;
+      while (i < content.length && content[i] !== '"') {
+        if (content[i] === '\\' && i + 1 < content.length) {
+          i += 2;
+        } else {
+          i++;
+        }
+      }
+      if (i < content.length) {
+        i++; // closing quote
+      }
+    } else if (ch === '{') {
+      depth++;
+      i++;
+    } else if (ch === '}') {
+      depth--;
+      i++;
+    } else {
+      i++;
+    }
+  }
+
+  // Remove the entire bullets block
+  return content.slice(0, bulletMatch.index) + content.slice(i);
+}
+
 export function parse(input: string): OSFDocument {
   const blocksRaw = findBlocks(input);
   const blocks: OSFBlock[] = blocksRaw.map(b => {
@@ -151,18 +290,13 @@ export function parse(input: string): OSFDocument {
       }
       case 'slide': {
         const slide: SlideBlock = { type: 'slide' };
-        const bulletMatch = /bullets\s*\{([\s\S]*?)\}/.exec(b.content);
-        if (bulletMatch) {
-          const bulletContent = bulletMatch[1];
-          if (bulletContent) {
-            const items = bulletContent
-              .split(/;\s*/)
-              .map(s => s.trim())
-              .filter(Boolean);
-            slide.bullets = items.map(it => it.replace(/^"|"$/g, ''));
-          }
-        }
-        const rest = b.content.replace(/bullets\s*\{[\s\S]*?\}/, '');
+        
+        // Use the new bullet parser
+        const bullets = parseBullets(b.content);
+        slide.bullets = bullets;
+        
+        // Remove bullets block from content before parsing other properties
+        const rest = removeBulletsBlock(b.content);
         Object.assign(slide, parseKV(rest));
         return slide;
       }
@@ -260,8 +394,8 @@ export function serialize(doc: OSFDocument): string {
             }
           });
 
-          // Add bullets if they exist
-          if (bullets && bullets.length > 0) {
+          // Add bullets if they exist (including empty arrays for consistency)
+          if (bullets !== undefined) {
             parts.push('  bullets {');
             bullets.forEach(bullet => {
               parts.push(`    "${bullet}";`);

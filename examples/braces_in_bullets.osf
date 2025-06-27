@@ -1,0 +1,27 @@
+@meta {
+  title: "Braces in Bullet Strings Example";
+  author: "OSF Parser";
+  version: "0.5.0";
+}
+
+@slide {
+  title: "Code Examples";
+  layout: TitleAndBullets;
+  bullets {
+    "JavaScript function: function() { return true; }";
+    "Object literal: { key: \"value\", nested: { inner: 42 } }";
+    "Array with objects: [{ id: 1, name: \"John\" }, { id: 2, name: \"Jane\" }]";
+    "Complex nested: { outer: { middle: { inner: \"deep value\" } } }";
+    "Mixed quotes and braces: { \"key\": \"value with { braces }\" }";
+  }
+}
+
+@slide {
+  title: "Escaped Characters";
+  layout: TitleAndBullets;
+  bullets {
+    "Quote inside: \"Hello World\"";
+    "Mixed syntax: { \"property\": \"value\" }";
+    "Escaped backslash: \\\"literal backslash quote\\\"";
+  }
+} 

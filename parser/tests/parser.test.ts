@@ -60,6 +60,141 @@ describe('OSF Parser', () => {
       expect(slideBlock.bullets).toEqual(['First bullet', 'Second bullet', 'Third bullet']);
     });
 
+    it('should parse slide bullets with braces inside strings', () => {
+      const input = `@slide {
+        title: "Test Slide";
+        bullets {
+          "Function call: func() { return true; }";
+          "Object literal: { key: value }";
+          "Array with objects: [{ id: 1 }, { id: 2 }]";
+          "Nested braces: { outer: { inner: \\"value\\" } }";
+        }
+      }`;
+
+      const result = parse(input);
+
+      expect(result.blocks).toHaveLength(1);
+      expect(result.blocks[0]?.type).toBe('slide');
+
+      const slideBlock = result.blocks[0] as SlideBlock;
+      expect(slideBlock.title).toBe('Test Slide');
+      expect(slideBlock.bullets).toEqual([
+        'Function call: func() { return true; }',
+        'Object literal: { key: value }',
+        'Array with objects: [{ id: 1 }, { id: 2 }]',
+        'Nested braces: { outer: { inner: "value" } }'
+      ]);
+    });
+
+    it('should parse slide bullets with escaped quotes', () => {
+      const input = `@slide {
+        title: "Test Slide";
+        bullets {
+          "Quote inside: \\"Hello World\\"";
+          "Mixed: { \\"key\\": \\"value\\" }";
+          "Escaped backslash: \\\\\\"test\\\\\\"";
+        }
+      }`;
+
+      const result = parse(input);
+
+      expect(result.blocks).toHaveLength(1);
+      const slideBlock = result.blocks[0] as SlideBlock;
+      expect(slideBlock.bullets).toEqual([
+        'Quote inside: "Hello World"',
+        'Mixed: { "key": "value" }',
+        'Escaped backslash: \\"test\\"'
+      ]);
+    });
+
+    it('should handle empty bullets block', () => {
+      const input = `@slide {
+        title: "Test Slide";
+        bullets {
+        }
+      }`;
+
+      const result = parse(input);
+
+      expect(result.blocks).toHaveLength(1);
+      const slideBlock = result.blocks[0] as SlideBlock;
+      expect(slideBlock.bullets).toEqual([]);
+    });
+
+    it('should handle bullets with only whitespace', () => {
+      const input = `@slide {
+        title: "Test Slide";
+        bullets {
+          
+          
+        }
+      }`;
+
+      const result = parse(input);
+
+      expect(result.blocks).toHaveLength(1);
+      const slideBlock = result.blocks[0] as SlideBlock;
+      expect(slideBlock.bullets).toEqual([]);
+    });
+
+    it('should handle bullets with trailing semicolons', () => {
+      const input = `@slide {
+        title: "Test Slide";
+        bullets {
+          "First bullet";
+          "Second bullet";
+          "Third bullet";
+        }
+      }`;
+
+      const result = parse(input);
+
+      expect(result.blocks).toHaveLength(1);
+      const slideBlock = result.blocks[0] as SlideBlock;
+      expect(slideBlock.bullets).toEqual(['First bullet', 'Second bullet', 'Third bullet']);
+    });
+
+    it('should handle bullets without trailing semicolons', () => {
+      const input = `@slide {
+        title: "Test Slide";
+        bullets {
+          "First bullet"
+          "Second bullet"
+          "Third bullet"
+        }
+      }`;
+
+      const result = parse(input);
+
+      expect(result.blocks).toHaveLength(1);
+      const slideBlock = result.blocks[0] as SlideBlock;
+      expect(slideBlock.bullets).toEqual(['First bullet', 'Second bullet', 'Third bullet']);
+    });
+
+    it('should throw error for unclosed bullets block', () => {
+      const input = `@slide {
+        title: "Test Slide";
+        bullets {
+          "First bullet";
+          "Second bullet";
+        }
+      }`;
+
+      // This should work fine
+      const result = parse(input);
+      expect(result.blocks).toHaveLength(1);
+      
+      // Test a truly unclosed bullets block
+      const badInput = `@slide {
+        title: "Test Slide";
+        bullets {
+          "First bullet";
+          "Second bullet"
+      }`;
+
+      expect(() => parse(badInput)).toThrow('Missing closing } for block slide');
+    });
+
     it('should parse a sheet block with data and formulas', () => {
       const input = `@sheet {
         name: "TestSheet";
@@ -147,6 +282,7 @@ describe('OSF Parser', () => {
       const docBlock = result.blocks[0] as DocBlock;
       expect(docBlock.content).toBe('');
     });
+
   });
 
   describe('serialize', () => {
