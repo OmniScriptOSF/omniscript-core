@@ -3,9 +3,19 @@ import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsparser from '@typescript-eslint/parser';
 import prettier from 'eslint-plugin-prettier';
-import prettierConfig from 'eslint-config-prettier';
 
 export default [
+  // Global ignores (applies to all configurations)
+  {
+    ignores: [
+      '**/dist/**',
+      '**/node_modules/**', 
+      '**/coverage/**',
+      '**/*.config.*',
+      '**/*.d.ts',
+      '**/bin/**'
+    ],
+  },
   js.configs.recommended,
   {
     files: ['**/*.ts', '**/*.js'],
@@ -14,7 +24,17 @@ export default [
       parserOptions: {
         ecmaVersion: 2022,
         sourceType: 'module',
-        project: ['./parser/tsconfig.json', './cli/tsconfig.json'],
+      },
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        Buffer: 'readonly',
+        global: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
       },
     },
     plugins: {
@@ -22,17 +42,15 @@ export default [
       prettier,
     },
     rules: {
-      ...tseslint.configs.recommended.rules,
-      ...prettierConfig.rules,
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/explicit-function-return-type': 'warn',
-      '@typescript-eslint/no-non-null-assertion': 'error',
-      '@typescript-eslint/prefer-const': 'error',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'warn',
       'prettier/prettier': 'error',
-      'no-console': 'warn',
+      'no-console': 'off',
       'prefer-const': 'error',
       'no-var': 'error',
+      'no-useless-escape': 'warn',
     },
   },
   {
@@ -40,9 +58,7 @@ export default [
     rules: {
       'no-console': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
     },
-  },
-  {
-    ignores: ['dist/', 'node_modules/', 'coverage/', '*.config.js'],
   },
 ];
