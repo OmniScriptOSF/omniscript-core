@@ -54,8 +54,8 @@ importers:
         specifier: ^8.12.0
         version: 8.17.1
       omniscript-parser:
-        specifier: ^0.5.1
-        version: 0.5.1
+        specifier: ^0.5.2
+        version: 0.5.2
     devDependencies:
       '@types/node':
         specifier: ^22.15.31
@@ -1026,8 +1026,8 @@ packages:
   natural-compare@1.4.0:
     resolution: {integrity: sha512-OWND8ei3VtNC9h7V60qff3SVobHr996CTwgxubgyQYEpg290h9J0buyECNNJexkFm5sOajh5G116RYA1c8ZMSw==}
 
-  omniscript-parser@0.5.1:
-    resolution: {integrity: sha512-cQhpJl2tCMDF7HZnXW+py7r0htQNtR8r+6PYcvD1vj0duUzSTMld2qn2npjZ6Hzjj399AHlW6mhzXLl54vupTQ==}
+  omniscript-parser@0.5.2:
+    resolution: {integrity: sha512-yFtLwK8/2dqP/yTo2uTIcX0traSePZkezwRmGDwCLH2azT1IJhMCG8k+AumYdL97bjA2MAqrlp/tlqmgE1dkxA==}
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -2216,7 +2216,7 @@ snapshots:
 
   natural-compare@1.4.0: {}
 
-  omniscript-parser@0.5.1: {}
+  omniscript-parser@0.5.2: {}
 
   optionator@0.9.4:
     dependencies:
