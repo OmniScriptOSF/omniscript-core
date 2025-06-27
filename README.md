@@ -136,7 +136,8 @@ pnpm add omniscript-parser
 
 ## 🚀 CLI Features
 
-The reference CLI (`omniscript-cli@0.5.4`) implements several spec-defined commands:
+The reference CLI (`omniscript-cli@0.5.4`) implements several spec-defined
+commands:
 
 - `osf parse <file>` → Parse and validate OSF file syntax.
 - `osf lint <file>` → Style and structure checks.
@@ -145,7 +146,8 @@ The reference CLI (`omniscript-cli@0.5.4`) implements several spec-defined comma
 - `osf export <file> --target <md>` → Export OSF to Markdown.
 - `osf format <file>` → Auto-format OSF for style consistency.
 
-📦 **Available on npm:** [`omniscript-cli`](https://www.npmjs.com/package/omniscript-cli)
+📦 **Available on npm:**
+[`omniscript-cli`](https://www.npmjs.com/package/omniscript-cli)
 
 ### Using the CLI
 
@@ -185,8 +187,10 @@ Follow these steps to build and run the CLI from source:
 
 ## 📦 Published Packages
 
-- **[`omniscript-parser@0.5.2`](https://www.npmjs.com/package/omniscript-parser)** - Core parsing library with TypeScript support
-- **[`omniscript-cli@0.5.4`](https://www.npmjs.com/package/omniscript-cli)** - Command-line tools with `osf` binary
+- **[`omniscript-parser@0.5.2`](https://www.npmjs.com/package/omniscript-parser)** -
+  Core parsing library with TypeScript support
+- **[`omniscript-cli@0.5.4`](https://www.npmjs.com/package/omniscript-cli)** -
+  Command-line tools with `osf` binary
 
 ---
 

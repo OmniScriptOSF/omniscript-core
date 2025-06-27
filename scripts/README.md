@@ -8,7 +8,7 @@ Automated release management for OmniScript packages.
 # Patch release (0.5.4 → 0.5.5)
 pnpm run release:patch
 
-# Minor release (0.5.4 → 0.6.0)  
+# Minor release (0.5.4 → 0.6.0)
 pnpm run release:minor
 
 # Major release (0.5.4 → 1.0.0)
@@ -42,14 +42,17 @@ pnpm run release:major
 ## 🔐 Prerequisites
 
 ### Required Tools
+
 - **Node.js 18+** with `pnpm`
 - **Git** with push access to repository
 - **GitHub CLI** (`gh`) authenticated
 
 ### Required Secrets
+
 - **NPM_TOKEN** - Automation token stored in GitHub Secrets
 
 ### Setup GitHub CLI
+
 ```bash
 # Install GitHub CLI
 winget install GitHub.cli
@@ -59,6 +62,7 @@ gh auth login
 ```
 
 ### Setup NPM Token
+
 1. Create automation token: `npm token create --type=automation`
 2. Add to GitHub Secrets as `NPM_TOKEN`
 
@@ -98,12 +102,14 @@ Both scripts have identical functionality.
 ### Common Issues
 
 **"Must be on main branch"**
+
 ```bash
 git checkout main
 git pull origin main
 ```
 
 **"Working directory not clean"**
+
 ```bash
 git status
 git add . && git commit -m "fix: pending changes"
@@ -112,12 +118,14 @@ git stash
 ```
 
 **"GitHub CLI not authenticated"**
+
 ```bash
 gh auth status
 gh auth login
 ```
 
 **"NPM publishing fails"**
+
 - Check NPM_TOKEN is set in GitHub Secrets
 - Verify token has publish permissions
 - Check package names are not taken
@@ -125,12 +133,13 @@ gh auth login
 ### Debug Mode
 
 Add verbose logging to scripts:
+
 ```bash
 # PowerShell
 $VerbosePreference = "Continue"
 .\scripts\release.ps1 patch
 
-# Bash  
+# Bash
 set -x
 ./scripts/release.sh patch
 ```
@@ -144,4 +153,4 @@ The release process integrates with GitHub Actions:
 3. **Automated Publishing** to npm registry
 4. **Release Assets** are built and attached
 
-Monitor releases at: https://github.com/OmniScriptOSF/omniscript-core/actions 
+Monitor releases at: https://github.com/OmniScriptOSF/omniscript-core/actions
