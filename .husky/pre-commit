@@ -1,2 +1,7 @@
 #!/bin/sh
+
+# Run TypeScript type checking first
+pnpm run typecheck
+
+# If typecheck passes, run lint-staged for formatting and linting
 npx lint-staged
