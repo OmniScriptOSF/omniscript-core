@@ -246,12 +246,42 @@ jobs:
       - name: Build packages
         run: pnpm run build
         
-      - name: Publish to NPM
+      - name: Verify package versions
         run: |
-          cd parser && npm publish --access public
-          cd ../cli && npm publish --access public
+          echo "Checking package versions..."
+          PARSER_VERSION=$(node -p "require('./parser/package.json').version")
+          CLI_VERSION=$(node -p "require('./cli/package.json').version")
+          echo "Parser version: $PARSER_VERSION"
+          echo "CLI version: $CLI_VERSION"
+          echo "Release tag: ${{ github.event.release.tag_name }}"
+        
+      - name: Run final tests
+        run: pnpm run test
+        
+      - name: Publish Parser to NPM
+        run: |
+          cd parser
+          echo "Publishing omniscript-parser..."
+          npm publish --access public --dry-run
+          npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          
+      - name: Publish CLI to NPM
+        run: |
+          cd cli
+          echo "Publishing omniscript-cli..."
+          npm publish --access public --dry-run
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          
+      - name: Verify published packages
+        run: |
+          echo "Verifying published packages..."
+          sleep 30  # Wait for npm registry to update
+          npm info omniscript-parser
+          npm info omniscript-cli
 
   release-assets:
     name: Build Release Assets

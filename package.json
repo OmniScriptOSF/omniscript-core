@@ -25,6 +25,10 @@
     "lint:check": "eslint . --ext .ts,.js",
     "prepare": "pnpm run build",
     "pretest": "pnpm run build",
+    "release": "pwsh scripts/release.ps1",
+    "release:patch": "pwsh scripts/release.ps1 patch",
+    "release:minor": "pwsh scripts/release.ps1 minor",
+    "release:major": "pwsh scripts/release.ps1 major",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -63,6 +67,7 @@
     "eslint-plugin-prettier": "^5.2.1",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
+    "semver": "^7.7.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "vitest": "^2.1.8"
