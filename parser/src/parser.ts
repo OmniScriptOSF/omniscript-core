@@ -71,15 +71,46 @@ function parseString(str: string, i: number): { value: string; index: number } {
   let j = i + 1;
   let out = '';
   while (j < str.length && str[j] !== '"') {
-          if (str[j] === '\\' && j + 1 < str.length) {
-        // Handle escape sequences
-        const nextChar = str[j + 1];
-        if (nextChar === '"' || nextChar === '\\') {
-          out += nextChar;
-        } else {
+    if (str[j] === '\\' && j + 1 < str.length) {
+      // Handle escape sequences
+      const nextChar = str[j + 1];
+      switch (nextChar) {
+        case '"':
+          out += '"';
+          break;
+        case '\\':
+          out += '\\';
+          break;
+        case 'n':
+          out += '\n';
+          break;
+        case 't':
+          out += '\t';
+          break;
+        case 'r':
+          out += '\r';
+          break;
+        case 'b':
+          out += '\b';
+          break;
+        case 'f':
+          out += '\f';
+          break;
+        case 'v':
+          out += '\v';
+          break;
+        case '0':
+          out += '\0';
+          break;
+        case '/':
+          out += '/';
+          break;
+        default:
+          // For unknown escape sequences, preserve the backslash and character
           out += str[j]! + nextChar!;
-        }
-        j += 2;
+          break;
+      }
+      j += 2;
     } else {
       out += str[j];
       j++;
@@ -90,20 +121,20 @@ function parseString(str: string, i: number): { value: string; index: number } {
 
 function parseNumber(str: string, i: number): { value: number; index: number } {
   let j = i;
-  
+
   // Handle optional negative sign
   if (j < str.length && str[j] === '-') {
     j++;
   }
-  
+
   // Parse digits and decimal point
   while (j < str.length && /[0-9.]/.test(str[j]!)) j++;
-  
+
   // Ensure we actually parsed some digits after the optional minus sign
   if (j === i || (j === i + 1 && str[i] === '-')) {
     throw new Error('Invalid number format');
   }
-  
+
   return { value: Number(str.slice(i, j)), index: j };
 }
 
@@ -218,7 +249,7 @@ function parseBullets(content: string): string[] {
   // Parse individual bullet items more carefully
   const bullets: string[] = [];
   let j = 0;
-  
+
   while (j < bulletContent.length) {
     j = skipWS(bulletContent, j);
     if (j >= bulletContent.length) break;
@@ -228,7 +259,7 @@ function parseBullets(content: string): string[] {
       const result = parseString(bulletContent, j);
       bullets.push(result.value);
       j = result.index;
-      
+
       // Skip whitespace and optional semicolon
       j = skipWS(bulletContent, j);
       if (j < bulletContent.length && bulletContent[j] === ';') {
@@ -304,11 +335,11 @@ export function parse(input: string): OSFDocument {
       }
       case 'slide': {
         const slide: SlideBlock = { type: 'slide' };
-        
+
         // Use the new bullet parser
         const bullets = parseBullets(b.content);
         slide.bullets = bullets;
-        
+
         // Remove bullets block from content before parsing other properties
         const rest = removeBulletsBlock(b.content);
         Object.assign(slide, parseKV(rest));
@@ -369,6 +400,19 @@ export function parse(input: string): OSFDocument {
   return { blocks };
 }
 
+function escapeString(str: string): string {
+  return str
+    .replace(/\\/g, '\\\\') // Escape backslashes first
+    .replace(/"/g, '\\"') // Escape double quotes
+    .replace(/\n/g, '\\n') // Escape newlines
+    .replace(/\t/g, '\\t') // Escape tabs
+    .replace(/\r/g, '\\r') // Escape carriage returns
+    .replace(/\x08/g, '\\b') // Escape backspaces (use \x08 instead of \b)
+    .replace(/\f/g, '\\f') // Escape form feeds
+    .replace(/\v/g, '\\v') // Escape vertical tabs
+    .replace(/\0/g, '\\0'); // Escape null characters
+}
+
 function serializeValue(v: any): string {
   if (Array.isArray(v)) return `[${v.map(serializeValue).join(', ')}]`;
   if (v && typeof v === 'object') {
@@ -377,7 +421,7 @@ function serializeValue(v: any): string {
       .join(' ');
     return `{ ${inner} }`;
   }
-  if (typeof v === 'string') return `"${v}"`;
+  if (typeof v === 'string') return `"${escapeString(v)}"`;
   return String(v);
 }
 
@@ -412,7 +456,7 @@ export function serialize(doc: OSFDocument): string {
           if (bullets !== undefined) {
             parts.push('  bullets {');
             bullets.forEach(bullet => {
-              parts.push(`    "${bullet}";`);
+              parts.push(`    "${escapeString(bullet)}";`);
             });
             parts.push('  }');
           }

@@ -191,7 +191,6 @@ Join us on
 [GitHub Discussions](https://github.com/OmniScriptOSF/omniscript-core/discussions)
 to propose ideas, ask questions, or share feedback.
 
-
 ## 💡 Vision
 
 OmniScript Format (OSF) aims to be the universal document source language — a
@@ -200,6 +199,9 @@ world of AI collaboration and versioned knowledge.
 
 ## ❗ Known Limitations (v0.5)
 
-- The initial CLI only covers parsing, linting and basic rendering; advanced conversion targets are under development.
-- Diagram blocks, citation syntax and macro support are planned for future revisions.
-- Formal grammar and normative references are scheduled for a later appendix release.
+- The initial CLI only covers parsing, linting and basic rendering; advanced
+  conversion targets are under development.
+- Diagram blocks, citation syntax and macro support are planned for future
+  revisions.
+- Formal grammar and normative references are scheduled for a later appendix
+  release.

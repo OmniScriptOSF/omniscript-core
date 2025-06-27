@@ -1,0 +1,75 @@
+@meta {
+  title: "Escape Sequences Example";
+  author: "OSF Parser";
+  version: "0.5.0";
+  description: "This file demonstrates escape sequence handling";
+  quotedText: "She said \"Hello World\"";
+  filePath: "C:\\Users\\Name\\Documents\\file.txt";
+  multiLine: "Line 1\nLine 2\nLine 3";
+  tabSeparated: "Name\tAge\tCity";
+  specialChars: "Quote: \"Test\"\nNewline\tTab\rCarriage Return";
+}
+
+@slide {
+  title: "Programming Examples";
+  layout: TitleAndBullets;
+  bullets {
+    "JavaScript string: \"Hello\\nWorld\"";
+    "File path: C:\\Program Files\\App\\config.json";
+    "JSON format: {\"key\": \"value\", \"number\": 42}";
+    "Escape sequences: \\n (newline), \\t (tab), \\\" (quote)";
+    "Mixed content: \"Quote\" and\ttab and\nnewline";
+  }
+  metadata: {
+    codeExample: "function test() {\n\treturn \"Hello\\nWorld\";\n}";
+    regexPattern: "\\d+\\.\\d+";
+    windowsPath: "C:\\Windows\\System32\\drivers\\etc\\hosts";
+  };
+}
+
+@sheet {
+  name: "Escape Sequences Data";
+  cols: [Description, Example, Result];
+  data {
+    (1,1) = "Quote";
+    (1,2) = "Hello";
+    (1,3) = "Result";
+    (2,1) = "Backslash";
+    (2,2) = "C:\\\\temp";
+    (2,3) = "Path";
+    (3,1) = "Newline";
+    (3,2) = "Line1\\nLine2";
+    (3,3) = "Multi-line";
+    (4,1) = "Tab";
+    (4,2) = "Col1\\tCol2";
+    (4,3) = "Tab-separated";
+  }
+  formula (5,1): "=A1&A2&A3&A4";
+}
+
+@doc {
+# Escape Sequences Documentation
+
+This document demonstrates how escape sequences work in OSF files:
+
+## Supported Escape Sequences
+
+- `\"` - Double quote
+- `\\` - Backslash  
+- `\n` - Newline
+- `\t` - Tab
+- `\r` - Carriage return
+- `\b` - Backspace
+- `\f` - Form feed
+- `\v` - Vertical tab
+- `\0` - Null character
+- `\/` - Forward slash
+
+## Usage Examples
+
+In strings: `"She said \"Hello\""`
+In paths: `"C:\\Program Files\\App"`
+In multi-line: `"Line 1\nLine 2"`
+
+Unknown escape sequences like `\x` are preserved as literal text.
+} 

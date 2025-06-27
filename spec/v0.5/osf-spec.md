@@ -500,15 +500,15 @@ guidelines in the repository).
 
 ## Roadmap
 
-OSF is currently an early-stage specification and prototype. The roadmap below outlines
-the path toward a stable 1.0 release and beyond, indicating both technical
-milestones and standardization efforts:
+OSF is currently an early-stage specification and prototype. The roadmap below
+outlines the path toward a stable 1.0 release and beyond, indicating both
+technical milestones and standardization efforts:
 
-- **v0.5 – Initial Specification & Prototype (2025):** The focus is on validating
-  the core ideas. Deliverables include this specification, the reference parser,
-  and basic CLI functionality (parse, render to a couple of formats, basic
-  lint). Feedback is solicited from early adopters, especially regarding the
-  syntax choices and conversion fidelity.
+- **v0.5 – Initial Specification & Prototype (2025):** The focus is on
+  validating the core ideas. Deliverables include this specification, the
+  reference parser, and basic CLI functionality (parse, render to a couple of
+  formats, basic lint). Feedback is solicited from early adopters, especially
+  regarding the syntax choices and conversion fidelity.
 
 - **v0.9 – Public Beta and Community Feedback:** By this stage, OSF should be
   usable for real-world authoring of mixed document types. More output formats

@@ -32,8 +32,7 @@ const commands: CliCommand[] = [
   {
     name: 'render',
     description: 'Render OSF to various output formats',
-    usage:
-      'osf render <file> [--format <html|pdf|docx|pptx|xlsx>] [--output <file>]',
+    usage: 'osf render <file> [--format <html|pdf|docx|pptx|xlsx>] [--output <file>]',
     args: ['file'],
   },
   {
@@ -149,10 +148,10 @@ class FormulaEvaluator {
 
     // Replace cell references with actual values
     const cellRefRegex = /\b([A-Z]+\d+)\b/g;
-    const processedExpr = expr.replace(cellRefRegex, (match) => {
+    const processedExpr = expr.replace(cellRefRegex, match => {
       const [row, col] = this.cellRefToCoords(match);
       const value = this.getCellValue(row, col);
-      
+
       // Convert to number if possible, otherwise use as string
       if (typeof value === 'number') {
         return value.toString();
@@ -181,14 +180,14 @@ class FormulaEvaluator {
     while (expr.includes('(')) {
       const innerMatch = expr.match(/\(([^()]+)\)/);
       if (!innerMatch) break;
-      
+
       const innerResult = this.evaluateExpression(innerMatch[1]!);
       expr = expr.replace(innerMatch[0]!, innerResult.toString());
     }
 
     // Handle multiplication and division (left to right, same precedence)
     expr = this.evaluateOperatorsLeftToRight(expr, ['*', '/']);
-    
+
     // Handle addition and subtraction (left to right, same precedence)
     expr = this.evaluateOperatorsLeftToRight(expr, ['+', '-']);
 
@@ -197,7 +196,7 @@ class FormulaEvaluator {
     if (isNaN(result)) {
       throw new Error(`Invalid expression: ${expr}`);
     }
-    
+
     return result;
   }
 
@@ -206,7 +205,7 @@ class FormulaEvaluator {
     // Create a regex that matches any of the operators
     const opPattern = operators.map(op => `\\${op}`).join('|');
     const regex = new RegExp(`(-?\\d+(?:\\.\\d+)?)(${opPattern})(-?\\d+(?:\\.\\d+)?)`, 'g');
-    
+
     // Keep evaluating until no more matches
     while (regex.test(expr)) {
       regex.lastIndex = 0; // Reset regex
@@ -214,29 +213,36 @@ class FormulaEvaluator {
         const leftNum = parseFloat(left);
         const rightNum = parseFloat(right);
         let result: number;
-        
+
         switch (op) {
-          case '+': result = leftNum + rightNum; break;
-          case '-': result = leftNum - rightNum; break;
-          case '*': result = leftNum * rightNum; break;
-          case '/': 
-            if (rightNum === 0) throw new Error('Division by zero');
-            result = leftNum / rightNum; 
+          case '+':
+            result = leftNum + rightNum;
             break;
-          default: throw new Error(`Unknown operator: ${op}`);
+          case '-':
+            result = leftNum - rightNum;
+            break;
+          case '*':
+            result = leftNum * rightNum;
+            break;
+          case '/':
+            if (rightNum === 0) throw new Error('Division by zero');
+            result = leftNum / rightNum;
+            break;
+          default:
+            throw new Error(`Unknown operator: ${op}`);
         }
-        
+
         return result.toString();
       });
     }
-    
+
     return expr;
   }
 
   // Get all computed values for a sheet
   getAllComputedValues(maxRow: number, maxCol: number): Record<string, any> {
     const result: Record<string, any> = {};
-    
+
     for (let r = 1; r <= maxRow; r++) {
       for (let c = 1; c <= maxCol; c++) {
         const key = `${r},${c}`;
@@ -251,7 +257,7 @@ class FormulaEvaluator {
         }
       }
     }
-    
+
     return result;
   }
 }
@@ -402,15 +408,15 @@ function renderHtml(doc: OSFDocument): string {
         if (sheet.data) {
           // Evaluate formulas
           const evaluator = new FormulaEvaluator(sheet.data, sheet.formulas || []);
-          
+
           // Calculate dimensions including formula cells
           const dataCoords = Object.keys(sheet.data).map(k => k.split(',').map(Number));
           const formulaCoords = (sheet.formulas || []).map((f: any) => f.cell);
           const allCoords = [...dataCoords, ...formulaCoords];
-          
+
           const maxRow = Math.max(...allCoords.map(c => c[0]!));
           const maxCol = Math.max(...allCoords.map(c => c[1]!));
-          
+
           // Get all computed values including formulas
           const allValues = evaluator.getAllComputedValues(maxRow, maxCol);
 
@@ -420,12 +426,14 @@ function renderHtml(doc: OSFDocument): string {
             for (let c = 1; c <= maxCol; c++) {
               const key = `${r},${c}`;
               const val = allValues[key] ?? '';
-              const hasFormula = sheet.formulas?.some((f: any) => f.cell[0] === r && f.cell[1] === c);
+              const hasFormula = sheet.formulas?.some(
+                (f: any) => f.cell[0] === r && f.cell[1] === c
+              );
               const isError = typeof val === 'string' && val.startsWith('#ERROR:');
-              
-              const cssClass = isError ? 'error' : (hasFormula ? 'computed' : '');
+
+              const cssClass = isError ? 'error' : hasFormula ? 'computed' : '';
               const cellContent = isError ? val.replace('#ERROR: ', '') : val;
-              
+
               parts.push(`        <td class="${cssClass}">${cellContent}</td>`);
             }
             parts.push('      </tr>');
@@ -525,15 +533,15 @@ function exportMarkdown(doc: OSFDocument): string {
         if (sheet.data) {
           // Evaluate formulas
           const evaluator = new FormulaEvaluator(sheet.data, sheet.formulas || []);
-          
+
           // Calculate dimensions including formula cells
           const dataCoords = Object.keys(sheet.data).map(k => k.split(',').map(Number));
           const formulaCoords = (sheet.formulas || []).map((f: any) => f.cell);
           const allCoords = [...dataCoords, ...formulaCoords];
-          
+
           const maxRow = Math.max(...allCoords.map(c => c[0]!));
           const maxCol = Math.max(...allCoords.map(c => c[1]!));
-          
+
           // Get all computed values including formulas
           const allValues = evaluator.getAllComputedValues(maxRow, maxCol);
 
@@ -542,8 +550,10 @@ function exportMarkdown(doc: OSFDocument): string {
             for (let c = 1; c <= maxCol; c++) {
               const key = `${r},${c}`;
               const val = allValues[key] ?? '';
-              const hasFormula = sheet.formulas?.some((f: any) => f.cell[0] === r && f.cell[1] === c);
-              
+              const hasFormula = sheet.formulas?.some(
+                (f: any) => f.cell[0] === r && f.cell[1] === c
+              );
+
               if (hasFormula && typeof val === 'number') {
                 // Show computed value with indication it's calculated
                 cells.push(`${val} *(calc)*`);
@@ -583,35 +593,35 @@ function exportJson(doc: OSFDocument): string {
       case 'sheet': {
         const sheet: any = { ...block };
         delete sheet.type;
-        
+
         if (sheet.data) {
           // Evaluate formulas and include computed values
           const evaluator = new FormulaEvaluator(sheet.data, sheet.formulas || []);
-          
+
           // Calculate dimensions including formula cells
           const dataCoords = Object.keys(sheet.data).map((k: string) => k.split(',').map(Number));
           const formulaCoords = (sheet.formulas || []).map((f: any) => f.cell);
           const allCoords = [...dataCoords, ...formulaCoords];
-          
+
           const maxRow = Math.max(...allCoords.map(c => c[0]!));
           const maxCol = Math.max(...allCoords.map(c => c[1]!));
-          
+
           // Get all computed values including formulas
           const allValues = evaluator.getAllComputedValues(maxRow, maxCol);
-          
+
           // Convert to array format with computed values
           sheet.data = Object.entries(allValues).map(([cell, value]) => {
             const [r, c] = cell.split(',').map(Number);
             const hasFormula = sheet.formulas?.some((f: any) => f.cell[0] === r && f.cell[1] === c);
-            return { 
-              row: r, 
-              col: c, 
+            return {
+              row: r,
+              col: c,
               value,
-              computed: hasFormula 
+              computed: hasFormula,
             };
           });
         }
-        
+
         if (sheet.formulas) {
           sheet.formulas = sheet.formulas.map((f: any) => ({
             row: f.cell[0],
@@ -763,9 +773,7 @@ function main(): void {
             output = renderXlsx(doc);
             break;
           default:
-            throw new Error(
-              `Unknown format: ${format}. Supported: html, pdf, docx, pptx, xlsx`
-            );
+            throw new Error(`Unknown format: ${format}. Supported: html, pdf, docx, pptx, xlsx`);
         }
 
         if (outputFile) {

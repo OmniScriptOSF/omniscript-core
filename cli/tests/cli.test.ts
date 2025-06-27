@@ -308,16 +308,16 @@ describe('OSF CLI', () => {
       expect(exported.docs).toHaveLength(1);
       expect(exported.slides).toHaveLength(1);
       expect(exported.sheets).toHaveLength(1);
-      
+
       // Check that computed values are included
       const sheet = exported.sheets[0];
       expect(sheet.data).toBeDefined();
       expect(Array.isArray(sheet.data)).toBe(true);
-      
+
       // Find computed cells
       const computedCells = sheet.data.filter((cell: any) => cell.computed === true);
       expect(computedCells.length).toBeGreaterThan(0);
-      
+
       // Check specific computed values
       const growthCell1 = sheet.data.find((cell: any) => cell.row === 2 && cell.col === 3);
       const growthCell2 = sheet.data.find((cell: any) => cell.row === 3 && cell.col === 3);
@@ -336,18 +336,18 @@ describe('OSF CLI', () => {
 
         const exported = JSON.parse(result);
         const sheet = exported.sheets[0];
-        
+
         // Check computed values
         const cellC1 = sheet.data.find((cell: any) => cell.row === 1 && cell.col === 3);
         const cellD1 = sheet.data.find((cell: any) => cell.row === 1 && cell.col === 4);
         const cellC2 = sheet.data.find((cell: any) => cell.row === 2 && cell.col === 3);
         const cellD2 = sheet.data.find((cell: any) => cell.row === 2 && cell.col === 4);
-        
+
         expect(cellC1?.value).toBe(30); // A1+B1 = 10+20 = 30
         expect(cellD1?.value).toBe(200); // A1*B1 = 10*20 = 200
         expect(cellC2?.value).toBe(20); // A2+B2 = 5+15 = 20
         expect(cellD2?.value).toBe(50); // C1+C2 = 30+20 = 50
-        
+
         // Check computed flags
         expect(cellC1?.computed).toBe(true);
         expect(cellD1?.computed).toBe(true);

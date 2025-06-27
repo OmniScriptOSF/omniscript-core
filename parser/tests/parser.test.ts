@@ -82,7 +82,7 @@ describe('OSF Parser', () => {
         'Function call: func() { return true; }',
         'Object literal: { key: value }',
         'Array with objects: [{ id: 1 }, { id: 2 }]',
-        'Nested braces: { outer: { inner: "value" } }'
+        'Nested braces: { outer: { inner: "value" } }',
       ]);
     });
 
@@ -103,7 +103,7 @@ describe('OSF Parser', () => {
       expect(slideBlock.bullets).toEqual([
         'Quote inside: "Hello World"',
         'Mixed: { "key": "value" }',
-        'Escaped backslash: \\"test\\"'
+        'Escaped backslash: \\"test\\"',
       ]);
     });
 
@@ -183,7 +183,7 @@ describe('OSF Parser', () => {
       // This should work fine
       const result = parse(input);
       expect(result.blocks).toHaveLength(1);
-      
+
       // Test a truly unclosed bullets block
       const badInput = `@slide {
         title: "Test Slide";
@@ -299,7 +299,7 @@ describe('OSF Parser', () => {
 
       const metaBlock = result.blocks[0] as MetaBlock;
       expect(metaBlock.props.temperature).toBe(-25);
-      expect(metaBlock.props.balance).toBe(-1000.50);
+      expect(metaBlock.props.balance).toBe(-1000.5);
       expect(metaBlock.props.offset).toBe(-0.5);
       expect(metaBlock.props.zero).toBe(0);
       expect(metaBlock.props.positive).toBe(42);
@@ -313,7 +313,7 @@ describe('OSF Parser', () => {
 
       const result = parse(input);
       const metaBlock = result.blocks[0] as MetaBlock;
-      
+
       expect(metaBlock.props.values).toEqual([-10, -5.5, 0, 5.5, 10]);
       expect(metaBlock.props.coordinates).toEqual([-1, -2, -3]);
     });
@@ -326,7 +326,7 @@ describe('OSF Parser', () => {
 
       const result = parse(input);
       const metaBlock = result.blocks[0] as MetaBlock;
-      
+
       expect(metaBlock.props.position).toEqual({ x: -10, y: -20.5, z: -0.1 });
       expect(metaBlock.props.range).toEqual({ min: -100, max: 100 });
     });
@@ -344,12 +344,12 @@ describe('OSF Parser', () => {
 
       const result = parse(input);
       const sheetBlock = result.blocks[0] as SheetBlock;
-      
+
       expect(sheetBlock.data).toEqual({
         '1,1': -42,
         '1,2': -3.14159,
         '2,1': -0.001,
-        '2,2': 100
+        '2,2': 100,
       });
     });
 
@@ -362,7 +362,7 @@ describe('OSF Parser', () => {
 
       const result = parse(input);
       const metaBlock = result.blocks[0] as MetaBlock;
-      
+
       expect(metaBlock.props.minusZero).toBe(-0);
       expect(metaBlock.props.largeNegative).toBe(-999999999);
       expect(metaBlock.props.smallNegative).toBe(-0.000001);
@@ -389,20 +389,201 @@ describe('OSF Parser', () => {
               negative: -42,
               decimal: -3.14,
               zero: -0,
-              positive: 100
-            }
-          } as MetaBlock
-        ]
+              positive: 100,
+            },
+          } as MetaBlock,
+        ],
       };
 
       const serialized = serialize(doc);
-      
+
       expect(serialized).toContain('negative: -42');
       expect(serialized).toContain('decimal: -3.14');
       expect(serialized).toContain('zero: 0'); // -0 should serialize as 0
       expect(serialized).toContain('positive: 100');
     });
 
+    it('should parse escape sequences in strings', () => {
+      const input = `@meta {
+        quote: "She said \\"Hello\\"";
+        backslash: "Path\\\\to\\\\file";
+        newline: "Line 1\\nLine 2";
+        tab: "Col1\\tCol2";
+        carriageReturn: "CR\\rLF";
+        backspace: "Back\\bspace";
+        formFeed: "Form\\fFeed";
+        verticalTab: "Vert\\vTab";
+        nullChar: "Null\\0Char";
+        forwardSlash: "URL: http:\\/\\/example.com";
+      }`;
+
+      const result = parse(input);
+      const metaBlock = result.blocks[0] as MetaBlock;
+
+      expect(metaBlock.props.quote).toBe('She said "Hello"');
+      expect(metaBlock.props.backslash).toBe('Path\\to\\file');
+      expect(metaBlock.props.newline).toBe('Line 1\nLine 2');
+      expect(metaBlock.props.tab).toBe('Col1\tCol2');
+      expect(metaBlock.props.carriageReturn).toBe('CR\rLF');
+      expect(metaBlock.props.backspace).toBe('Back\bspace');
+      expect(metaBlock.props.formFeed).toBe('Form\fFeed');
+      expect(metaBlock.props.verticalTab).toBe('Vert\vTab');
+      expect(metaBlock.props.nullChar).toBe('Null\0Char');
+      expect(metaBlock.props.forwardSlash).toBe('URL: http://example.com');
+    });
+
+    it('should handle unknown escape sequences', () => {
+      const input = `@meta {
+        unknown: "Unknown\\xEscape";
+        mixed: "Valid\\nAnd\\yInvalid";
+      }`;
+
+      const result = parse(input);
+      const metaBlock = result.blocks[0] as MetaBlock;
+
+      // Unknown escape sequences should preserve the backslash
+      expect(metaBlock.props.unknown).toBe('Unknown\\xEscape');
+      expect(metaBlock.props.mixed).toBe('Valid\nAnd\\yInvalid');
+    });
+
+    it('should parse escape sequences in bullet points', () => {
+      const input = `@slide {
+        title: "Escape Test";
+        bullets {
+          "Quote: \\"Hello World\\"";
+          "Path: C:\\\\Users\\\\Name";
+          "Multi-line:\\nLine 1\\nLine 2";
+          "Tab-separated:\\tCol1\\tCol2";
+        }
+      }`;
+
+      const result = parse(input);
+      const slideBlock = result.blocks[0] as SlideBlock;
+
+      expect(slideBlock.bullets).toEqual([
+        'Quote: "Hello World"',
+        'Path: C:\\Users\\Name',
+        'Multi-line:\nLine 1\nLine 2',
+        'Tab-separated:\tCol1\tCol2',
+      ]);
+    });
+
+    it('should parse escape sequences in arrays and objects', () => {
+      const input = `@meta {
+        paths: ["C:\\\\temp", "D:\\\\data\\\\file.txt"];
+        config: { 
+          message: "Hello\\nWorld"; 
+          path: "C:\\\\Program Files"; 
+        };
+      }`;
+
+      const result = parse(input);
+      const metaBlock = result.blocks[0] as MetaBlock;
+
+      expect(metaBlock.props.paths).toEqual(['C:\\temp', 'D:\\data\\file.txt']);
+      expect(metaBlock.props.config).toEqual({
+        message: 'Hello\nWorld',
+        path: 'C:\\Program Files',
+      });
+    });
+
+    it('should serialize strings with proper escaping', () => {
+      const doc: OSFDocument = {
+        blocks: [
+          {
+            type: 'meta',
+            props: {
+              quote: 'She said "Hello"',
+              backslash: 'Path\\to\\file',
+              newline: 'Line 1\nLine 2',
+              tab: 'Col1\tCol2',
+              carriageReturn: 'CR\rLF',
+              backspace: 'Back\bspace',
+              formFeed: 'Form\fFeed',
+              verticalTab: 'Vert\vTab',
+              nullChar: 'Null\0Char',
+              mixed: 'Quote: "Test"\nNew line\tTab',
+            },
+          } as MetaBlock,
+        ],
+      };
+
+      const serialized = serialize(doc);
+
+      expect(serialized).toContain('quote: "She said \\"Hello\\"";');
+      expect(serialized).toContain('backslash: "Path\\\\to\\\\file";');
+      expect(serialized).toContain('newline: "Line 1\\nLine 2";');
+      expect(serialized).toContain('tab: "Col1\\tCol2";');
+      expect(serialized).toContain('carriageReturn: "CR\\rLF";');
+      expect(serialized).toContain('backspace: "Back\\bspace";');
+      expect(serialized).toContain('formFeed: "Form\\fFeed";');
+      expect(serialized).toContain('verticalTab: "Vert\\vTab";');
+      expect(serialized).toContain('nullChar: "Null\\0Char";');
+      expect(serialized).toContain('mixed: "Quote: \\"Test\\"\\nNew line\\tTab";');
+    });
+
+    it('should serialize bullet points with proper escaping', () => {
+      const doc: OSFDocument = {
+        blocks: [
+          {
+            type: 'slide',
+            title: 'Escape Test',
+            bullets: [
+              'Quote: "Hello World"',
+              'Path: C:\\Users\\Name',
+              'Multi-line:\nLine 1\nLine 2',
+              'Tab-separated:\tCol1\tCol2',
+            ],
+          } as SlideBlock,
+        ],
+      };
+
+      const serialized = serialize(doc);
+
+      expect(serialized).toContain('"Quote: \\"Hello World\\"";');
+      expect(serialized).toContain('"Path: C:\\\\Users\\\\Name";');
+      expect(serialized).toContain('"Multi-line:\\nLine 1\\nLine 2";');
+      expect(serialized).toContain('"Tab-separated:\\tCol1\\tCol2";');
+    });
+
+    it('should round-trip escape sequences correctly', () => {
+      const originalDoc: OSFDocument = {
+        blocks: [
+          {
+            type: 'meta',
+            props: {
+              complex: 'Quote: "Test"\nNew line\tTab\rCR\\Backslash',
+            },
+          } as MetaBlock,
+        ],
+      };
+
+      // Serialize and then parse back
+      const serialized = serialize(originalDoc);
+      const parsedDoc = parse(serialized);
+
+      const originalMeta = originalDoc.blocks[0] as MetaBlock;
+      const parsedMeta = parsedDoc.blocks[0] as MetaBlock;
+
+      expect(parsedMeta.props.complex).toBe(originalMeta.props.complex);
+    });
+
+    it('should handle edge cases in escape sequences', () => {
+      const input = `@meta {
+        endingBackslash: "Path\\\\";
+        multipleEscapes: "\\"Quote\\" and \\\\backslash\\\\";
+        emptyAfterEscape: "Text\\n";
+        onlyEscapes: "\\t\\n\\r";
+      }`;
+
+      const result = parse(input);
+      const metaBlock = result.blocks[0] as MetaBlock;
+
+      expect(metaBlock.props.endingBackslash).toBe('Path\\');
+      expect(metaBlock.props.multipleEscapes).toBe('"Quote" and \\backslash\\');
+      expect(metaBlock.props.emptyAfterEscape).toBe('Text\n');
+      expect(metaBlock.props.onlyEscapes).toBe('\t\n\r');
+    });
   });
 
   describe('serialize', () => {

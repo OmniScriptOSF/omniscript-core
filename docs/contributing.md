@@ -2,7 +2,8 @@
 
 We welcome pull requests!
 
-1. Read the OSF v0.5 specification in [spec/v0.5](../spec/v0.5/) to understand the current language features.
+1. Read the OSF v0.5 specification in [spec/v0.5](../spec/v0.5/) to understand
+   the current language features.
 2. Follow the coding style used in the parser and CLI packages.
 3. Tests are located under `tests/` and `parser/tests`. Please add tests for new
    functionality.
