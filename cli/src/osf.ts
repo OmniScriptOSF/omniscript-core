@@ -796,12 +796,12 @@ function main(): void {
         }
         // Basic syntax validation through parsing
         const doc = parse(loadFile(fileName));
-        
+
         // If parsing succeeds, the document is syntactically valid
         if (doc.blocks.length === 0) {
           console.log('⚠️  Warning: Document contains no blocks');
         }
-        
+
         // Schema validation temporarily disabled
         // const obj = exportJson(doc);
         // const parsed = JSON.parse(obj);
@@ -810,7 +810,7 @@ function main(): void {
         //   console.error(ajv.errorsText(validateOsf.errors || undefined));
         //   process.exit(1);
         // }
-        
+
         console.log('✅ Lint passed: Document syntax is valid');
         break;
       }

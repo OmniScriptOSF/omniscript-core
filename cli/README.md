@@ -3,7 +3,8 @@
 [![npm version](https://badge.fury.io/js/omniscript-cli.svg)](https://badge.fury.io/js/omniscript-cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Professional command-line tools for the **OmniScript Format (OSF)** - a universal document DSL designed for LLMs, agentic AI, and Git-native workflows.
+Professional command-line tools for the **OmniScript Format (OSF)** - a
+universal document DSL designed for LLMs, agentic AI, and Git-native workflows.
 
 ## 🚀 Features
 
@@ -78,6 +79,7 @@ osf parse document.osf > parsed.json
 ```
 
 **Options:**
+
 - `<file>` - Path to the OSF file to parse
 
 **Output:** JSON representation of the parsed document structure
@@ -92,9 +94,11 @@ osf lint *.osf  # Lint multiple files
 ```
 
 **Options:**
+
 - `<file>` - Path to the OSF file(s) to lint
 
 **Exit Codes:**
+
 - `0` - No errors found
 - `1` - Syntax errors or validation failures
 
@@ -108,6 +112,7 @@ osf format document.osf --output clean.osf # Save to file
 ```
 
 **Options:**
+
 - `<file>` - Path to the OSF file to format
 - `--output, -o <file>` - Output file path (default: stdout)
 
@@ -122,11 +127,14 @@ osf render slides.osf --format html               # Explicit HTML format
 ```
 
 **Options:**
+
 - `<file>` - Path to the OSF file to render
-- `--format, -f <format>` - Output format: `html`, `pdf`, `docx`, `pptx`, `xlsx` (default: html)
+- `--format, -f <format>` - Output format: `html`, `pdf`, `docx`, `pptx`, `xlsx`
+  (default: html)
 - `--output, -o <file>` - Output file path (default: stdout)
 
 **Supported Formats:**
+
 - `html` - Responsive HTML with CSS styling ✅
 - `pdf` - PDF document (planned)
 - `docx` - Microsoft Word document (planned)
@@ -144,11 +152,13 @@ osf export document.osf --output document.md      # Save to file
 ```
 
 **Options:**
+
 - `<file>` - Path to the OSF file to export
 - `--target, -t <format>` - Export format: `md`, `json` (default: md)
 - `--output, -o <file>` - Output file path (default: stdout)
 
 **Export Formats:**
+
 - `md` - Markdown with formula results and metadata frontmatter
 - `json` - Structured JSON with computed values
 
@@ -162,10 +172,12 @@ osf diff document.osf document-v2.osf
 ```
 
 **Options:**
+
 - `<file1>` - First OSF file to compare
 - `<file2>` - Second OSF file to compare
 
 **Exit Codes:**
+
 - `0` - Files are identical
 - `1` - Files differ or comparison failed
 
@@ -184,7 +196,7 @@ cat > example.osf << 'EOF'
 
 @doc {
   # Welcome to OSF
-  
+
   This is a **powerful** document format that supports:
   - Rich text formatting
   - Structured data
@@ -350,6 +362,7 @@ The HTML renderer includes:
 ### Common Issues
 
 **Permission Denied (Global Install)**
+
 ```bash
 # Use sudo on Unix systems
 sudo npm install -g omniscript-cli
@@ -360,6 +373,7 @@ export PATH=~/.local/bin:$PATH
 ```
 
 **Module Not Found**
+
 ```bash
 # Reinstall the package
 npm uninstall -g omniscript-cli
@@ -370,6 +384,7 @@ npx omniscript-cli parse document.osf
 ```
 
 **Parse Errors**
+
 ```bash
 # Enable debug mode for detailed errors
 DEBUG=1 osf parse document.osf
@@ -400,7 +415,7 @@ osf parse problematic.osf
 
 @doc {
   # Markdown Content
-  
+
   Regular **markdown** formatting is supported.
 }
 
@@ -440,13 +455,17 @@ formula (3,1): "=IF(A1>100, 'High', 'Low')";
 
 ## 🔗 Related Tools
 
-- [`omniscript-parser`](https://www.npmjs.com/package/omniscript-parser) - Core parsing library
-- [OSF Specification](https://github.com/OmniScriptOSF/omniscript-core/tree/main/spec) - Format specification
-- [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=omniscript.osf) - Syntax highlighting (planned)
+- [`omniscript-parser`](https://www.npmjs.com/package/omniscript-parser) - Core
+  parsing library
+- [OSF Specification](https://github.com/OmniScriptOSF/omniscript-core/tree/main/spec) -
+  Format specification
+- [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=omniscript.osf) -
+  Syntax highlighting (planned)
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](https://github.com/OmniScriptOSF/omniscript-core/blob/main/CONTRIBUTING.md).
+We welcome contributions! Please see our
+[Contributing Guide](https://github.com/OmniScriptOSF/omniscript-core/blob/main/CONTRIBUTING.md).
 
 ### Development Setup
 
@@ -470,7 +489,9 @@ pnpm test
 
 ## 📄 License
 
-MIT License - see the [LICENSE](https://github.com/OmniScriptOSF/omniscript-core/blob/main/LICENSE) file for details.
+MIT License - see the
+[LICENSE](https://github.com/OmniScriptOSF/omniscript-core/blob/main/LICENSE)
+file for details.
 
 ## 📞 Support
 
@@ -478,7 +499,8 @@ MIT License - see the [LICENSE](https://github.com/OmniScriptOSF/omniscript-core
 - 💬 [Discussions](https://github.com/OmniScriptOSF/omniscript-core/discussions)
 - 🏢 [Organization](https://github.com/OmniScriptOSF)
 - 👤 [Owner](https://github.com/alpha912/)
-- 📖 [Documentation](https://github.com/OmniScriptOSF/omniscript-core/tree/main/docs)
+- 📖
+  [Documentation](https://github.com/OmniScriptOSF/omniscript-core/tree/main/docs)
 
 ## 🗺️ Roadmap
 
@@ -491,4 +513,4 @@ MIT License - see the [LICENSE](https://github.com/OmniScriptOSF/omniscript-core
 
 ---
 
-*Empowering the future of document processing with OSF* 🚀 
+_Empowering the future of document processing with OSF_ 🚀

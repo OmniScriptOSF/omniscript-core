@@ -3,7 +3,9 @@
 [![npm version](https://badge.fury.io/js/omniscript-parser.svg)](https://badge.fury.io/js/omniscript-parser)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A powerful TypeScript parser and serializer for the **OmniScript Format (OSF)** - a universal document DSL designed for LLMs, agentic AI, and Git-native workflows.
+A powerful TypeScript parser and serializer for the **OmniScript Format
+(OSF)** - a universal document DSL designed for LLMs, agentic AI, and Git-native
+workflows.
 
 ## 🚀 Features
 
@@ -87,6 +89,7 @@ console.log(regeneratedOSF);
 Parses OSF content string into a structured document object.
 
 **Parameters:**
+
 - `content` - The OSF content as a string
 
 **Returns:** `OSFDocument` object with parsed blocks
@@ -98,6 +101,7 @@ Parses OSF content string into a structured document object.
 Converts a structured document object back to OSF format.
 
 **Parameters:**
+
 - `document` - The OSFDocument object to serialize
 
 **Returns:** OSF content as a formatted string
@@ -105,6 +109,7 @@ Converts a structured document object back to OSF format.
 ## 🏗️ Document Structure
 
 ### OSFDocument
+
 ```typescript
 interface OSFDocument {
   blocks: OSFBlock[];
@@ -114,6 +119,7 @@ interface OSFDocument {
 ### Block Types
 
 #### MetaBlock
+
 ```typescript
 interface MetaBlock {
   type: 'meta';
@@ -122,6 +128,7 @@ interface MetaBlock {
 ```
 
 #### DocBlock
+
 ```typescript
 interface DocBlock {
   type: 'doc';
@@ -130,6 +137,7 @@ interface DocBlock {
 ```
 
 #### SlideBlock
+
 ```typescript
 interface SlideBlock {
   type: 'slide';
@@ -140,6 +148,7 @@ interface SlideBlock {
 ```
 
 #### SheetBlock
+
 ```typescript
 interface SheetBlock {
   type: 'sheet';
@@ -180,7 +189,7 @@ const sheetBlock = doc.blocks.find(b => b.type === 'sheet') as SheetBlock;
 if (sheetBlock?.data) {
   // Access cell data by coordinate
   const cellValue = sheetBlock.data['1,2']; // Row 1, Column 2
-  
+
   // Process formulas
   if (sheetBlock.formulas) {
     sheetBlock.formulas.forEach(formula => {
@@ -194,7 +203,13 @@ if (sheetBlock?.data) {
 ### Type Guards
 
 ```typescript
-import { parse, MetaBlock, DocBlock, SlideBlock, SheetBlock } from 'omniscript-parser';
+import {
+  parse,
+  MetaBlock,
+  DocBlock,
+  SlideBlock,
+  SheetBlock,
+} from 'omniscript-parser';
 
 const doc = parse(osfContent);
 
@@ -269,16 +284,22 @@ The OmniScript Format (OSF) is designed to be:
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please see our [Contributing Guide](https://github.com/OmniScriptOSF/omniscript-core/blob/main/CONTRIBUTING.md) for details.
+Contributions are welcome! Please see our
+[Contributing Guide](https://github.com/OmniScriptOSF/omniscript-core/blob/main/CONTRIBUTING.md)
+for details.
 
 ## 📄 License
 
-MIT License - see the [LICENSE](https://github.com/OmniScriptOSF/omniscript-core/blob/main/LICENSE) file for details.
+MIT License - see the
+[LICENSE](https://github.com/OmniScriptOSF/omniscript-core/blob/main/LICENSE)
+file for details.
 
 ## 🔗 Related Packages
 
-- [`omniscript-cli`](https://www.npmjs.com/package/omniscript-cli) - Command-line tools for OSF
-- [OSF Specification](https://github.com/OmniScriptOSF/omniscript-core/tree/main/spec) - Complete format specification
+- [`omniscript-cli`](https://www.npmjs.com/package/omniscript-cli) -
+  Command-line tools for OSF
+- [OSF Specification](https://github.com/OmniScriptOSF/omniscript-core/tree/main/spec) -
+  Complete format specification
 
 ## 📞 Support
 
@@ -289,4 +310,4 @@ MIT License - see the [LICENSE](https://github.com/OmniScriptOSF/omniscript-core
 
 ---
 
-*Built with ❤️ for the future of document processing* 
+_Built with ❤️ for the future of document processing_
