@@ -10,7 +10,7 @@ OmniScript Format (OSF) unifies the strengths of:
 - **XLSX / YAML / JSON**: data tables, live formulas, charts
 
 `omniscript-core` provides the formal specification, parser, serializer, and
-reference CLI tooling for OSF. **Current version: v0.5.0.**
+reference CLI tooling for OSF. **Current version: v0.5.4.**
 
 ---
 
@@ -104,19 +104,39 @@ For a more complete example with multiple slides and a sheet, see
 
 ## 🛠 Getting Started
 
+### For Development
+
 Ensure **Node.js 18+** is installed, then run:
 
 ```bash
-npm install
-npm run build
-npm test
+pnpm install
+pnpm run build
+pnpm test
+```
+
+### For Users
+
+Install the CLI globally:
+
+```bash
+npm install -g omniscript-cli
+# or
+pnpm add -g omniscript-cli
+```
+
+Or use the parser library in your project:
+
+```bash
+npm install omniscript-parser
+# or
+pnpm add omniscript-parser
 ```
 
 ---
 
 ## 🚀 CLI Features
 
-The reference CLI implements several spec-defined commands:
+The reference CLI (`omniscript-cli@0.5.4`) implements several spec-defined commands:
 
 - `osf parse <file>` → Parse and validate OSF file syntax.
 - `osf lint <file>` → Style and structure checks.
@@ -125,45 +145,48 @@ The reference CLI implements several spec-defined commands:
 - `osf export <file> --target <md>` → Export OSF to Markdown.
 - `osf format <file>` → Auto-format OSF for style consistency.
 
-### Using the reference CLI
+📦 **Available on npm:** [`omniscript-cli`](https://www.npmjs.com/package/omniscript-cli)
 
-Follow these steps to build and run the CLI:
+### Using the CLI
 
-1. **Install dependencies** (required before running tests)
+**Option 1: Global Installation (Recommended)**
+
+```bash
+npm install -g omniscript-cli
+osf --version
+osf parse examples/v0.5_spec_example.osf
+```
+
+**Option 2: Development/Local Build**
+
+Follow these steps to build and run the CLI from source:
+
+1. **Install dependencies**
 
    ```bash
-   npm install
+   pnpm install
    ```
 
-   Installing will automatically run the build thanks to the `prepare` script.
-
-2. **Compile the TypeScript sources** (if you need to rebuild manually)
+2. **Build the packages**
 
    ```bash
-   npm run build
-   # or run the test suite which also triggers the build
-   npm test
+   pnpm run build
    ```
 
-3. **Invoke the CLI from the compiled `dist` directory**
-
-   For the full spec example:
+3. **Run from source**
 
    ```bash
    node cli/dist/osf.js parse examples/v0.5_spec_example.osf
+   node cli/dist/osf.js render examples/rich_demo.osf --format html
+   node cli/dist/osf.js export examples/test_minimal.osf --target md
    ```
 
-   For a richer demo:
+---
 
-   ```bash
-   node cli/dist/osf.js parse examples/rich_demo.osf
-   ```
+## 📦 Published Packages
 
-   Or to parse a minimal test file:
-
-   ```bash
-   node cli/dist/osf.js parse examples/test_minimal.osf
-   ```
+- **[`omniscript-parser@0.5.2`](https://www.npmjs.com/package/omniscript-parser)** - Core parsing library with TypeScript support
+- **[`omniscript-cli@0.5.4`](https://www.npmjs.com/package/omniscript-cli)** - Command-line tools with `osf` binary
 
 ---
 
@@ -175,7 +198,9 @@ We welcome contributions!
 
 ➡ All contributors must adhere to our [Code of Conduct](CODE_OF_CONDUCT.md).
 
-➡ Maintainer: **Alphin Tom** ([alpha912](https://github.com/alpha912))
+➡ Organization: [OmniScriptOSF](https://github.com/OmniScriptOSF)
+
+➡ Maintainer: **Alphin Tom** ([alpha912](https://github.com/alpha912/))
 
 ---
 
