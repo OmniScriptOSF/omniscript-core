@@ -366,10 +366,7 @@ function diffDocs(a: OSFDocument, b: OSFDocument): string[] {
       diffs.push(`Block ${i} type changed from ${blockA.type} to ${blockB.type}`);
     }
 
-    const keys = new Set([
-      ...Object.keys(blockA as any),
-      ...Object.keys(blockB as any),
-    ]);
+    const keys = new Set([...Object.keys(blockA as any), ...Object.keys(blockB as any)]);
     keys.delete('type');
 
     for (const key of keys) {

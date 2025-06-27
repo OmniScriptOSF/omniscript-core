@@ -254,9 +254,13 @@ describe('OSF CLI', () => {
       writeFileSync(testFile2, differentOSF, 'utf8');
 
       try {
-        const result = execSync(`node "${CLI_PATH}" diff "${testFile}" "${testFile2}"`, { encoding: 'utf8' });
+        const result = execSync(`node "${CLI_PATH}" diff "${testFile}" "${testFile2}"`, {
+          encoding: 'utf8',
+        });
         // If execSync succeeds unexpectedly, fail the test with clear message
-        expect.fail(`Expected diff command to fail for different files, but it succeeded with output: ${result}`);
+        expect.fail(
+          `Expected diff command to fail for different files, but it succeeded with output: ${result}`
+        );
       } catch (err: any) {
         // Only check output if this is an actual execSync error (has stdout property)
         if (err.stdout !== undefined) {
