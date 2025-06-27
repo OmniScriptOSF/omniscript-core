@@ -8,6 +8,7 @@ import {
   DocBlock,
   SlideBlock,
   SheetBlock,
+  OSFValue,
 } from 'omniscript-parser';
 
 // Type for spreadsheet cell values (compatible with OSFValue)
@@ -17,9 +18,7 @@ type CellValue = string | number | boolean;
 type SpreadsheetData = Record<string, CellValue>;
 
 // Helper function to convert OSFValue to CellValue
-function toSpreadsheetData(
-  data: Record<string, import('../../parser/dist').OSFValue> | undefined
-): SpreadsheetData {
+function toSpreadsheetData(data: Record<string, OSFValue> | undefined): SpreadsheetData {
   if (!data) return {};
 
   const result: SpreadsheetData = {};
