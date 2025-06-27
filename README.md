@@ -194,6 +194,44 @@ Follow these steps to build and run the CLI from source:
 
 ---
 
+## 🔧 Development & Release
+
+### Development Setup
+
+```bash
+# Clone and setup
+git clone https://github.com/OmniScriptOSF/omniscript-core.git
+cd omniscript-core
+pnpm install
+pnpm run build
+pnpm test
+```
+
+### Creating Releases
+
+For maintainers, automated releases are available:
+
+```bash
+# Patch release (bug fixes): 0.5.4 → 0.5.5
+pnpm run release:patch
+
+# Minor release (new features): 0.5.4 → 0.6.0
+pnpm run release:minor
+
+# Major release (breaking changes): 0.5.4 → 1.0.0
+pnpm run release:major
+```
+
+These commands will:
+- Run all tests and quality checks
+- Update package versions automatically
+- Create GitHub releases with changelog
+- Trigger automated npm publishing
+
+📖 See [scripts/README.md](scripts/README.md) for detailed release documentation.
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions!
