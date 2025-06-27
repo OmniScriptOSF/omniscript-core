@@ -1,5 +1,5 @@
 {
-  "name": "@osf/parser",
+  "name": "omniscript-parser",
   "version": "0.5.0",
   "description": "OmniScript Format (OSF) parser and serializer",
   "main": "dist/index.js",

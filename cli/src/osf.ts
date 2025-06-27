@@ -9,7 +9,7 @@ import {
   DocBlock,
   SlideBlock,
   SheetBlock,
-} from '../../parser/dist';
+} from 'omniscript-parser';
 
 // Type for spreadsheet cell values (compatible with OSFValue)
 type CellValue = string | number | boolean;
