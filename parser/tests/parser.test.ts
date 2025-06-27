@@ -584,6 +584,261 @@ describe('OSF Parser', () => {
       expect(metaBlock.props.emptyAfterEscape).toBe('Text\n');
       expect(metaBlock.props.onlyEscapes).toBe('\t\n\r');
     });
+
+    it('should handle semicolons inside bullet strings', () => {
+      const input = `@slide {
+        title: "Semicolon Test";
+        bullets {
+          "Command: console.log('Hello'); return true;";
+          "CSS rule: color: red; background: blue;";
+          "Multiple statements: let x = 1; let y = 2; console.log(x + y);";
+          "SQL query: SELECT * FROM users; UPDATE users SET active = 1;";
+          "Empty semicolon: ;;;";
+          "Mixed content: Text; more text; end.";
+        }
+      }`;
+
+      const result = parse(input);
+      const slideBlock = result.blocks[0] as SlideBlock;
+
+      expect(slideBlock.bullets).toEqual([
+        "Command: console.log('Hello'); return true;",
+        'CSS rule: color: red; background: blue;',
+        'Multiple statements: let x = 1; let y = 2; console.log(x + y);',
+        'SQL query: SELECT * FROM users; UPDATE users SET active = 1;',
+        'Empty semicolon: ;;;',
+        'Mixed content: Text; more text; end.',
+      ]);
+    });
+
+    it('should handle semicolons in bullet strings with escape sequences', () => {
+      const input = `@slide {
+        title: "Complex Semicolon Test";
+        bullets {
+          "Escaped quote with semicolon: \\"Hello; World\\"";
+          "Newline and semicolon: Line 1;\\nLine 2; End";
+          "Tab separated with semicolons: Col1;\\tCol2;\\tCol3;";
+          "Complex: { key: \\"value; more\\"; count: 42; }";
+        }
+      }`;
+
+      const result = parse(input);
+      const slideBlock = result.blocks[0] as SlideBlock;
+
+      expect(slideBlock.bullets).toEqual([
+        'Escaped quote with semicolon: "Hello; World"',
+        'Newline and semicolon: Line 1;\nLine 2; End',
+        'Tab separated with semicolons: Col1;\tCol2;\tCol3;',
+        'Complex: { key: "value; more"; count: 42; }',
+      ]);
+    });
+
+    it('should handle semicolons inside sheet cell values', () => {
+      const input = `@sheet {
+        name: "SemicolonSheet";
+        data {
+          (1,1) = "JavaScript: let x = 1; console.log(x);";
+          (1,2) = "CSS: color: red; font-size: 14px;";
+          (2,1) = "SQL: SELECT id, name FROM users; DROP TABLE logs;";
+          (2,2) = "Config: debug=true; verbose=false; timeout=30;";
+          (3,1) = 42;
+          (3,2) = "Mixed: number=123; text=hello; end";
+        }
+      }`;
+
+      const result = parse(input);
+      const sheetBlock = result.blocks[0] as SheetBlock;
+
+      expect(sheetBlock.data).toEqual({
+        '1,1': 'JavaScript: let x = 1; console.log(x);',
+        '1,2': 'CSS: color: red; font-size: 14px;',
+        '2,1': 'SQL: SELECT id, name FROM users; DROP TABLE logs;',
+        '2,2': 'Config: debug=true; verbose=false; timeout=30;',
+        '3,1': 42,
+        '3,2': 'Mixed: number=123; text=hello; end',
+      });
+    });
+
+    it('should handle semicolons in sheet cell values with escape sequences', () => {
+      const input = `@sheet {
+        name: "ComplexSemicolonSheet";
+        data {
+          (1,1) = "Quote with semicolon: \\"Hello; World\\"";
+          (1,2) = "Newline: Line1;\\nLine2; End";
+          (2,1) = "Tab: Col1;\\tCol2;\\tCol3;";
+          (2,2) = "Backslash: Path\\\\to\\\\file; More text;";
+          (3,1) = "Complex object: { \\"key\\": \\"value; more\\"; \\"count\\": 42; }";
+          (3,2) = "Empty semicolons: ;;;";
+        }
+      }`;
+
+      const result = parse(input);
+      const sheetBlock = result.blocks[0] as SheetBlock;
+
+      expect(sheetBlock.data).toEqual({
+        '1,1': 'Quote with semicolon: "Hello; World"',
+        '1,2': 'Newline: Line1;\nLine2; End',
+        '2,1': 'Tab: Col1;\tCol2;\tCol3;',
+        '2,2': 'Backslash: Path\\to\\file; More text;',
+        '3,1': 'Complex object: { "key": "value; more"; "count": 42; }',
+        '3,2': 'Empty semicolons: ;;;',
+      });
+    });
+
+    it('should handle mixed data types with semicolons in sheet cells', () => {
+      const input = `@sheet {
+        name: "MixedTypesSheet";
+        data {
+          (1,1) = "String with semicolons: a;b;c;";
+          (1,2) = 123;
+          (1,3) = -45.67;
+          (2,1) = ["Array", "with; semicolons", "in; strings"];
+          (2,2) = { key: "value; more"; num: 42; };
+          (2,3) = true;
+          (3,1) = "SQL: INSERT INTO table (col1, col2) VALUES ('a;b', 'c;d');";
+        }
+      }`;
+
+      const result = parse(input);
+      const sheetBlock = result.blocks[0] as SheetBlock;
+
+      expect(sheetBlock.data).toEqual({
+        '1,1': 'String with semicolons: a;b;c;',
+        '1,2': 123,
+        '1,3': -45.67,
+        '2,1': ['Array', 'with; semicolons', 'in; strings'],
+        '2,2': { key: 'value; more', num: 42 },
+        '2,3': true,
+        '3,1': "SQL: INSERT INTO table (col1, col2) VALUES ('a;b', 'c;d');",
+      });
+    });
+
+    it('should serialize bullet strings with semicolons correctly', () => {
+      const doc: OSFDocument = {
+        blocks: [
+          {
+            type: 'slide',
+            title: 'Semicolon Test',
+            bullets: [
+              'JavaScript: let x = 1; console.log(x);',
+              'CSS: color: red; background: blue;',
+              'Complex: { "key": "value; more"; "count": 42; }',
+            ],
+          } as SlideBlock,
+        ],
+      };
+
+      const serialized = serialize(doc);
+
+      expect(serialized).toContain('"JavaScript: let x = 1; console.log(x);";');
+      expect(serialized).toContain('"CSS: color: red; background: blue;";');
+      expect(serialized).toContain(
+        '"Complex: { \\"key\\": \\"value; more\\"; \\"count\\": 42; }";'
+      );
+    });
+
+    it('should serialize sheet cell values with semicolons correctly', () => {
+      const doc: OSFDocument = {
+        blocks: [
+          {
+            type: 'sheet',
+            name: 'SemicolonSheet',
+            data: {
+              '1,1': 'JavaScript: let x = 1; console.log(x);',
+              '1,2': 'CSS: color: red; background: blue;',
+              '2,1': 42,
+              '2,2': 'Complex: { "key": "value; more"; "count": 42; }',
+            },
+          } as SheetBlock,
+        ],
+      };
+
+      const serialized = serialize(doc);
+
+      expect(serialized).toContain('(1,1) = "JavaScript: let x = 1; console.log(x);";');
+      expect(serialized).toContain('(1,2) = "CSS: color: red; background: blue;";');
+      expect(serialized).toContain('(2,1) = 42;');
+      expect(serialized).toContain(
+        '(2,2) = "Complex: { \\"key\\": \\"value; more\\"; \\"count\\": 42; }";'
+      );
+    });
+
+    it('should round-trip documents with semicolons in bullets and sheet cells', () => {
+      const original = `@slide {
+  title: "Semicolon Test";
+  bullets {
+    "JavaScript: let x = 1; console.log(x);";
+    "CSS: color: red; background: blue;";
+  }
+}
+
+@sheet {
+  name: "SemicolonData";
+  data {
+    (1,1) = "SQL: SELECT * FROM users; UPDATE users SET active = 1;";
+    (1,2) = 42;
+    (2,1) = "Config: debug=true; verbose=false;";
+  }
+}`;
+
+      const parsed1 = parse(original);
+      const serialized = serialize(parsed1);
+      const parsed2 = parse(serialized);
+
+      expect(parsed2.blocks).toHaveLength(parsed1.blocks.length);
+
+      const slide1 = parsed1.blocks[0] as SlideBlock;
+      const slide2 = parsed2.blocks[0] as SlideBlock;
+      expect(slide2.bullets).toEqual(slide1.bullets);
+
+      const sheet1 = parsed1.blocks[1] as SheetBlock;
+      const sheet2 = parsed2.blocks[1] as SheetBlock;
+      expect(sheet2.data).toEqual(sheet1.data);
+    });
+
+    it('should handle edge cases with semicolons', () => {
+      const input = `@slide {
+        title: "Edge Cases";
+        bullets {
+          "Only semicolons: ;;;;;;;;";
+          "Semicolon at start: ;hello world";
+          "Semicolon at end: hello world;";
+          "Multiple consecutive: hello;;world;;test;";
+          "";
+          "Escaped semicolon: \\;not a separator";
+        }
+      }
+
+      @sheet {
+        name: "EdgeCases";
+        data {
+          (1,1) = "Only semicolons: ;;;;;;;;";
+          (1,2) = "Semicolon at start: ;hello";
+          (2,1) = "Semicolon at end: hello;";
+          (2,2) = "";
+        }
+      }`;
+
+      const result = parse(input);
+
+      const slideBlock = result.blocks[0] as SlideBlock;
+      expect(slideBlock.bullets).toEqual([
+        'Only semicolons: ;;;;;;;;',
+        'Semicolon at start: ;hello world',
+        'Semicolon at end: hello world;',
+        'Multiple consecutive: hello;;world;;test;',
+        '',
+        'Escaped semicolon: \\;not a separator',
+      ]);
+
+      const sheetBlock = result.blocks[1] as SheetBlock;
+      expect(sheetBlock.data).toEqual({
+        '1,1': 'Only semicolons: ;;;;;;;;',
+        '1,2': 'Semicolon at start: ;hello',
+        '2,1': 'Semicolon at end: hello;',
+        '2,2': '',
+      });
+    });
   });
 
   describe('serialize', () => {

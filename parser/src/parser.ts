@@ -1,4 +1,12 @@
-import { OSFDocument, OSFBlock, MetaBlock, DocBlock, SlideBlock, SheetBlock } from './types';
+import {
+  OSFDocument,
+  OSFBlock,
+  MetaBlock,
+  DocBlock,
+  SlideBlock,
+  SheetBlock,
+  OSFValue,
+} from './types';
 
 interface RawBlock {
   type: string;
@@ -59,11 +67,11 @@ function skipWS(str: string, i: number): number {
 
 function parseIdentifier(str: string, i: number): { id: string; index: number } {
   const start = i;
-  if (i >= str.length || !/[A-Za-z]/.test(str[i]!)) {
+  if (i >= str.length || !/[A-Za-z]/.test(str[i] || '')) {
     throw new Error('Expected identifier starting with a letter');
   }
   i++; // consume first letter
-  while (i < str.length && /[A-Za-z0-9_%]/.test(str[i]!)) i++;
+  while (i < str.length && /[A-Za-z0-9_%]/.test(str[i] || '')) i++;
   return { id: str.slice(start, i), index: i };
 }
 
@@ -107,7 +115,7 @@ function parseString(str: string, i: number): { value: string; index: number } {
           break;
         default:
           // For unknown escape sequences, preserve the backslash and character
-          out += str[j]! + nextChar!;
+          out += str[j] + (nextChar || '');
           break;
       }
       j += 2;
@@ -128,7 +136,7 @@ function parseNumber(str: string, i: number): { value: number; index: number } {
   }
 
   // Parse digits and decimal point
-  while (j < str.length && /[0-9.]/.test(str[j]!)) j++;
+  while (j < str.length && /[0-9.]/.test(str[j] || '')) j++;
 
   // Ensure we actually parsed some digits after the optional minus sign
   if (j === i || (j === i + 1 && str[i] === '-')) {
@@ -138,7 +146,7 @@ function parseNumber(str: string, i: number): { value: number; index: number } {
   return { value: Number(str.slice(i, j)), index: j };
 }
 
-function parseValue(str: string, i: number): { value: any; index: number } {
+function parseValue(str: string, i: number): { value: OSFValue; index: number } {
   i = skipWS(str, i);
   const ch = str[i];
   if (!ch) throw new Error('Unexpected end of input');
@@ -146,7 +154,7 @@ function parseValue(str: string, i: number): { value: any; index: number } {
   if (ch === '"') return parseString(str, i);
   if (ch === '[') {
     i++;
-    const arr: any[] = [];
+    const arr: OSFValue[] = [];
     i = skipWS(str, i);
     while (i < str.length && str[i] !== ']') {
       const v = parseValue(str, i);
@@ -164,15 +172,15 @@ function parseValue(str: string, i: number): { value: any; index: number } {
     return { value: res.obj, index: res.index + 1 };
   }
   if (/\d/.test(ch)) return parseNumber(str, i);
-  if (ch === '-' && i + 1 < str.length && /\d/.test(str[i + 1]!)) return parseNumber(str, i);
+  if (ch === '-' && i + 1 < str.length && /\d/.test(str[i + 1] || '')) return parseNumber(str, i);
   if (str.startsWith('true', i)) return { value: true, index: i + 4 };
   if (str.startsWith('false', i)) return { value: false, index: i + 5 };
   const id = parseIdentifier(str, i);
   return { value: id.id, index: id.index };
 }
 
-function parseKVInternal(str: string, i: number): { obj: Record<string, any>; index: number } {
-  const obj: Record<string, any> = {};
+function parseKVInternal(str: string, i: number): { obj: Record<string, OSFValue>; index: number } {
+  const obj: Record<string, OSFValue> = {};
   while (i < str.length) {
     i = skipWS(str, i);
     if (i >= str.length || str[i] === '}') break;
@@ -190,7 +198,7 @@ function parseKVInternal(str: string, i: number): { obj: Record<string, any>; in
   return { obj, index: i };
 }
 
-function parseKV(content: string): Record<string, any> {
+function parseKV(content: string): Record<string, OSFValue> {
   const cleaned = removeComments(content);
   return parseKVInternal(cleaned, 0).obj;
 }
@@ -215,7 +223,11 @@ function parseBullets(content: string): string[] {
       while (i < content.length && content[i] !== '"') {
         if (content[i] === '\\' && i + 1 < content.length) {
           // Keep escape sequences as-is for now
-          bulletContent += content[i]! + content[i + 1]!;
+          const currentChar = content[i];
+          const nextChar = content[i + 1];
+          if (currentChar && nextChar) {
+            bulletContent += currentChar + nextChar;
+          }
           i += 2;
         } else {
           bulletContent += content[i];
@@ -322,6 +334,103 @@ function removeBulletsBlock(content: string): string {
   return content.slice(0, bulletMatch.index) + content.slice(i);
 }
 
+function parseSheetData(content: string): Record<string, OSFValue> {
+  const dataMatch = /data\s*\{/.exec(content);
+  if (!dataMatch) return {};
+
+  // Find the matching closing brace, respecting nested braces and quoted strings
+  let i = dataMatch.index + dataMatch[0].length;
+  let depth = 1;
+  let dataContent = '';
+
+  while (i < content.length && depth > 0) {
+    const ch = content[i];
+    if (ch === '"') {
+      // Add the opening quote
+      dataContent += ch;
+      i++;
+      // Process the string content, preserving escape sequences
+      while (i < content.length && content[i] !== '"') {
+        if (content[i] === '\\' && i + 1 < content.length) {
+          // Keep escape sequences as-is
+          const currentChar = content[i];
+          const nextChar = content[i + 1];
+          if (currentChar && nextChar) {
+            dataContent += currentChar + nextChar;
+          }
+          i += 2;
+        } else {
+          dataContent += content[i];
+          i++;
+        }
+      }
+      if (i < content.length) {
+        dataContent += content[i]; // closing quote
+        i++;
+      }
+    } else if (ch === '{') {
+      depth++;
+      dataContent += ch;
+      i++;
+    } else if (ch === '}') {
+      depth--;
+      if (depth > 0) {
+        dataContent += ch;
+      }
+      i++;
+    } else {
+      dataContent += ch;
+      i++;
+    }
+  }
+
+  if (depth > 0) {
+    throw new Error('Unclosed data block');
+  }
+
+  const data: Record<string, OSFValue> = {};
+  let j = 0;
+
+  while (j < dataContent.length) {
+    j = skipWS(dataContent, j);
+    if (j >= dataContent.length) break;
+
+    // Look for pattern: (row,col) = value;
+    const cellMatch = /^\((\d+),(\d+)\)\s*=\s*/.exec(dataContent.slice(j));
+    if (!cellMatch) {
+      // Skip to next semicolon or end
+      while (j < dataContent.length && dataContent[j] !== ';') j++;
+      if (j < dataContent.length) j++; // skip semicolon
+      continue;
+    }
+
+    const row = cellMatch[1];
+    const col = cellMatch[2];
+    j += cellMatch[0].length;
+
+    // Parse the value
+    try {
+      const valueResult = parseValue(dataContent, j);
+      if (row && col) {
+        const key = `${row},${col}`;
+        data[key] = valueResult.value;
+      }
+      j = valueResult.index;
+    } catch {
+      // If parsing fails, skip to next semicolon
+      while (j < dataContent.length && dataContent[j] !== ';') j++;
+    }
+
+    // Skip optional semicolon
+    j = skipWS(dataContent, j);
+    if (j < dataContent.length && dataContent[j] === ';') {
+      j++;
+    }
+  }
+
+  return data;
+}
+
 export function parse(input: string): OSFDocument {
   const blocksRaw = findBlocks(input);
   const blocks: OSFBlock[] = blocksRaw.map(b => {
@@ -347,49 +456,35 @@ export function parse(input: string): OSFDocument {
       }
       case 'sheet': {
         const sheet: SheetBlock = { type: 'sheet', data: {}, formulas: [] };
-        const dataMatch = /data\s*\{([\s\S]*?)\}/.exec(b.content);
-        if (dataMatch) {
-          const dataContent = dataMatch[1];
-          if (dataContent) {
-            const assigns = dataContent
-              .split(/;\s*/)
-              .map(s => s.trim())
-              .filter(Boolean);
-            for (const a of assigns) {
-              const m = /^\((\d+),(\d+)\)\s*=\s*(.+)$/.exec(a);
-              if (m) {
-                const row = m[1];
-                const col = m[2];
-                const value = m[3];
-                if (row && col && value !== undefined) {
-                  const key = `${row},${col}`;
-                  let val: any = value;
-                  if (val.startsWith('"') && val.endsWith('"')) {
-                    val = val.slice(1, -1);
-                  } else if (!isNaN(Number(val))) {
-                    val = Number(val);
-                  }
-                  sheet.data![key] = val;
-                }
-              }
-            }
-          }
-        }
+
+        // Use the new sheet data parser
+        sheet.data = parseSheetData(b.content);
+
         const formulaRegex = /formula\s*\((\d+),(\d+)\)\s*:\s*"([^"]*)";/g;
         let fm: RegExpExecArray | null;
         while ((fm = formulaRegex.exec(b.content))) {
           const row = fm[1];
           const col = fm[2];
           const expr = fm[3];
-          if (row && col && expr) {
-            sheet.formulas!.push({
+          if (row && col && expr && sheet.formulas) {
+            sheet.formulas.push({
               cell: [Number(row), Number(col)],
               expr,
             });
           }
         }
-        const restSheet = b.content.replace(/data\s*\{[\s\S]*?\}/, '').replace(formulaRegex, '');
-        Object.assign(sheet, parseKV(restSheet));
+        const restSheet = b.content
+          .replace(/data\s*\{[\s\S]*?\}/, '')
+          .replace(formulaRegex, '')
+          .trim();
+        if (restSheet) {
+          try {
+            Object.assign(sheet, parseKV(restSheet));
+          } catch {
+            // If parsing the remaining content fails, skip it
+            // This can happen if there's only whitespace or invalid content
+          }
+        }
         return sheet;
       }
       default: {
@@ -407,13 +502,13 @@ function escapeString(str: string): string {
     .replace(/\n/g, '\\n') // Escape newlines
     .replace(/\t/g, '\\t') // Escape tabs
     .replace(/\r/g, '\\r') // Escape carriage returns
-    .replace(/\x08/g, '\\b') // Escape backspaces (use \x08 instead of \b)
+    .replace(String.fromCharCode(8), '\\b') // Escape backspaces
     .replace(/\f/g, '\\f') // Escape form feeds
     .replace(/\v/g, '\\v') // Escape vertical tabs
     .replace(/\0/g, '\\0'); // Escape null characters
 }
 
-function serializeValue(v: any): string {
+function serializeValue(v: OSFValue): string {
   if (Array.isArray(v)) return `[${v.map(serializeValue).join(', ')}]`;
   if (v && typeof v === 'object') {
     const inner = Object.entries(v)
@@ -495,7 +590,8 @@ export function serialize(doc: OSFDocument): string {
           return `@sheet {\n${parts.join('\n')}\n}`;
         }
         default: {
-          return `@doc {\n${(b as any).content || ''}\n}`;
+          const docBlock = b as DocBlock;
+          return `@doc {\n${docBlock.content || ''}\n}`;
         }
       }
     })

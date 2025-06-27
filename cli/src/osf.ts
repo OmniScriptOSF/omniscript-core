@@ -1,7 +1,39 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import Ajv from 'ajv';
-import { parse, serialize, OSFDocument } from '../../parser/dist';
+import {
+  parse,
+  serialize,
+  OSFDocument,
+  MetaBlock,
+  DocBlock,
+  SlideBlock,
+  SheetBlock,
+} from '../../parser/dist';
+
+// Type for spreadsheet cell values (compatible with OSFValue)
+type CellValue = string | number | boolean;
+
+// Type for spreadsheet data
+type SpreadsheetData = Record<string, CellValue>;
+
+// Helper function to convert OSFValue to CellValue
+function toSpreadsheetData(
+  data: Record<string, import('../../parser/dist').OSFValue> | undefined
+): SpreadsheetData {
+  if (!data) return {};
+
+  const result: SpreadsheetData = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      result[key] = value;
+    } else {
+      // Convert complex types to string representation
+      result[key] = String(value);
+    }
+  }
+  return result;
+}
 
 interface CliCommand {
   name: string;
@@ -56,12 +88,12 @@ const validateOsf = ajv.compile(schema);
 
 // Formula evaluator for spreadsheet calculations
 class FormulaEvaluator {
-  private data: Record<string, any>;
+  private data: SpreadsheetData;
   private formulas: Map<string, string>;
-  private computed: Map<string, any>;
+  private computed: Map<string, CellValue>;
   private evaluating: Set<string>; // For circular reference detection
 
-  constructor(data: Record<string, any>, formulas: { cell: [number, number]; expr: string }[]) {
+  constructor(data: SpreadsheetData, formulas: { cell: [number, number]; expr: string }[]) {
     this.data = { ...data };
     this.formulas = new Map();
     this.computed = new Map();
@@ -81,8 +113,12 @@ class FormulaEvaluator {
       throw new Error(`Invalid cell reference: ${cellRef}`);
     }
 
-    const colStr = match[1]!;
-    const rowStr = match[2]!;
+    const colStr = match[1];
+    const rowStr = match[2];
+
+    if (!colStr || !rowStr) {
+      throw new Error(`Invalid cell reference: ${cellRef}`);
+    }
 
     // Convert column letters to number (A=1, B=2, ..., Z=26, AA=27, etc.)
     let col = 0;
@@ -107,7 +143,7 @@ class FormulaEvaluator {
   }
 
   // Get cell value, evaluating formulas if needed
-  getCellValue(row: number, col: number): any {
+  getCellValue(row: number, col: number): CellValue {
     const key = `${row},${col}`;
 
     // Check for circular reference
@@ -117,18 +153,23 @@ class FormulaEvaluator {
 
     // Return cached computed value if available
     if (this.computed.has(key)) {
-      return this.computed.get(key);
+      const cached = this.computed.get(key);
+      if (cached !== undefined) {
+        return cached;
+      }
     }
 
     // Check if there's a formula for this cell
     if (this.formulas.has(key)) {
       this.evaluating.add(key);
       try {
-        const formula = this.formulas.get(key)!;
-        const result = this.evaluateFormula(formula);
-        this.computed.set(key, result);
-        this.evaluating.delete(key);
-        return result;
+        const formula = this.formulas.get(key);
+        if (formula) {
+          const result = this.evaluateFormula(formula);
+          this.computed.set(key, result);
+          this.evaluating.delete(key);
+          return result;
+        }
       } catch (error) {
         this.evaluating.delete(key);
         throw error;
@@ -140,7 +181,7 @@ class FormulaEvaluator {
   }
 
   // Evaluate a formula expression
-  private evaluateFormula(expr: string): any {
+  private evaluateFormula(expr: string): CellValue {
     // Remove leading = if present
     if (expr.startsWith('=')) {
       expr = expr.slice(1);
@@ -181,8 +222,12 @@ class FormulaEvaluator {
       const innerMatch = expr.match(/\(([^()]+)\)/);
       if (!innerMatch) break;
 
-      const innerResult = this.evaluateExpression(innerMatch[1]!);
-      expr = expr.replace(innerMatch[0]!, innerResult.toString());
+      const innerExpr = innerMatch[1];
+      const fullMatch = innerMatch[0];
+      if (innerExpr && fullMatch) {
+        const innerResult = this.evaluateExpression(innerExpr);
+        expr = expr.replace(fullMatch, innerResult.toString());
+      }
     }
 
     // Handle multiplication and division (left to right, same precedence)
@@ -240,8 +285,8 @@ class FormulaEvaluator {
   }
 
   // Get all computed values for a sheet
-  getAllComputedValues(maxRow: number, maxCol: number): Record<string, any> {
-    const result: Record<string, any> = {};
+  getAllComputedValues(maxRow: number, maxCol: number): SpreadsheetData {
+    const result: SpreadsheetData = {};
 
     for (let r = 1; r <= maxRow; r++) {
       for (let c = 1; c <= maxCol; c++) {
@@ -347,7 +392,7 @@ function renderHtml(doc: OSFDocument): string {
   for (const block of doc.blocks) {
     switch (block.type) {
       case 'meta': {
-        const meta = block as any;
+        const meta = block as MetaBlock;
         if (meta.props.title) {
           parts.push(`  <h1>${meta.props.title}</h1>`);
         }
@@ -360,7 +405,8 @@ function renderHtml(doc: OSFDocument): string {
         break;
       }
       case 'doc': {
-        const content = (block as any).content || '';
+        const docBlock = block as DocBlock;
+        const content = docBlock.content || '';
         // Simple Markdown-like processing
         const processed = content
           .replace(/^# (.+)$/gm, '<h1>$1</h1>')
@@ -371,7 +417,7 @@ function renderHtml(doc: OSFDocument): string {
         break;
       }
       case 'slide': {
-        const slide = block as any;
+        const slide = block as SlideBlock;
         parts.push('  <section class="slide">');
         if (slide.title) {
           parts.push(`    <h2>${slide.title}</h2>`);
@@ -387,7 +433,7 @@ function renderHtml(doc: OSFDocument): string {
         break;
       }
       case 'sheet': {
-        const sheet = block as any;
+        const sheet = block as SheetBlock;
         if (sheet.name) {
           parts.push(`  <h3>${sheet.name}</h3>`);
         }
@@ -397,7 +443,7 @@ function renderHtml(doc: OSFDocument): string {
           const cols = Array.isArray(sheet.cols)
             ? sheet.cols
             : String(sheet.cols)
-                .replace(/[\[\]]/g, '')
+                .replace(/[[\]]/g, '')
                 .split(',')
                 .map((s: string) => s.trim());
           parts.push(
@@ -407,15 +453,18 @@ function renderHtml(doc: OSFDocument): string {
 
         if (sheet.data) {
           // Evaluate formulas
-          const evaluator = new FormulaEvaluator(sheet.data, sheet.formulas || []);
+          const evaluator = new FormulaEvaluator(
+            toSpreadsheetData(sheet.data),
+            sheet.formulas || []
+          );
 
           // Calculate dimensions including formula cells
           const dataCoords = Object.keys(sheet.data).map(k => k.split(',').map(Number));
-          const formulaCoords = (sheet.formulas || []).map((f: any) => f.cell);
+          const formulaCoords = (sheet.formulas || []).map(f => f.cell);
           const allCoords = [...dataCoords, ...formulaCoords];
 
-          const maxRow = Math.max(...allCoords.map(c => c[0]!));
-          const maxCol = Math.max(...allCoords.map(c => c[1]!));
+          const maxRow = Math.max(...allCoords.map(c => c[0] || 0));
+          const maxCol = Math.max(...allCoords.map(c => c[1] || 0));
 
           // Get all computed values including formulas
           const allValues = evaluator.getAllComputedValues(maxRow, maxCol);
@@ -426,9 +475,7 @@ function renderHtml(doc: OSFDocument): string {
             for (let c = 1; c <= maxCol; c++) {
               const key = `${r},${c}`;
               const val = allValues[key] ?? '';
-              const hasFormula = sheet.formulas?.some(
-                (f: any) => f.cell[0] === r && f.cell[1] === c
-              );
+              const hasFormula = sheet.formulas?.some(f => f.cell[0] === r && f.cell[1] === c);
               const isError = typeof val === 'string' && val.startsWith('#ERROR:');
 
               const cssClass = isError ? 'error' : hasFormula ? 'computed' : '';
@@ -482,7 +529,7 @@ function exportMarkdown(doc: OSFDocument): string {
   for (const block of doc.blocks) {
     switch (block.type) {
       case 'meta': {
-        const meta = block as any;
+        const meta = block as MetaBlock;
         out.push('---');
         for (const [k, v] of Object.entries(meta.props)) {
           if (typeof v === 'string') {
@@ -496,12 +543,13 @@ function exportMarkdown(doc: OSFDocument): string {
         break;
       }
       case 'doc': {
-        out.push((block as any).content);
+        const doc = block as DocBlock;
+        out.push(doc.content);
         out.push('');
         break;
       }
       case 'slide': {
-        const slide = block as any;
+        const slide = block as SlideBlock;
         if (slide.title) {
           out.push(`## ${slide.title}`);
         }
@@ -514,7 +562,7 @@ function exportMarkdown(doc: OSFDocument): string {
         break;
       }
       case 'sheet': {
-        const sheet = block as any;
+        const sheet = block as SheetBlock;
         if (sheet.name) {
           out.push(`### ${sheet.name}\n`);
         }
@@ -523,7 +571,7 @@ function exportMarkdown(doc: OSFDocument): string {
           const cols = Array.isArray(sheet.cols)
             ? sheet.cols
             : String(sheet.cols)
-                .replace(/[\[\]]/g, '')
+                .replace(/[[\]]/g, '')
                 .split(',')
                 .map((s: string) => s.trim());
           out.push('| ' + cols.join(' | ') + ' |');
@@ -532,15 +580,18 @@ function exportMarkdown(doc: OSFDocument): string {
 
         if (sheet.data) {
           // Evaluate formulas
-          const evaluator = new FormulaEvaluator(sheet.data, sheet.formulas || []);
+          const evaluator = new FormulaEvaluator(
+            toSpreadsheetData(sheet.data),
+            sheet.formulas || []
+          );
 
           // Calculate dimensions including formula cells
           const dataCoords = Object.keys(sheet.data).map(k => k.split(',').map(Number));
-          const formulaCoords = (sheet.formulas || []).map((f: any) => f.cell);
+          const formulaCoords = (sheet.formulas || []).map(f => f.cell);
           const allCoords = [...dataCoords, ...formulaCoords];
 
-          const maxRow = Math.max(...allCoords.map(c => c[0]!));
-          const maxCol = Math.max(...allCoords.map(c => c[1]!));
+          const maxRow = Math.max(...allCoords.map(c => c[0] || 0));
+          const maxCol = Math.max(...allCoords.map(c => c[1] || 0));
 
           // Get all computed values including formulas
           const allValues = evaluator.getAllComputedValues(maxRow, maxCol);
@@ -550,9 +601,7 @@ function exportMarkdown(doc: OSFDocument): string {
             for (let c = 1; c <= maxCol; c++) {
               const key = `${r},${c}`;
               const val = allValues[key] ?? '';
-              const hasFormula = sheet.formulas?.some(
-                (f: any) => f.cell[0] === r && f.cell[1] === c
-              );
+              const hasFormula = sheet.formulas?.some(f => f.cell[0] === r && f.cell[1] === c);
 
               if (hasFormula && typeof val === 'number') {
                 // Show computed value with indication it's calculated
@@ -574,45 +623,59 @@ function exportMarkdown(doc: OSFDocument): string {
 }
 
 function exportJson(doc: OSFDocument): string {
-  const out: any = { docs: [], slides: [], sheets: [] };
+  const out: {
+    meta?: Record<string, unknown>;
+    docs: { content: string }[];
+    slides: unknown[];
+    sheets: unknown[];
+  } = { docs: [], slides: [], sheets: [] };
 
   for (const block of doc.blocks) {
     switch (block.type) {
-      case 'meta':
-        out.meta = (block as any).props;
+      case 'meta': {
+        const meta = block as MetaBlock;
+        out.meta = meta.props as Record<string, unknown>;
         break;
-      case 'doc':
-        out.docs.push({ content: (block as any).content });
+      }
+      case 'doc': {
+        const doc = block as DocBlock;
+        out.docs.push({ content: doc.content });
         break;
+      }
       case 'slide': {
-        const slide: any = { ...block };
-        delete slide.type;
-        out.slides.push(slide);
+        const slide = block as SlideBlock;
+        const { type, ...slideData } = slide;
+        void type; // Acknowledge we're intentionally not using this
+        out.slides.push(slideData);
         break;
       }
       case 'sheet': {
-        const sheet: any = { ...block };
-        delete sheet.type;
+        const sheet = block as SheetBlock;
+        const { type, ...sheetData } = sheet;
+        void type; // Acknowledge we're intentionally not using this
 
         if (sheet.data) {
           // Evaluate formulas and include computed values
-          const evaluator = new FormulaEvaluator(sheet.data, sheet.formulas || []);
+          const evaluator = new FormulaEvaluator(
+            toSpreadsheetData(sheet.data),
+            sheet.formulas || []
+          );
 
           // Calculate dimensions including formula cells
           const dataCoords = Object.keys(sheet.data).map((k: string) => k.split(',').map(Number));
-          const formulaCoords = (sheet.formulas || []).map((f: any) => f.cell);
+          const formulaCoords = (sheet.formulas || []).map(f => f.cell);
           const allCoords = [...dataCoords, ...formulaCoords];
 
-          const maxRow = Math.max(...allCoords.map(c => c[0]!));
-          const maxCol = Math.max(...allCoords.map(c => c[1]!));
+          const maxRow = Math.max(...allCoords.map(c => c[0] || 0));
+          const maxCol = Math.max(...allCoords.map(c => c[1] || 0));
 
           // Get all computed values including formulas
           const allValues = evaluator.getAllComputedValues(maxRow, maxCol);
 
           // Convert to array format with computed values
-          sheet.data = Object.entries(allValues).map(([cell, value]) => {
+          const computedData = Object.entries(allValues).map(([cell, value]) => {
             const [r, c] = cell.split(',').map(Number);
-            const hasFormula = sheet.formulas?.some((f: any) => f.cell[0] === r && f.cell[1] === c);
+            const hasFormula = sheet.formulas?.some(f => f.cell[0] === r && f.cell[1] === c);
             return {
               row: r,
               col: c,
@@ -620,16 +683,20 @@ function exportJson(doc: OSFDocument): string {
               computed: hasFormula,
             };
           });
+
+          // Store computed data in sheetData for output (tests expect this as 'data')
+          (sheetData as Record<string, unknown>).data = computedData;
         }
 
+        const outputSheet: Record<string, unknown> = { ...sheetData };
         if (sheet.formulas) {
-          sheet.formulas = sheet.formulas.map((f: any) => ({
+          outputSheet.formulas = sheet.formulas.map(f => ({
             row: f.cell[0],
             col: f.cell[1],
             expr: f.expr,
           }));
         }
-        out.sheets.push(sheet);
+        out.sheets.push(outputSheet);
         break;
       }
     }
@@ -660,12 +727,12 @@ function diffDocs(a: OSFDocument, b: OSFDocument): string[] {
       diffs.push(`Block ${i} type changed from ${blockA.type} to ${blockB.type}`);
     }
 
-    const keys = new Set([...Object.keys(blockA as any), ...Object.keys(blockB as any)]);
+    const keys = new Set([...Object.keys(blockA), ...Object.keys(blockB)]);
     keys.delete('type');
 
     for (const key of keys) {
-      const valA = (blockA as any)[key];
-      const valB = (blockB as any)[key];
+      const valA = (blockA as Record<string, unknown>)[key];
+      const valB = (blockB as Record<string, unknown>)[key];
 
       if (valA === undefined && valB !== undefined) {
         diffs.push(`Block ${i} field added '${key}': ${JSON.stringify(valB)}`);
@@ -700,22 +767,34 @@ function main(): void {
   const command = args[0];
   const commandArgs = args.slice(1);
 
+  if (!command) {
+    handleError(new Error('No command provided'), 'main');
+  }
+
   try {
     validateArgs(
-      command!,
+      command,
       commandArgs.filter(arg => !arg.startsWith('--'))
     );
 
     switch (command) {
       case 'parse': {
-        const text = loadFile(commandArgs[0]!);
+        const fileName = commandArgs[0];
+        if (!fileName) {
+          handleError(new Error('No file specified for parse command'), 'parse');
+        }
+        const text = loadFile(fileName);
         const doc = parse(text);
         console.log(JSON.stringify(doc, null, 2));
         break;
       }
 
       case 'lint': {
-        const doc = parse(loadFile(commandArgs[0]!));
+        const fileName = commandArgs[0];
+        if (!fileName) {
+          handleError(new Error('No file specified for lint command'), 'lint');
+        }
+        const doc = parse(loadFile(fileName));
         const obj = exportJson(doc);
         const parsed = JSON.parse(obj);
 
@@ -730,8 +809,13 @@ function main(): void {
       }
 
       case 'diff': {
-        const docA = parse(loadFile(commandArgs[0]!));
-        const docB = parse(loadFile(commandArgs[1]!));
+        const fileA = commandArgs[0];
+        const fileB = commandArgs[1];
+        if (!fileA || !fileB) {
+          handleError(new Error('Two files required for diff command'), 'diff');
+        }
+        const docA = parse(loadFile(fileA));
+        const docB = parse(loadFile(fileB));
         const diffs = diffDocs(docA, docB);
 
         if (diffs.length === 0) {
@@ -747,10 +831,13 @@ function main(): void {
       }
 
       case 'render': {
-        const file = commandArgs[0]!;
+        const file = commandArgs[0];
+        if (!file) {
+          handleError(new Error('No file specified for render command'), 'render');
+        }
         const formatFlag = commandArgs.indexOf('--format');
         const outputFlag = commandArgs.indexOf('--output');
-        const format = formatFlag >= 0 ? commandArgs[formatFlag + 1]! : 'html';
+        const format = formatFlag >= 0 ? commandArgs[formatFlag + 1] || 'html' : 'html';
         const outputFile = outputFlag >= 0 ? commandArgs[outputFlag + 1] : undefined;
 
         const doc = parse(loadFile(file));
@@ -785,10 +872,13 @@ function main(): void {
       }
 
       case 'export': {
-        const file = commandArgs[0]!;
+        const file = commandArgs[0];
+        if (!file) {
+          handleError(new Error('No file specified for export command'), 'export');
+        }
         const targetFlag = commandArgs.indexOf('--target');
         const outputFlag = commandArgs.indexOf('--output');
-        const target = targetFlag >= 0 ? commandArgs[targetFlag + 1]! : 'md';
+        const target = targetFlag >= 0 ? commandArgs[targetFlag + 1] || 'md' : 'md';
         const outputFile = outputFlag >= 0 ? commandArgs[outputFlag + 1] : undefined;
 
         const doc = parse(loadFile(file));
@@ -814,7 +904,10 @@ function main(): void {
       }
 
       case 'format': {
-        const file = commandArgs[0]!;
+        const file = commandArgs[0];
+        if (!file) {
+          handleError(new Error('No file specified for format command'), 'format');
+        }
         const outputFlag = commandArgs.indexOf('--output');
         const outputFile = outputFlag >= 0 ? commandArgs[outputFlag + 1] : undefined;
 
@@ -834,7 +927,7 @@ function main(): void {
         throw new Error(`Unknown command: ${command}`);
     }
   } catch (error) {
-    handleError(error as Error, command!);
+    handleError(error as Error, command || 'unknown');
   }
 }
 
