@@ -170,6 +170,38 @@ describe('OSF CLI', () => {
       expect(result).toContain('<table>');
     });
 
+    it('should render OSF to PDF', () => {
+      const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format pdf`, {
+        encoding: 'utf8',
+      });
+
+      expect(result).toContain('PDF rendering not implemented.');
+    });
+
+    it('should render OSF to DOCX', () => {
+      const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format docx`, {
+        encoding: 'utf8',
+      });
+
+      expect(result).toContain('DOCX rendering not implemented.');
+    });
+
+    it('should render OSF to PPTX', () => {
+      const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format pptx`, {
+        encoding: 'utf8',
+      });
+
+      expect(result).toContain('PPTX rendering not implemented.');
+    });
+
+    it('should render OSF to XLSX', () => {
+      const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format xlsx`, {
+        encoding: 'utf8',
+      });
+
+      expect(result).toContain('XLSX rendering not implemented.');
+    });
+
     it('should render OSF to HTML file', () => {
       execSync(`node "${CLI_PATH}" render "${testFile}" --output "${outputFile}"`, {
         encoding: 'utf8',
