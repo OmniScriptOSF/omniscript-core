@@ -1,9 +1,23 @@
 {
   "name": "omniscript-parser",
-  "version": "0.5.0",
+  "version": "0.5.2",
   "description": "OmniScript Format (OSF) parser and serializer",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OmniScriptOSF/omniscript-core.git",
+    "directory": "parser"
+  },
+  "bugs": {
+    "url": "https://github.com/OmniScriptOSF/omniscript-core/issues"
+  },
+  "homepage": "https://github.com/OmniScriptOSF/omniscript-core/tree/main/parser#readme",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
