@@ -223,12 +223,14 @@ pnpm run release:major
 ```
 
 These commands will:
+
 - Run all tests and quality checks
 - Update package versions automatically
 - Create GitHub releases with changelog
 - Trigger automated npm publishing
 
-📖 See [scripts/README.md](scripts/README.md) for detailed release documentation.
+📖 See [scripts/README.md](scripts/README.md) for detailed release
+documentation.
 
 ---
 
