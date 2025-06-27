@@ -8,7 +8,7 @@ purpose, design principles, syntax, and how it relates to existing standards
 like Markdown, LaTeX, JSON/YAML, and Office file formats. The goal is to make
 OSF accessible to developers, document engineers, and standards bodies, while
 ensuring it can be easily adopted in modern, AI-assisted and version-controlled
-authoring workflows.
+authoring workflows. **This draft corresponds to CLI/parser version 0.5.0.**
 
 ## Purpose and Scope
 

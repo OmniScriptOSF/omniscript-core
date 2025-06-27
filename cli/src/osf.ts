@@ -56,7 +56,7 @@ ajv.addFormat('date', /^\d{4}-\d{2}-\d{2}$/);
 const validateOsf = ajv.compile(schema);
 
 function showHelp(): void {
-  console.log('OmniScript Format (OSF) CLI v0.1.0');
+  console.log('OmniScript Format (OSF) CLI v0.5.0');
   console.log('Universal document DSL for LLMs and Git-native workflows\n');
   console.log('Usage: osf <command> [options]\n');
   console.log('Commands:');
@@ -77,7 +77,7 @@ function showHelp(): void {
 }
 
 function showVersion(): void {
-  console.log('0.1.0');
+  console.log('0.5.0');
 }
 
 function handleError(error: Error, context: string): never {
