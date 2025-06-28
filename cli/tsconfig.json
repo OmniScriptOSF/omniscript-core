@@ -20,6 +20,9 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
+    "paths": {
+      "omniscript-parser": ["../parser/dist"]
+    },
     "types": ["node"]
   },
   "include": ["src/**/*"],
