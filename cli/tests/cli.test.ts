@@ -212,36 +212,52 @@ describe('OSF CLI', () => {
       }
     });
 
-    it('should render OSF to PDF', () => {
-      const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format pdf`, {
-        encoding: 'utf8',
-      });
-
-      expect(result).toContain('PDF rendering not implemented.');
+    it('should fail to render OSF to PDF', () => {
+      try {
+        const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format pdf`, {
+          encoding: 'utf8',
+        });
+        expect.fail(`Expected render command to fail but succeeded with output: ${result}`);
+      } catch (err: any) {
+        const output = (err.stderr || err.stdout) as string;
+        expect(output).toContain('PDF rendering not implemented');
+      }
     });
 
-    it('should render OSF to DOCX', () => {
-      const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format docx`, {
-        encoding: 'utf8',
-      });
-
-      expect(result).toContain('DOCX rendering not implemented.');
+    it('should fail to render OSF to DOCX', () => {
+      try {
+        const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format docx`, {
+          encoding: 'utf8',
+        });
+        expect.fail(`Expected render command to fail but succeeded with output: ${result}`);
+      } catch (err: any) {
+        const output = (err.stderr || err.stdout) as string;
+        expect(output).toContain('DOCX rendering not implemented');
+      }
     });
 
-    it('should render OSF to PPTX', () => {
-      const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format pptx`, {
-        encoding: 'utf8',
-      });
-
-      expect(result).toContain('PPTX rendering not implemented.');
+    it('should fail to render OSF to PPTX', () => {
+      try {
+        const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format pptx`, {
+          encoding: 'utf8',
+        });
+        expect.fail(`Expected render command to fail but succeeded with output: ${result}`);
+      } catch (err: any) {
+        const output = (err.stderr || err.stdout) as string;
+        expect(output).toContain('PPTX rendering not implemented');
+      }
     });
 
-    it('should render OSF to XLSX', () => {
-      const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format xlsx`, {
-        encoding: 'utf8',
-      });
-
-      expect(result).toContain('XLSX rendering not implemented.');
+    it('should fail to render OSF to XLSX', () => {
+      try {
+        const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format xlsx`, {
+          encoding: 'utf8',
+        });
+        expect.fail(`Expected render command to fail but succeeded with output: ${result}`);
+      } catch (err: any) {
+        const output = (err.stderr || err.stdout) as string;
+        expect(output).toContain('XLSX rendering not implemented');
+      }
     });
 
     it('should render OSF to HTML file', () => {

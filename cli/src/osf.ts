@@ -500,26 +500,22 @@ function renderHtml(doc: OSFDocument): string {
 // Basic stubs for additional formats
 function renderPdf(doc: OSFDocument): string {
   void doc; // placeholder usage
-  // TODO: real PDF rendering
-  return 'PDF rendering not implemented.';
+  throw new Error('PDF rendering not implemented');
 }
 
 function renderDocx(doc: OSFDocument): string {
   void doc;
-  // TODO: real DOCX rendering
-  return 'DOCX rendering not implemented.';
+  throw new Error('DOCX rendering not implemented');
 }
 
 function renderPptx(doc: OSFDocument): string {
   void doc;
-  // TODO: real PPTX rendering
-  return 'PPTX rendering not implemented.';
+  throw new Error('PPTX rendering not implemented');
 }
 
 function renderXlsx(doc: OSFDocument): string {
   void doc;
-  // TODO: real XLSX rendering
-  return 'XLSX rendering not implemented.';
+  throw new Error('XLSX rendering not implemented');
 }
 
 function exportMarkdown(doc: OSFDocument): string {
