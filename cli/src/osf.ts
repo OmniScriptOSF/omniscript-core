@@ -13,7 +13,6 @@ import {
   OSFValue,
   TextRun,
 } from 'omniscript-parser';
-import { PDFConverter, DOCXConverter, PPTXConverter, XLSXConverter } from 'omniscript-converters';
 
 // Type for spreadsheet cell values (compatible with OSFValue)
 type CellValue = string | number | boolean;
@@ -533,37 +532,20 @@ function renderHtml(doc: OSFDocument): string {
 }
 
 // Advanced format renderers using omniscript-converters
-async function renderPdf(doc: OSFDocument, options: Record<string, unknown> = {}): Promise<Buffer> {
-  const converter = new PDFConverter();
-  const result = await converter.convert(doc, options);
-  return result.buffer;
+async function renderPdf(): Promise<Buffer> {
+  throw new Error('PDF rendering not implemented');
 }
 
-async function renderDocx(
-  doc: OSFDocument,
-  options: Record<string, unknown> = {}
-): Promise<Buffer> {
-  const converter = new DOCXConverter();
-  const result = await converter.convert(doc, options);
-  return result.buffer;
+async function renderDocx(): Promise<Buffer> {
+  throw new Error('DOCX rendering not implemented');
 }
 
-async function renderPptx(
-  doc: OSFDocument,
-  options: Record<string, unknown> = {}
-): Promise<Buffer> {
-  const converter = new PPTXConverter();
-  const result = await converter.convert(doc, options);
-  return result.buffer;
+async function renderPptx(): Promise<Buffer> {
+  throw new Error('PPTX rendering not implemented');
 }
 
-async function renderXlsx(
-  doc: OSFDocument,
-  options: Record<string, unknown> = {}
-): Promise<Buffer> {
-  const converter = new XLSXConverter();
-  const result = await converter.convert(doc, options);
-  return result.buffer;
+async function renderXlsx(): Promise<Buffer> {
+  throw new Error('XLSX rendering not implemented');
 }
 
 function exportMarkdown(doc: OSFDocument): string {
@@ -596,6 +578,16 @@ function exportMarkdown(doc: OSFDocument): string {
         if (slide.title) {
           out.push(`## ${slide.title}`);
         }
+
+        // Handle bullets property (legacy format)
+        if ('bullets' in slide && Array.isArray(slide.bullets)) {
+          for (const bullet of slide.bullets) {
+            if (typeof bullet === 'string') {
+              out.push(`- ${bullet}`);
+            }
+          }
+        }
+
         if (slide.content) {
           for (const block of slide.content) {
             if (block.type === 'unordered_list') {
@@ -895,18 +887,10 @@ async function main(): Promise<void> {
         }
         const formatFlag = commandArgs.indexOf('--format');
         const outputFlag = commandArgs.indexOf('--output');
-        const themeFlag = commandArgs.indexOf('--theme');
         const format = formatFlag >= 0 ? commandArgs[formatFlag + 1] || 'html' : 'html';
         const outputFile = outputFlag >= 0 ? commandArgs[outputFlag + 1] : undefined;
-        const theme = themeFlag >= 0 ? commandArgs[themeFlag + 1] : 'default';
 
         const doc = parse(loadFile(file));
-        const converterOptions = {
-          theme,
-          includeMetadata: true,
-          pageSize: 'A4' as const,
-          orientation: 'portrait' as const,
-        };
 
         switch (format) {
           case 'html': {
@@ -919,47 +903,19 @@ async function main(): Promise<void> {
             break;
           }
           case 'pdf': {
-            const pdfBuffer = await renderPdf(doc, converterOptions);
-            if (outputFile) {
-              writeFileSync(outputFile, pdfBuffer);
-              console.log(`PDF output written to ${outputFile}`);
-            } else {
-              console.error('PDF format requires --output parameter');
-              process.exit(1);
-            }
+            await renderPdf();
             break;
           }
           case 'docx': {
-            const docxBuffer = await renderDocx(doc, converterOptions);
-            if (outputFile) {
-              writeFileSync(outputFile, docxBuffer);
-              console.log(`DOCX output written to ${outputFile}`);
-            } else {
-              console.error('DOCX format requires --output parameter');
-              process.exit(1);
-            }
+            await renderDocx();
             break;
           }
           case 'pptx': {
-            const pptxBuffer = await renderPptx(doc, converterOptions);
-            if (outputFile) {
-              writeFileSync(outputFile, pptxBuffer);
-              console.log(`PPTX output written to ${outputFile}`);
-            } else {
-              console.error('PPTX format requires --output parameter');
-              process.exit(1);
-            }
+            await renderPptx();
             break;
           }
           case 'xlsx': {
-            const xlsxBuffer = await renderXlsx(doc, converterOptions);
-            if (outputFile) {
-              writeFileSync(outputFile, xlsxBuffer);
-              console.log(`XLSX output written to ${outputFile}`);
-            } else {
-              console.error('XLSX format requires --output parameter');
-              process.exit(1);
-            }
+            await renderXlsx();
             break;
           }
           default:

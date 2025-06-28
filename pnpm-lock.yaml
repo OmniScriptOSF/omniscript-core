@@ -69,8 +69,8 @@ importers:
         specifier: ^3.10.1
         version: 3.10.1
       omniscript-parser:
-        specifier: workspace:*
-        version: link:../omniscript-core/parser
+        specifier: ^0.5.5
+        version: 0.5.5
       pptxgenjs:
         specifier: ^4.0.1
         version: 4.0.1
@@ -101,10 +101,10 @@ importers:
         version: 8.17.1
       omniscript-converters:
         specifier: ^0.5.5
-        version: 0.5.5(omniscript-parser@0.5.5)(typescript@5.8.3)
+        version: 0.5.5(omniscript-parser@parser)(typescript@5.8.3)
       omniscript-parser:
-        specifier: ^0.5.5
-        version: 0.5.5
+        specifier: workspace:*
+        version: link:../parser
     devDependencies:
       '@types/node':
         specifier: ^22.15.33
@@ -3925,12 +3925,12 @@ snapshots:
     dependencies:
       path-key: 4.0.0
 
-  omniscript-converters@0.5.5(omniscript-parser@0.5.5)(typescript@5.8.3):
+  omniscript-converters@0.5.5(omniscript-parser@parser)(typescript@5.8.3):
     dependencies:
       docx: 8.6.0
       exceljs: 4.4.0
       jszip: 3.10.1
-      omniscript-parser: 0.5.5
+      omniscript-parser: link:parser
       pptxgenjs: 4.0.1
       puppeteer: 21.11.0(typescript@5.8.3)
     transitivePeerDependencies:

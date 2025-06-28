@@ -69,6 +69,7 @@ export interface SlideBlock {
   title?: string;
   layout?: string;
   content?: ContentBlock[];
+  bullets?: string[];
 }
 
 export interface SheetBlock {
