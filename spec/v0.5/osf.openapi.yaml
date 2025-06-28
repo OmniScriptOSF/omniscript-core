@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: OSF Service
-  version: 0.5.0
+  version: 0.5.4
 paths:
   /parse:
     post:

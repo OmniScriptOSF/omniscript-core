@@ -1,6 +1,6 @@
 {
   "name": "omniscript-core",
-  "version": "0.5.0",
+  "version": "0.5.4",
   "description": "OmniScript Format (OSF) - universal document DSL for LLMs, agentic AI, and Git-native workflows",
   "private": true,
   "type": "commonjs",

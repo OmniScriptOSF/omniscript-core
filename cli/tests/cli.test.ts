@@ -106,7 +106,7 @@ describe('OSF CLI', () => {
     it('should show version when --version is passed', () => {
       const result = execSync(`node "${CLI_PATH}" --version`, { encoding: 'utf8' });
 
-      expect(result.trim()).toBe('0.5.0');
+      expect(result.trim()).toBe('0.5.4');
     });
 
     it('should show help when no arguments are passed', () => {

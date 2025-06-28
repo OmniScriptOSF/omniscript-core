@@ -1,7 +1,7 @@
 @meta {
   title: "Negative Numbers Example";
   author: "OSF Parser";
-  version: "0.5.0";
+  version: "0.5.4";
   temperature: -25;
   balance: -1000.50;
   coordinates: [-10, -5.5, 0, 5.5, 10];

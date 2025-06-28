@@ -1,7 +1,7 @@
 @meta {
   title: "Escape Sequences Example";
   author: "OSF Parser";
-  version: "0.5.0";
+  version: "0.5.4";
   description: "This file demonstrates escape sequence handling";
   quotedText: "She said \"Hello World\"";
   filePath: "C:\\Users\\Name\\Documents\\file.txt";

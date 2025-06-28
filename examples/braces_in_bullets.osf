@@ -1,7 +1,7 @@
 @meta {
   title: "Braces in Bullet Strings Example";
   author: "OSF Parser";
-  version: "0.5.0";
+  version: "0.5.4";
 }
 
 @slide {
