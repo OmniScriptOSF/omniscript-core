@@ -1,6 +1,6 @@
 {
   "name": "omniscript-parser",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "OmniScript Format (OSF) parser and serializer",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

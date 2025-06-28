@@ -1,6 +1,6 @@
 {
   "name": "omniscript-cli",
-  "version": "0.5.5",
+  "version": "0.5.7",
   "description": "OmniScript Format (OSF) CLI tools",
   "main": "dist/osf.js",
   "bin": {
@@ -32,8 +32,8 @@
   },
   "dependencies": {
     "ajv": "^8.12.0",
-    "omniscript-parser": "workspace:*",
-    "omniscript-converters": "^0.5.5"
+    "omniscript-parser": "^0.5.6",
+    "omniscript-converters": "^0.5.6"
   },
   "devDependencies": {
     "@types/node": "^22.15.33",
