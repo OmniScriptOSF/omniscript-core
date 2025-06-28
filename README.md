@@ -69,7 +69,7 @@ Like Excel & Google Sheets
 </tr>
 </table>
 
-> **🎯 Current Version:** `v0.5.4` | **🔥 Status:** Active Development | **📅
+> **🎯 Current Version:** `v0.5.6` | **🔥 Status:** Active Development | **📅
 > Next Release:** v1.0.0
 
 ---
@@ -113,9 +113,14 @@ pnpm add -g omniscript-cli
 **Library Integration**
 
 ```bash
+# Core parser only
 npm install omniscript-parser
-# or
-pnpm add omniscript-parser
+
+# With professional format converters
+npm install omniscript-parser omniscript-converters
+
+# or with pnpm
+pnpm add omniscript-parser omniscript-converters
 ```
 
 </td>
@@ -130,6 +135,12 @@ osf parse examples/rich_demo.osf
 
 # Render to beautiful HTML
 osf render examples/rich_demo.osf --format html
+
+# Export to professional formats (requires omniscript-converters)
+osf render examples/rich_demo.osf --format docx --output report.docx
+osf render examples/rich_demo.osf --format pptx --output slides.pptx
+osf render examples/rich_demo.osf --format xlsx --output data.xlsx
+osf render examples/rich_demo.osf --format pdf --output document.pdf
 
 # Export to other formats
 osf export examples/rich_demo.osf --target md
@@ -203,13 +214,15 @@ osf format examples/rich_demo.osf
 
 [![omniscript-parser](https://img.shields.io/npm/v/omniscript-parser?label=omniscript-parser&logo=npm&color=CB3837)](https://www.npmjs.com/package/omniscript-parser)
 [![omniscript-cli](https://img.shields.io/npm/v/omniscript-cli?label=omniscript-cli&logo=npm&color=CB3837)](https://www.npmjs.com/package/omniscript-cli)
+[![omniscript-converters](https://img.shields.io/npm/v/omniscript-converters?label=omniscript-converters&logo=npm&color=CB3837)](https://www.npmjs.com/package/omniscript-converters)
 
 </div>
 
-| Package                                                                  | Description                                  | Version                                                | Downloads                                               |
-| ------------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------- |
-| **[omniscript-parser](https://www.npmjs.com/package/omniscript-parser)** | Core parsing library with TypeScript support | ![npm](https://img.shields.io/npm/v/omniscript-parser) | ![npm](https://img.shields.io/npm/dm/omniscript-parser) |
-| **[omniscript-cli](https://www.npmjs.com/package/omniscript-cli)**       | Command-line tools with `osf` binary         | ![npm](https://img.shields.io/npm/v/omniscript-cli)    | ![npm](https://img.shields.io/npm/dm/omniscript-cli)    |
+| Package                                                                          | Description                                            | Version                                                    | Downloads                                                   |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------- | ----------------------------------------------------------- |
+| **[omniscript-parser](https://www.npmjs.com/package/omniscript-parser)**         | Core parsing library with TypeScript support           | ![npm](https://img.shields.io/npm/v/omniscript-parser)     | ![npm](https://img.shields.io/npm/dm/omniscript-parser)     |
+| **[omniscript-cli](https://www.npmjs.com/package/omniscript-cli)**               | Command-line tools with `osf` binary                   | ![npm](https://img.shields.io/npm/v/omniscript-cli)        | ![npm](https://img.shields.io/npm/dm/omniscript-cli)        |
+| **[omniscript-converters](https://www.npmjs.com/package/omniscript-converters)** | Professional format converters (DOCX, PPTX, XLSX, PDF) | ![npm](https://img.shields.io/npm/v/omniscript-converters) | ![npm](https://img.shields.io/npm/dm/omniscript-converters) |
 
 ---
 
@@ -286,13 +299,13 @@ pnpm run dev
 <summary><b>📋 For Maintainers</b></summary>
 
 ```bash
-# Patch release (0.5.4 → 0.5.5)
+# Patch release (0.5.6 → 0.5.7)
 pnpm run release:patch
 
-# Minor release (0.5.4 → 0.6.0)
+# Minor release (0.5.6 → 0.6.0)
 pnpm run release:minor
 
-# Major release (0.5.4 → 1.0.0)
+# Major release (0.5.6 → 1.0.0)
 pnpm run release:major
 ```
 
