@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execSync } from 'child_process';
 import { writeFileSync, readFileSync, unlinkSync, existsSync } from 'fs';
 import { join } from 'path';
+import { version as cliVersion } from '../package.json';
 
 const CLI_PATH = join(__dirname, '../dist/osf.js');
 const TEST_FIXTURES_DIR = join(__dirname, 'fixtures');
@@ -106,7 +107,7 @@ describe('OSF CLI', () => {
     it('should show version when --version is passed', () => {
       const result = execSync(`node "${CLI_PATH}" --version`, { encoding: 'utf8' });
 
-      expect(result.trim()).toBe('0.5.0');
+      expect(result.trim()).toBe(cliVersion);
     });
 
     it('should show help when no arguments are passed', () => {
