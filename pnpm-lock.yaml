@@ -100,8 +100,8 @@ importers:
         specifier: ^8.12.0
         version: 8.17.1
       omniscript-converters:
-        specifier: workspace:*
-        version: link:../../omniscript-converters
+        specifier: ^0.5.5
+        version: 0.5.5(omniscript-parser@0.5.5)(typescript@5.8.3)
       omniscript-parser:
         specifier: ^0.5.5
         version: 0.5.5
@@ -1673,6 +1673,11 @@ packages:
   npm-run-path@5.3.0:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
+  omniscript-converters@0.5.5:
+    resolution: {integrity: sha512-u0Wc3ahZJ/F/P876sJ2K25YrNz9N+JO1fmi9q0mlmOb5BcJCMydeGUX6A4tdiRVHJoFNJuHZxAHxuAWKcy2rbQ==}
+    peerDependencies:
+      omniscript-parser: ^0.5.0
 
   omniscript-parser@0.5.5:
     resolution: {integrity: sha512-jWnYEMB8euZHh0YmHyxC/qDOIUbfO44m7W9HQbHVJlmW+mxJ6llLVEPElMCbW/Gv2RmJk6C+7pOLoWM1AufQNw==}
@@ -3919,6 +3924,21 @@ snapshots:
   npm-run-path@5.3.0:
     dependencies:
       path-key: 4.0.0
+
+  omniscript-converters@0.5.5(omniscript-parser@0.5.5)(typescript@5.8.3):
+    dependencies:
+      docx: 8.6.0
+      exceljs: 4.4.0
+      jszip: 3.10.1
+      omniscript-parser: 0.5.5
+      pptxgenjs: 4.0.1
+      puppeteer: 21.11.0(typescript@5.8.3)
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - supports-color
+      - typescript
+      - utf-8-validate
 
   omniscript-parser@0.5.5: {}
 
