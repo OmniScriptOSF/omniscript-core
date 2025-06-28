@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from 'fs';
 import Ajv from 'ajv';
+import { version as cliVersion } from '../package.json';
 import {
   parse,
   serialize,
@@ -307,7 +308,7 @@ class FormulaEvaluator {
 }
 
 function showHelp(): void {
-  console.log('OmniScript Format (OSF) CLI v0.5.0');
+  console.log(`OmniScript Format (OSF) CLI v${cliVersion}`);
   console.log('Universal document DSL for LLMs and Git-native workflows\n');
   console.log('Usage: osf <command> [options]\n');
   console.log('Commands:');
@@ -328,7 +329,7 @@ function showHelp(): void {
 }
 
 function showVersion(): void {
-  console.log('0.5.0');
+  console.log(cliVersion);
 }
 
 function handleError(error: Error, context: string): never {
