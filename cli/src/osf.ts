@@ -14,6 +14,12 @@ import {
   TextRun,
 } from 'omniscript-parser';
 
+// Type definitions for formula handling
+interface FormulaDefinition {
+  cell: [number, number];
+  expr: string;
+}
+
 // Type for spreadsheet cell values (compatible with OSFValue)
 type CellValue = string | number | boolean;
 
@@ -116,7 +122,7 @@ class FormulaEvaluator {
   private computed: Map<string, CellValue>;
   private evaluating: Set<string>; // For circular reference detection
 
-  constructor(data: SpreadsheetData, formulas: { cell: [number, number]; expr: string }[]) {
+  constructor(data: SpreadsheetData, formulas: FormulaDefinition[]) {
     this.data = { ...data };
     this.formulas = new Map();
     this.computed = new Map();
@@ -493,7 +499,7 @@ function renderHtml(doc: OSFDocument): string {
 
           // Calculate dimensions including formula cells
           const dataCoords = Object.keys(sheet.data).map(k => k.split(',').map(Number));
-          const formulaCoords = (sheet.formulas || []).map(f => f.cell);
+          const formulaCoords = (sheet.formulas || []).map((f: FormulaDefinition) => f.cell);
           const allCoords = [...dataCoords, ...formulaCoords];
 
           const maxRow = Math.max(...allCoords.map(c => c[0] || 0));
@@ -508,7 +514,9 @@ function renderHtml(doc: OSFDocument): string {
             for (let c = 1; c <= maxCol; c++) {
               const key = `${r},${c}`;
               const val = allValues[key] ?? '';
-              const hasFormula = sheet.formulas?.some(f => f.cell[0] === r && f.cell[1] === c);
+              const hasFormula = sheet.formulas?.some(
+                (f: FormulaDefinition) => f.cell[0] === r && f.cell[1] === c
+              );
               const isError = typeof val === 'string' && val.startsWith('#ERROR:');
 
               const cssClass = isError ? 'error' : hasFormula ? 'computed' : '';
@@ -630,7 +638,7 @@ function exportMarkdown(doc: OSFDocument): string {
 
           // Calculate dimensions including formula cells
           const dataCoords = Object.keys(sheet.data).map(k => k.split(',').map(Number));
-          const formulaCoords = (sheet.formulas || []).map(f => f.cell);
+          const formulaCoords = (sheet.formulas || []).map((f: FormulaDefinition) => f.cell);
           const allCoords = [...dataCoords, ...formulaCoords];
 
           const maxRow = Math.max(...allCoords.map(c => c[0] || 0));
@@ -644,7 +652,9 @@ function exportMarkdown(doc: OSFDocument): string {
             for (let c = 1; c <= maxCol; c++) {
               const key = `${r},${c}`;
               const val = allValues[key] ?? '';
-              const hasFormula = sheet.formulas?.some(f => f.cell[0] === r && f.cell[1] === c);
+              const hasFormula = sheet.formulas?.some(
+                (f: FormulaDefinition) => f.cell[0] === r && f.cell[1] === c
+              );
 
               if (hasFormula && typeof val === 'number') {
                 // Show computed value with indication it's calculated
@@ -706,7 +716,7 @@ function exportJson(doc: OSFDocument): string {
 
           // Calculate dimensions including formula cells
           const dataCoords = Object.keys(sheet.data).map((k: string) => k.split(',').map(Number));
-          const formulaCoords = (sheet.formulas || []).map(f => f.cell);
+          const formulaCoords = (sheet.formulas || []).map((f: FormulaDefinition) => f.cell);
           const allCoords = [...dataCoords, ...formulaCoords];
 
           const maxRow = Math.max(...allCoords.map(c => c[0] || 0));
@@ -718,7 +728,9 @@ function exportJson(doc: OSFDocument): string {
           // Convert to array format with computed values
           const computedData = Object.entries(allValues).map(([cell, value]) => {
             const [r, c] = cell.split(',').map(Number);
-            const hasFormula = sheet.formulas?.some(f => f.cell[0] === r && f.cell[1] === c);
+            const hasFormula = sheet.formulas?.some(
+              (f: FormulaDefinition) => f.cell[0] === r && f.cell[1] === c
+            );
             return {
               row: r,
               col: c,
