@@ -1,5 +1,8 @@
-# File: pnpm-workspace.yaml
-
 packages:
-  - 'parser'
-  - 'cli' 
+  - parser
+  - cli
+  - ../omniscript-converters
+
+ignoredBuiltDependencies:
+  - esbuild
+  - puppeteer

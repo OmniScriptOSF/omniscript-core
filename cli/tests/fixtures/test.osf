@@ -1,0 +1,32 @@
+@meta {
+  title: "Test Document";
+  author: "Test Author";
+  date: "2025-01-01";
+}
+
+@doc {
+  # Test Document
+  This is a test document with **bold** text.
+}
+
+@slide {
+  title: "Test Slide";
+  layout: TitleAndBullets;
+  bullets {
+    "First bullet";
+    "Second bullet";
+  }
+}
+
+@sheet {
+  name: "TestSheet";
+  cols: [Column1, Column2, Growth];
+  data {
+    (2,1) = "Q1";
+    (2,2) = 100;
+    (3,1) = "Q2";
+    (3,2) = 115;
+  }
+  formula (2,3): "=(B2-100)/100*100";
+  formula (3,3): "=(B3-100)/100*100";
+}

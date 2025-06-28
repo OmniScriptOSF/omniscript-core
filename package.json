@@ -33,7 +33,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "typecheck": "cd parser && pnpm run typecheck && cd ../cli && pnpm run typecheck"
+    "typecheck": "pnpm --filter ./parser run typecheck && pnpm --filter ./cli run typecheck"
   },
   "keywords": [
     "document",

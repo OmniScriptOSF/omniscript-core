@@ -13,6 +13,7 @@ import {
   OSFValue,
   TextRun,
 } from 'omniscript-parser';
+import { PDFConverter, DOCXConverter, PPTXConverter, XLSXConverter } from 'omniscript-converters';
 
 // Type for spreadsheet cell values (compatible with OSFValue)
 type CellValue = string | number | boolean;
@@ -84,7 +85,8 @@ const commands: CliCommand[] = [
   {
     name: 'render',
     description: 'Render OSF to various output formats',
-    usage: 'osf render <file> [--format <html|pdf|docx|pptx|xlsx>] [--output <file>]',
+    usage:
+      'osf render <file> [--format <html|pdf|docx|pptx|xlsx>] [--output <file>] [--theme <default|corporate|academic|modern>]',
     args: ['file'],
   },
   {
@@ -444,7 +446,7 @@ function renderHtml(doc: OSFDocument): string {
         if (slide.title) {
           parts.push(`    <h2>${slide.title}</h2>`);
         }
-        if (slide.content) {
+        if (slide.content && Array.isArray(slide.content)) {
           parts.push('    <div class="slide-content">');
           for (const block of slide.content) {
             if (block.type === 'unordered_list') {
@@ -530,25 +532,38 @@ function renderHtml(doc: OSFDocument): string {
   return parts.join('\n');
 }
 
-// Basic stubs for additional formats
-function renderPdf(doc: OSFDocument): string {
-  void doc; // placeholder usage
-  throw new Error('PDF rendering not implemented');
+// Advanced format renderers using omniscript-converters
+async function renderPdf(doc: OSFDocument, options: Record<string, unknown> = {}): Promise<Buffer> {
+  const converter = new PDFConverter();
+  const result = await converter.convert(doc, options);
+  return result.buffer;
 }
 
-function renderDocx(doc: OSFDocument): string {
-  void doc;
-  throw new Error('DOCX rendering not implemented');
+async function renderDocx(
+  doc: OSFDocument,
+  options: Record<string, unknown> = {}
+): Promise<Buffer> {
+  const converter = new DOCXConverter();
+  const result = await converter.convert(doc, options);
+  return result.buffer;
 }
 
-function renderPptx(doc: OSFDocument): string {
-  void doc;
-  throw new Error('PPTX rendering not implemented');
+async function renderPptx(
+  doc: OSFDocument,
+  options: Record<string, unknown> = {}
+): Promise<Buffer> {
+  const converter = new PPTXConverter();
+  const result = await converter.convert(doc, options);
+  return result.buffer;
 }
 
-function renderXlsx(doc: OSFDocument): string {
-  void doc;
-  throw new Error('XLSX rendering not implemented');
+async function renderXlsx(
+  doc: OSFDocument,
+  options: Record<string, unknown> = {}
+): Promise<Buffer> {
+  const converter = new XLSXConverter();
+  const result = await converter.convert(doc, options);
+  return result.buffer;
 }
 
 function exportMarkdown(doc: OSFDocument): string {
@@ -787,7 +802,7 @@ function diffDocs(a: OSFDocument, b: OSFDocument): string[] {
   return diffs;
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
@@ -880,36 +895,75 @@ function main(): void {
         }
         const formatFlag = commandArgs.indexOf('--format');
         const outputFlag = commandArgs.indexOf('--output');
+        const themeFlag = commandArgs.indexOf('--theme');
         const format = formatFlag >= 0 ? commandArgs[formatFlag + 1] || 'html' : 'html';
         const outputFile = outputFlag >= 0 ? commandArgs[outputFlag + 1] : undefined;
+        const theme = themeFlag >= 0 ? commandArgs[themeFlag + 1] : 'default';
 
         const doc = parse(loadFile(file));
-        let output: string;
+        const converterOptions = {
+          theme,
+          includeMetadata: true,
+          pageSize: 'A4' as const,
+          orientation: 'portrait' as const,
+        };
 
         switch (format) {
-          case 'html':
-            output = renderHtml(doc);
+          case 'html': {
+            const htmlOutput = renderHtml(doc);
+            if (outputFile) {
+              saveFile(outputFile, htmlOutput);
+            } else {
+              console.log(htmlOutput);
+            }
             break;
-          case 'pdf':
-            output = renderPdf(doc);
+          }
+          case 'pdf': {
+            const pdfBuffer = await renderPdf(doc, converterOptions);
+            if (outputFile) {
+              writeFileSync(outputFile, pdfBuffer);
+              console.log(`PDF output written to ${outputFile}`);
+            } else {
+              console.error('PDF format requires --output parameter');
+              process.exit(1);
+            }
             break;
-          case 'docx':
-            output = renderDocx(doc);
+          }
+          case 'docx': {
+            const docxBuffer = await renderDocx(doc, converterOptions);
+            if (outputFile) {
+              writeFileSync(outputFile, docxBuffer);
+              console.log(`DOCX output written to ${outputFile}`);
+            } else {
+              console.error('DOCX format requires --output parameter');
+              process.exit(1);
+            }
             break;
-          case 'pptx':
-            output = renderPptx(doc);
+          }
+          case 'pptx': {
+            const pptxBuffer = await renderPptx(doc, converterOptions);
+            if (outputFile) {
+              writeFileSync(outputFile, pptxBuffer);
+              console.log(`PPTX output written to ${outputFile}`);
+            } else {
+              console.error('PPTX format requires --output parameter');
+              process.exit(1);
+            }
             break;
-          case 'xlsx':
-            output = renderXlsx(doc);
+          }
+          case 'xlsx': {
+            const xlsxBuffer = await renderXlsx(doc, converterOptions);
+            if (outputFile) {
+              writeFileSync(outputFile, xlsxBuffer);
+              console.log(`XLSX output written to ${outputFile}`);
+            } else {
+              console.error('XLSX format requires --output parameter');
+              process.exit(1);
+            }
             break;
+          }
           default:
             throw new Error(`Unknown format: ${format}. Supported: html, pdf, docx, pptx, xlsx`);
-        }
-
-        if (outputFile) {
-          saveFile(outputFile, output);
-        } else {
-          console.log(output);
         }
         break;
       }
@@ -975,4 +1029,7 @@ function main(): void {
 }
 
 // Run the CLI
-main();
+main().catch(error => {
+  console.error('Unexpected error:', error);
+  process.exit(1);
+});

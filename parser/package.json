@@ -19,12 +19,12 @@
   },
   "homepage": "https://github.com/OmniScriptOSF/omniscript-core/tree/main/parser#readme",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "clean": "rimraf dist",
-    "dev": "tsc -p tsconfig.json --watch",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "build": "pnpm exec tsc -p tsconfig.json",
+    "clean": "pnpm exec rimraf dist",
+    "dev": "pnpm exec tsc -p tsconfig.json --watch",
+    "test": "pnpm exec vitest run",
+    "test:watch": "pnpm exec vitest",
+    "typecheck": "pnpm exec tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {
     "@types/node": "^22.15.33",
