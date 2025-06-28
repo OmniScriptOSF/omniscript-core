@@ -21,7 +21,10 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "typeRoots": ["./node_modules/@types", "../node_modules/@types"],
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "omniscript-parser": ["../parser/dist"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["tests", "dist", "node_modules"]

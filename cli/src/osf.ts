@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import Ajv from 'ajv';
 import { version as cliVersion } from '../package.json';
 import {
@@ -10,6 +11,7 @@ import {
   SlideBlock,
   SheetBlock,
   OSFValue,
+  TextRun,
 } from 'omniscript-parser';
 
 // Type for spreadsheet cell values (compatible with OSFValue)
@@ -17,6 +19,25 @@ type CellValue = string | number | boolean;
 
 // Type for spreadsheet data
 type SpreadsheetData = Record<string, CellValue>;
+
+// Helper function to extract text from TextRun objects
+function extractText(run: TextRun): string {
+  if (typeof run === 'string') {
+    return run;
+  }
+  if ('type' in run) {
+    if (run.type === 'link') {
+      return run.text;
+    }
+    if (run.type === 'image') {
+      return run.alt;
+    }
+  }
+  if ('text' in run) {
+    return run.text;
+  }
+  return '';
+}
 
 // Helper function to convert OSFValue to CellValue
 function toSpreadsheetData(data: Record<string, OSFValue> | undefined): SpreadsheetData {
@@ -80,11 +101,12 @@ const commands: CliCommand[] = [
   },
 ];
 
-// Schema validation temporarily disabled for package distribution
-// const schema = JSON.parse(readFileSync(join(__dirname, '../../spec/v0.5/osf.schema.json'), 'utf8'));
+// Load and compile OSF schema
+const schemaPath = join(__dirname, '../schema/osf.schema.json');
+const schema = JSON.parse(readFileSync(schemaPath, 'utf8'));
 const ajv = new Ajv();
 ajv.addFormat('date', /^\d{4}-\d{2}-\d{2}$/);
-// const validateOsf = ajv.compile(schema);
+const validateOsf = ajv.compile(schema);
 
 // Formula evaluator for spreadsheet calculations
 class FormulaEvaluator {
@@ -422,12 +444,22 @@ function renderHtml(doc: OSFDocument): string {
         if (slide.title) {
           parts.push(`    <h2>${slide.title}</h2>`);
         }
-        if (slide.bullets) {
-          parts.push('    <ul>');
-          for (const bullet of slide.bullets) {
-            parts.push(`      <li>${bullet}</li>`);
+        if (slide.content) {
+          parts.push('    <div class="slide-content">');
+          for (const block of slide.content) {
+            if (block.type === 'unordered_list') {
+              parts.push('      <ul>');
+              for (const item of block.items) {
+                const itemText = item.content.map(extractText).join('');
+                parts.push(`        <li>${itemText}</li>`);
+              }
+              parts.push('      </ul>');
+            } else if (block.type === 'paragraph') {
+              const paragraphText = block.content.map(extractText).join('');
+              parts.push(`      <p>${paragraphText}</p>`);
+            }
           }
-          parts.push('    </ul>');
+          parts.push('    </div>');
         }
         parts.push('  </section>');
         break;
@@ -549,9 +581,17 @@ function exportMarkdown(doc: OSFDocument): string {
         if (slide.title) {
           out.push(`## ${slide.title}`);
         }
-        if (slide.bullets) {
-          for (const bullet of slide.bullets) {
-            out.push(`- ${bullet}`);
+        if (slide.content) {
+          for (const block of slide.content) {
+            if (block.type === 'unordered_list') {
+              for (const item of block.items) {
+                const itemText = item.content.map(extractText).join('');
+                out.push(`- ${itemText}`);
+              }
+            } else if (block.type === 'paragraph') {
+              const paragraphText = block.content.map(extractText).join('');
+              out.push(paragraphText);
+            }
           }
         }
         out.push('');
@@ -798,16 +838,16 @@ function main(): void {
           console.log('⚠️  Warning: Document contains no blocks');
         }
 
-        // Schema validation temporarily disabled
-        // const obj = exportJson(doc);
-        // const parsed = JSON.parse(obj);
-        // if (!validateOsf(parsed)) {
-        //   console.error('❌ Lint failed: Schema validation errors');
-        //   console.error(ajv.errorsText(validateOsf.errors || undefined));
-        //   process.exit(1);
-        // }
+        // Schema validation
+        const obj = exportJson(doc);
+        const parsed = JSON.parse(obj);
+        if (!validateOsf(parsed)) {
+          console.error('❌ Lint failed: Schema validation errors');
+          console.error(ajv.errorsText(validateOsf.errors || undefined));
+          process.exit(1);
+        }
 
-        console.log('✅ Lint passed: Document syntax is valid');
+        console.log('✅ Lint passed: Document syntax and schema are valid');
         break;
       }
 

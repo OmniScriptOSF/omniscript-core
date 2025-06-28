@@ -9,6 +9,7 @@
   "files": [
     "dist/**/*",
     "bin/**/*",
+    "schema/**/*",
     "README.md",
     "LICENSE"
   ],
