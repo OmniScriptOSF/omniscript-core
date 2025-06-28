@@ -153,6 +153,17 @@ describe('OSF CLI', () => {
         execSync(`node "${CLI_PATH}" lint "${invalidFile}"`, { encoding: 'utf8' });
       }).toThrow();
     });
+
+    it('should fail schema validation', () => {
+      const schemaFile = join(TEST_FIXTURES_DIR, 'missing_title.osf');
+      try {
+        execSync(`node "${CLI_PATH}" lint "${schemaFile}"`, { encoding: 'utf8' });
+        expect.fail('Expected schema validation to fail');
+      } catch (err: any) {
+        const output = `${err.stdout || ''}${err.stderr || ''}`;
+        expect(output).toContain('Schema validation');
+      }
+    });
   });
 
   describe('format command', () => {

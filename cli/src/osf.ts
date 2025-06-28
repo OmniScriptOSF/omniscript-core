@@ -1,4 +1,5 @@
 import { readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import Ajv from 'ajv';
 import {
   parse,
@@ -79,11 +80,10 @@ const commands: CliCommand[] = [
   },
 ];
 
-// Schema validation temporarily disabled for package distribution
-// const schema = JSON.parse(readFileSync(join(__dirname, '../../spec/v0.5/osf.schema.json'), 'utf8'));
+const schema = JSON.parse(readFileSync(join(__dirname, '../../spec/v0.5/osf.schema.json'), 'utf8'));
 const ajv = new Ajv();
 ajv.addFormat('date', /^\d{4}-\d{2}-\d{2}$/);
-// const validateOsf = ajv.compile(schema);
+const validateOsf = ajv.compile(schema);
 
 // Formula evaluator for spreadsheet calculations
 class FormulaEvaluator {
@@ -801,14 +801,13 @@ function main(): void {
           console.log('⚠️  Warning: Document contains no blocks');
         }
 
-        // Schema validation temporarily disabled
-        // const obj = exportJson(doc);
-        // const parsed = JSON.parse(obj);
-        // if (!validateOsf(parsed)) {
-        //   console.error('❌ Lint failed: Schema validation errors');
-        //   console.error(ajv.errorsText(validateOsf.errors || undefined));
-        //   process.exit(1);
-        // }
+        const obj = exportJson(doc);
+        const parsed = JSON.parse(obj);
+        if (!validateOsf(parsed)) {
+          console.error('❌ Lint failed: Schema validation errors');
+          console.error(ajv.errorsText(validateOsf.errors || undefined));
+          process.exit(1);
+        }
 
         console.log('✅ Lint passed: Document syntax is valid');
         break;

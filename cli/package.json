@@ -9,6 +9,7 @@
   "files": [
     "dist/**/*",
     "bin/**/*",
+    "../spec/v0.5/osf.schema.json",
     "README.md",
     "LICENSE"
   ],
