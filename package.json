@@ -33,7 +33,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "typecheck": "tsc --noEmit -p parser/tsconfig.json && tsc --noEmit -p cli/tsconfig.json"
+    "typecheck": "pnpm --filter ./parser run typecheck && pnpm --filter ./cli run typecheck"
   },
   "keywords": [
     "document",
