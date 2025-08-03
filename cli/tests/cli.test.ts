@@ -64,6 +64,14 @@ const INVALID_OSF = `@meta {
   title: "Unclosed Block"
   // Missing closing brace`;
 
+const ESCAPE_TEST_OSF = `@meta {
+  title: "<script>alert(1)</script>";
+}
+
+@doc {
+  This is <b>bold</b> & text;
+}`;
+
 describe('OSF CLI', () => {
   const testFile = join(TEST_FIXTURES_DIR, 'test.osf');
   const invalidFile = join(TEST_FIXTURES_DIR, 'invalid.osf');
@@ -270,6 +278,23 @@ describe('OSF CLI', () => {
       const content = readFileSync(outputFile, 'utf8');
       expect(content).toContain('<!DOCTYPE html>');
       expect(content).toContain('<h1>Test Document</h1>');
+    });
+
+    it('should escape HTML special characters when rendering', () => {
+      const escapeFile = join(TEST_FIXTURES_DIR, 'escape.osf');
+      writeFileSync(escapeFile, ESCAPE_TEST_OSF, 'utf8');
+
+      try {
+        const result = execSync(`node "${CLI_PATH}" render "${escapeFile}"`, {
+          encoding: 'utf8',
+        });
+        expect(result).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+        expect(result).toContain('This is &lt;b&gt;bold&lt;/b&gt; &amp; text;');
+      } finally {
+        if (existsSync(escapeFile)) {
+          unlinkSync(escapeFile);
+        }
+      }
     });
 
     it('should fail with unknown format', () => {

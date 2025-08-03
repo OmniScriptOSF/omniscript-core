@@ -45,6 +45,26 @@ function extractText(run: TextRun): string {
   return '';
 }
 
+// Escape HTML special characters to prevent injection
+function escapeHtml(str: string): string {
+  return str.replace(/[&<>"']/g, ch => {
+    switch (ch) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case "'":
+        return '&#39;';
+      default:
+        return ch;
+    }
+  });
+}
+
 // Helper function to convert OSFValue to CellValue
 function toSpreadsheetData(data: Record<string, OSFValue> | undefined): SpreadsheetData {
   if (!data) return {};
@@ -422,22 +442,22 @@ function renderHtml(doc: OSFDocument): string {
     switch (block.type) {
       case 'meta': {
         const meta = block as MetaBlock;
-        if (meta.props.title) {
-          parts.push(`  <h1>${meta.props.title}</h1>`);
+        if (typeof meta.props.title === 'string') {
+          parts.push(`  <h1>${escapeHtml(meta.props.title)}</h1>`);
         }
-        if (meta.props.author) {
-          parts.push(`  <p><strong>Author:</strong> ${meta.props.author}</p>`);
+        if (typeof meta.props.author === 'string') {
+          parts.push(`  <p><strong>Author:</strong> ${escapeHtml(meta.props.author)}</p>`);
         }
-        if (meta.props.date) {
-          parts.push(`  <p><strong>Date:</strong> ${meta.props.date}</p>`);
+        if (typeof meta.props.date === 'string') {
+          parts.push(`  <p><strong>Date:</strong> ${escapeHtml(meta.props.date)}</p>`);
         }
         break;
       }
       case 'doc': {
         const docBlock = block as DocBlock;
         const content = docBlock.content || '';
-        // Simple Markdown-like processing
-        const processed = content
+        // Simple Markdown-like processing with HTML escaping
+        const processed = escapeHtml(content)
           .replace(/^# (.+)$/gm, '<h1>$1</h1>')
           .replace(/^## (.+)$/gm, '<h2>$1</h2>')
           .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
@@ -449,7 +469,7 @@ function renderHtml(doc: OSFDocument): string {
         const slide = block as SlideBlock;
         parts.push('  <section class="slide">');
         if (slide.title) {
-          parts.push(`    <h2>${slide.title}</h2>`);
+          parts.push(`    <h2>${escapeHtml(slide.title)}</h2>`);
         }
         if (slide.content && Array.isArray(slide.content)) {
           parts.push('    <div class="slide-content">');
@@ -457,12 +477,12 @@ function renderHtml(doc: OSFDocument): string {
             if (block.type === 'unordered_list') {
               parts.push('      <ul>');
               for (const item of block.items) {
-                const itemText = item.content.map(extractText).join('');
+                const itemText = escapeHtml(item.content.map(extractText).join(''));
                 parts.push(`        <li>${itemText}</li>`);
               }
               parts.push('      </ul>');
             } else if (block.type === 'paragraph') {
-              const paragraphText = block.content.map(extractText).join('');
+              const paragraphText = escapeHtml(block.content.map(extractText).join(''));
               parts.push(`      <p>${paragraphText}</p>`);
             }
           }
@@ -474,7 +494,7 @@ function renderHtml(doc: OSFDocument): string {
       case 'sheet': {
         const sheet = block as SheetBlock;
         if (sheet.name) {
-          parts.push(`  <h3>${sheet.name}</h3>`);
+          parts.push(`  <h3>${escapeHtml(sheet.name)}</h3>`);
         }
         parts.push('  <table>');
 
@@ -486,7 +506,9 @@ function renderHtml(doc: OSFDocument): string {
                 .split(',')
                 .map((s: string) => s.trim());
           parts.push(
-            '    <thead><tr>' + cols.map((c: string) => `<th>${c}</th>`).join('') + '</tr></thead>'
+            '    <thead><tr>' +
+              cols.map((c: string) => `<th>${escapeHtml(c)}</th>`).join('') +
+              '</tr></thead>'
           );
         }
 
@@ -520,7 +542,9 @@ function renderHtml(doc: OSFDocument): string {
               const isError = typeof val === 'string' && val.startsWith('#ERROR:');
 
               const cssClass = isError ? 'error' : hasFormula ? 'computed' : '';
-              const cellContent = isError ? val.replace('#ERROR: ', '') : val;
+              const cellContent = escapeHtml(
+                String(isError ? (val as string).replace('#ERROR: ', '') : val)
+              );
 
               parts.push(`        <td class="${cssClass}">${cellContent}</td>`);
             }
