@@ -51,6 +51,11 @@ describe('OSF Parser', () => {
       // Paragraph with link
       expect(slide.content?.[6].type).toBe('paragraph');
     });
+
+    it('should throw on unterminated string values', () => {
+      const input = '@meta {\n  title: "Unclosed;\n}';
+      expect(() => parse(input)).toThrow('Unterminated string literal');
+    });
   });
 
   describe('serialize', () => {
