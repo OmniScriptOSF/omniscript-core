@@ -60,6 +60,22 @@ const FORMULA_TEST_OSF = `@meta {
   formula (2,4): "=C1+C2";
 }`;
 
+const ADVANCED_OSF =
+  '@slide {\n' +
+  '  title: "Comprehensive Slide";\n\n' +
+  '  This is a paragraph with **bold**, *italic*, and __underlined__ text.\n\n' +
+  '  - Unordered item 1\n' +
+  '  - Unordered item 2\n\n' +
+  '  1. Ordered item 1\n' +
+  '  2. Ordered item 2\n\n' +
+  '  > This is a blockquote.\n\n' +
+  '  ```javascript\n' +
+  '  console.log("Hello, World!");\n' +
+  '  ```\n\n' +
+  '  ![An image alt text](https://example.com/image.png)\n\n' +
+  '  [A link to somewhere](https://example.com)\n' +
+  '}';
+
 const INVALID_OSF = `@meta {
   title: "Unclosed Block"
   // Missing closing brace`;
@@ -292,6 +308,27 @@ describe('OSF CLI', () => {
       // Check that formulas are evaluated in markdown
       expect(result).toContain('0 *(calc)*'); // (100-100)/100*100 = 0
       expect(result).toContain('15 *(calc)*'); // (115-100)/100*100 = 15
+    });
+
+    it('should export advanced content to Markdown', () => {
+      const advancedFile = join(TEST_FIXTURES_DIR, 'advanced.osf');
+      writeFileSync(advancedFile, ADVANCED_OSF, 'utf8');
+      try {
+        const result = execSync(`node "${CLI_PATH}" export "${advancedFile}"`, {
+          encoding: 'utf8',
+        });
+
+        expect(result).toContain('1. Ordered item 1');
+        expect(result).toContain('> This is a blockquote.');
+        expect(result).toContain('```javascript');
+        expect(result).toContain('console.log("Hello, World!");');
+        expect(result).toContain('![An image alt text](https://example.com/image.png)');
+        expect(result).toContain('[A link to somewhere](https://example.com)');
+      } finally {
+        if (existsSync(advancedFile)) {
+          unlinkSync(advancedFile);
+        }
+      }
     });
 
     it('should export OSF with formulas to Markdown', () => {

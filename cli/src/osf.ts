@@ -45,6 +45,35 @@ function extractText(run: TextRun): string {
   return '';
 }
 
+// Helper to convert TextRun objects to Markdown
+function textRunToMarkdown(run: TextRun): string {
+  if (typeof run === 'string') {
+    return run;
+  }
+  if ('type' in run) {
+    if (run.type === 'link') {
+      return `[${run.text}](${run.url})`;
+    }
+    if (run.type === 'image') {
+      return `![${run.alt}](${run.url})`;
+    }
+  }
+  if ('text' in run) {
+    let text = run.text;
+    if ((run as any).bold) {
+      text = `**${text}**`;
+    }
+    if ((run as any).italic) {
+      text = `*${text}*`;
+    }
+    if ((run as any).underline) {
+      text = `__${text}__`;
+    }
+    return text;
+  }
+  return '';
+}
+
 // Helper function to convert OSFValue to CellValue
 function toSpreadsheetData(data: Record<string, OSFValue> | undefined): SpreadsheetData {
   if (!data) return {};
@@ -600,12 +629,28 @@ function exportMarkdown(doc: OSFDocument): string {
           for (const block of slide.content) {
             if (block.type === 'unordered_list') {
               for (const item of block.items) {
-                const itemText = item.content.map(extractText).join('');
+                const itemText = item.content.map(textRunToMarkdown).join('');
                 out.push(`- ${itemText}`);
               }
+            } else if (block.type === 'ordered_list') {
+              block.items.forEach((item, idx) => {
+                const itemText = item.content.map(textRunToMarkdown).join('');
+                out.push(`${idx + 1}. ${itemText}`);
+              });
             } else if (block.type === 'paragraph') {
-              const paragraphText = block.content.map(extractText).join('');
+              const paragraphText = block.content.map(textRunToMarkdown).join('');
               out.push(paragraphText);
+            } else if (block.type === 'blockquote') {
+              for (const para of block.content) {
+                const quoteText = para.content.map(textRunToMarkdown).join('');
+                out.push(`> ${quoteText}`);
+              }
+            } else if (block.type === 'code') {
+              out.push(`\u0060\u0060\u0060${block.language || ''}`);
+              out.push(block.content);
+              out.push('\u0060\u0060\u0060');
+            } else if (block.type === 'image') {
+              out.push(`![${block.alt}](${block.url})`);
             }
           }
         }
