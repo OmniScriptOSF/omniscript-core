@@ -18,6 +18,21 @@ interface RawBlock {
   content: string;
 }
 
+function getLineColumn(str: string, index: number): { line: number; column: number } {
+  let line = 1;
+  let column = 1;
+  for (let i = 0; i < index && i < str.length; i++) {
+    const ch = str[i];
+    if (ch === '\n') {
+      line++;
+      column = 1;
+    } else {
+      column++;
+    }
+  }
+  return { line, column };
+}
+
 function findBlocks(input: string): RawBlock[] {
   const blocks: RawBlock[] = [];
   const regex = /@(\w+)\s*\{/g;
@@ -38,11 +53,12 @@ function findBlocks(input: string): RawBlock[] {
     }
 
     if (depth > 0) {
-      throw new Error(`Missing closing } for block ${type}`);
+      const { line, column } = getLineColumn(input, end);
+      throw new Error(`Missing closing } for block ${type} at ${line}:${column}`);
     }
 
     const content = input.slice(match.index + match[0].length, end - 1);
-    blocks.push({ type, content: content.trim() });
+    blocks.push({ type, content });
   }
 
   return blocks;
@@ -73,7 +89,8 @@ function skipWS(str: string, i: number): number {
 function parseIdentifier(str: string, i: number): { id: string; index: number } {
   const start = i;
   if (i >= str.length || !/[A-Za-z]/.test(str[i] || '')) {
-    throw new Error('Expected identifier starting with a letter');
+    const { line, column } = getLineColumn(str, i);
+    throw new Error(`Expected identifier starting with a letter at ${line}:${column}`);
   }
   i++; // consume first letter
   while (i < str.length && /[A-Za-z0-9_%]/.test(str[i] || '')) i++;
@@ -145,7 +162,8 @@ function parseNumber(str: string, i: number): { value: number; index: number } {
 
   // Ensure we actually parsed some digits after the optional minus sign
   if (j === i || (j === i + 1 && str[i] === '-')) {
-    throw new Error('Invalid number format');
+    const { line, column } = getLineColumn(str, i);
+    throw new Error(`Invalid number format at ${line}:${column}`);
   }
 
   return { value: Number(str.slice(i, j)), index: j };
@@ -154,7 +172,10 @@ function parseNumber(str: string, i: number): { value: number; index: number } {
 function parseValue(str: string, i: number): { value: OSFValue; index: number } {
   i = skipWS(str, i);
   const ch = str[i];
-  if (!ch) throw new Error('Unexpected end of input');
+  if (!ch) {
+    const { line, column } = getLineColumn(str, i);
+    throw new Error(`Unexpected end of input at ${line}:${column}`);
+  }
 
   if (ch === '"') return parseString(str, i);
   if (ch === '[') {
@@ -192,11 +213,17 @@ function parseKVInternal(str: string, i: number): { obj: Record<string, OSFValue
     const keyRes = parseIdentifier(str, i);
     const key = keyRes.id;
     i = skipWS(str, keyRes.index);
-    if (str[i] !== ':') throw new Error('Expected :');
+    if (str[i] !== ':') {
+      const { line, column } = getLineColumn(str, i);
+      throw new Error(`Expected : at ${line}:${column}`);
+    }
     i++;
     const valRes = parseValue(str, i);
     i = skipWS(str, valRes.index);
-    if (str[i] !== ';') throw new Error('Expected ;');
+    if (str[i] !== ';') {
+      const { line, column } = getLineColumn(str, i);
+      throw new Error(`Expected ; at ${line}:${column}`);
+    }
     i++;
     obj[key] = valRes.value;
   }
@@ -392,7 +419,8 @@ function parseSheetData(content: string): Record<string, OSFValue> {
   }
 
   if (depth > 0) {
-    throw new Error('Unclosed data block');
+    const { line, column } = getLineColumn(content, i);
+    throw new Error(`Unclosed data block at ${line}:${column}`);
   }
 
   const data: Record<string, OSFValue> = {};

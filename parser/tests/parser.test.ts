@@ -53,6 +53,23 @@ describe('OSF Parser', () => {
     });
   });
 
+  describe('error positions', () => {
+    it('should report line and column for syntax errors', () => {
+      const badInput = '@meta {\n  title "Missing colon";\n}';
+      expect(() => parse(badInput)).toThrowError(/Expected : at 2:9/);
+    });
+
+    it('should report line and column for unclosed blocks', () => {
+      const badInput = '@meta {\n  title: "Test";';
+      try {
+        parse(badInput);
+        throw new Error('Expected parse to fail');
+      } catch (e: any) {
+        expect(e.message).toMatch(/Missing closing \} for block meta at 2:17/);
+      }
+    });
+  });
+
   describe('serialize', () => {
     it('should serialize a slide with all content types', () => {
       const doc: OSFDocument = {
