@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parse, serialize } from '../src/parser';
-import { OSFDocument, SlideBlock } from '../src/types';
+import { OSFDocument, SlideBlock, MetaBlock } from '../src/types';
 
 describe('OSF Parser', () => {
   describe('parse', () => {
@@ -148,6 +148,23 @@ describe('OSF Parser', () => {
       const parsed2 = parse(serialized);
 
       expect(JSON.stringify(parsed2)).toBe(JSON.stringify(parsed1));
+    });
+  });
+
+  describe('unicode escapes', () => {
+    it('parses unicode escape sequences', () => {
+      const input = '@meta {\n  title: "\\u03A9 and \\xE9";\n}';
+      const result = parse(input);
+      const meta = result.blocks[0] as MetaBlock;
+      expect(meta.props.title).toBe('Ω and é');
+    });
+
+    it('serializes unicode characters with escape sequences', () => {
+      const doc: OSFDocument = {
+        blocks: [{ type: 'meta', props: { title: 'Ω and é' } as any }],
+      };
+      const out = serialize(doc);
+      expect(out).toContain('title: "\\u03A9 and \\xE9";');
     });
   });
 });

@@ -90,40 +90,72 @@ function parseString(str: string, i: number): { value: string; index: number } {
       switch (nextChar) {
         case '"':
           out += '"';
+          j += 2;
           break;
         case '\\':
           out += '\\';
+          j += 2;
           break;
         case 'n':
           out += '\n';
+          j += 2;
           break;
         case 't':
           out += '\t';
+          j += 2;
           break;
         case 'r':
           out += '\r';
+          j += 2;
           break;
         case 'b':
           out += '\b';
+          j += 2;
           break;
         case 'f':
           out += '\f';
+          j += 2;
           break;
         case 'v':
           out += '\v';
+          j += 2;
           break;
         case '0':
           out += '\0';
+          j += 2;
           break;
         case '/':
           out += '/';
+          j += 2;
           break;
+        case 'u': {
+          const hex = str.slice(j + 2, j + 6);
+          if (/^[0-9a-fA-F]{4}$/.test(hex)) {
+            out += String.fromCharCode(parseInt(hex, 16));
+            j += 6;
+          } else {
+            out += str[j] + nextChar;
+            j += 2;
+          }
+          break;
+        }
+        case 'x': {
+          const hex = str.slice(j + 2, j + 4);
+          if (/^[0-9a-fA-F]{2}$/.test(hex)) {
+            out += String.fromCharCode(parseInt(hex, 16));
+            j += 4;
+          } else {
+            out += str[j] + nextChar;
+            j += 2;
+          }
+          break;
+        }
         default:
           // For unknown escape sequences, preserve the backslash and character
           out += str[j] + (nextChar || '');
+          j += 2;
           break;
       }
-      j += 2;
     } else {
       out += str[j];
       j++;
@@ -548,16 +580,38 @@ export function parse(input: string): OSFDocument {
 }
 
 function escapeString(str: string): string {
-  return str
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, '\\n')
-    .replace(/\t/g, '\\t')
-    .replace(/\r/g, '\\r')
-    .replace(String.fromCharCode(8), '\\b')
-    .replace(/\f/g, '\\f')
-    .replace(/\v/g, '\\v')
-    .replace(/\0/g, '\\0');
+  return str.replace(/[\s\S]/g, ch => {
+    switch (ch) {
+      case '\\':
+        return '\\\\';
+      case '"':
+        return '\\"';
+      case '\n':
+        return '\\n';
+      case '\t':
+        return '\\t';
+      case '\r':
+        return '\\r';
+      case '\b':
+        return '\\b';
+      case '\f':
+        return '\\f';
+      case '\v':
+        return '\\v';
+      case '\0':
+        return '\\0';
+      default: {
+        const code = ch.charCodeAt(0);
+        if (code < 0x20 || code > 0x7e) {
+          if (code <= 0xff) {
+            return `\\x${code.toString(16).padStart(2, '0').toUpperCase()}`;
+          }
+          return `\\u${code.toString(16).padStart(4, '0').toUpperCase()}`;
+        }
+        return ch;
+      }
+    }
+  });
 }
 
 function serializeValue(v: OSFValue): string {
