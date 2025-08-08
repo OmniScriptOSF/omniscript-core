@@ -12,6 +12,8 @@ import {
   SheetBlock,
   OSFValue,
   TextRun,
+  ContentBlock,
+  Paragraph,
 } from 'omniscript-parser';
 
 // Type definitions for formula handling
@@ -43,6 +45,70 @@ function extractText(run: TextRun): string {
     return run.text;
   }
   return '';
+}
+
+// Helper function to render TextRun objects to HTML
+function renderTextRun(run: TextRun): string {
+  if (typeof run === 'string') {
+    return run;
+  }
+  if ('type' in run) {
+    switch (run.type) {
+      case 'link':
+        return `<a href="${run.url}">${run.text}</a>`;
+      case 'image':
+        return `<img src="${run.url}" alt="${run.alt}" />`;
+    }
+  }
+  if ('text' in run) {
+    let text = run.text;
+    if (run.bold) text = `<strong>${text}</strong>`;
+    if (run.italic) text = `<em>${text}</em>`;
+    if (run.underline) text = `<u>${text}</u>`;
+    return text;
+  }
+  return '';
+}
+
+// Render content blocks within slides to HTML
+function renderContentBlock(block: ContentBlock, indent = '      '): string {
+  switch (block.type) {
+    case 'paragraph': {
+      const text = block.content.map(renderTextRun).join('');
+      return `${indent}<p>${text}</p>`;
+    }
+    case 'unordered_list': {
+      const items = block.items
+        .map(item => `${indent}  <li>${item.content.map(renderTextRun).join('')}</li>`)
+        .join('\n');
+      return `${indent}<ul>\n${items}\n${indent}</ul>`;
+    }
+    case 'ordered_list': {
+      const items = block.items
+        .map(item => `${indent}  <li>${item.content.map(renderTextRun).join('')}</li>`)
+        .join('\n');
+      return `${indent}<ol>\n${items}\n${indent}</ol>`;
+    }
+    case 'blockquote': {
+      const inner = block.content
+        .map((p: Paragraph) => renderContentBlock(p, indent + '  '))
+        .join('\n');
+      return `${indent}<blockquote>\n${inner}\n${indent}</blockquote>`;
+    }
+    case 'code': {
+      const langClass = block.language ? ` class="language-${block.language}"` : '';
+      const escaped = block.content
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      return `${indent}<pre><code${langClass}>${escaped}</code></pre>`;
+    }
+    case 'image': {
+      return `${indent}<img src="${block.url}" alt="${block.alt}" />`;
+    }
+    default:
+      return '';
+  }
 }
 
 // Helper function to convert OSFValue to CellValue
@@ -453,18 +519,8 @@ function renderHtml(doc: OSFDocument): string {
         }
         if (slide.content && Array.isArray(slide.content)) {
           parts.push('    <div class="slide-content">');
-          for (const block of slide.content) {
-            if (block.type === 'unordered_list') {
-              parts.push('      <ul>');
-              for (const item of block.items) {
-                const itemText = item.content.map(extractText).join('');
-                parts.push(`        <li>${itemText}</li>`);
-              }
-              parts.push('      </ul>');
-            } else if (block.type === 'paragraph') {
-              const paragraphText = block.content.map(extractText).join('');
-              parts.push(`      <p>${paragraphText}</p>`);
-            }
+          for (const contentBlock of slide.content) {
+            parts.push(renderContentBlock(contentBlock));
           }
           parts.push('    </div>');
         }

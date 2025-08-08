@@ -60,6 +60,23 @@ const FORMULA_TEST_OSF = `@meta {
   formula (2,4): "=C1+C2";
 }`;
 
+const RICH_CONTENT_OSF = `@slide {
+  title: "Complex Slide";
+
+  This is a paragraph with a [link](https://example.com).
+
+  1. Ordered item 1
+  2. Ordered item 2
+
+  > A blockquote
+
+  \`\`\`javascript
+  console.log("Hello, World!");
+  \`\`\`
+
+  ![Alt text](https://example.com/image.png)
+}`;
+
 const INVALID_OSF = `@meta {
   title: "Unclosed Block"
   // Missing closing brace`;
@@ -188,6 +205,27 @@ describe('OSF CLI', () => {
       expect(result).toContain('<strong>Author:</strong> Test Author');
       expect(result).toContain('<section class="slide">');
       expect(result).toContain('<table>');
+    });
+
+    it('should render advanced slide content types to HTML', () => {
+      const richFile = join(TEST_FIXTURES_DIR, 'rich.osf');
+      writeFileSync(richFile, RICH_CONTENT_OSF, 'utf8');
+
+      try {
+        const result = execSync(`node "${CLI_PATH}" render "${richFile}"`, {
+          encoding: 'utf8',
+        });
+
+        expect(result).toContain('<ol>');
+        expect(result).toContain('<blockquote>');
+        expect(result).toContain('<pre><code');
+        expect(result).toContain('<img src="https://example.com/image.png" alt="Alt text" />');
+        expect(result).toContain('<a href="https://example.com">link</a>');
+      } finally {
+        if (existsSync(richFile)) {
+          unlinkSync(richFile);
+        }
+      }
     });
 
     it('should render OSF with computed formula values to HTML', () => {
