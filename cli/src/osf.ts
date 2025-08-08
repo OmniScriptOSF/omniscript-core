@@ -13,6 +13,13 @@ import {
   OSFValue,
   TextRun,
 } from 'omniscript-parser';
+import {
+  Document as DocxDocument,
+  Packer,
+  Paragraph as DocxParagraph,
+  HeadingLevel,
+  TextRun as DocxTextRun,
+} from 'docx';
 
 // Type definitions for formula handling
 interface FormulaDefinition {
@@ -544,8 +551,93 @@ async function renderPdf(): Promise<Buffer> {
   throw new Error('PDF rendering not implemented');
 }
 
-async function renderDocx(): Promise<Buffer> {
-  throw new Error('DOCX rendering not implemented');
+async function renderDocx(doc: OSFDocument): Promise<Buffer> {
+  const children: DocxParagraph[] = [];
+
+  for (const block of doc.blocks) {
+    switch (block.type) {
+      case 'meta': {
+        const meta = block as MetaBlock;
+        for (const [key, value] of Object.entries(meta.props)) {
+          children.push(
+            new DocxParagraph({
+              children: [new DocxTextRun({ text: `${key}: ${value}` })],
+            })
+          );
+        }
+        break;
+      }
+      case 'doc': {
+        const docBlock = block as DocBlock;
+        const lines = docBlock.content.split('\n');
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          if (trimmed.startsWith('# ')) {
+            children.push(
+              new DocxParagraph({
+                text: trimmed.replace(/^#\s*/, ''),
+                heading: HeadingLevel.HEADING_1,
+              })
+            );
+          } else if (trimmed.startsWith('## ')) {
+            children.push(
+              new DocxParagraph({
+                text: trimmed.replace(/^##\s*/, ''),
+                heading: HeadingLevel.HEADING_2,
+              })
+            );
+          } else {
+            children.push(new DocxParagraph(trimmed));
+          }
+        }
+        break;
+      }
+      case 'slide': {
+        const slide = block as SlideBlock;
+        if (slide.title) {
+          children.push(
+            new DocxParagraph({
+              text: slide.title,
+              heading: HeadingLevel.HEADING_1,
+            })
+          );
+        }
+        if (slide.bullets) {
+          for (const bullet of slide.bullets) {
+            children.push(
+              new DocxParagraph({
+                text: bullet,
+                bullet: { level: 0 },
+              })
+            );
+          }
+        }
+        break;
+      }
+      case 'sheet': {
+        const sheet = block as SheetBlock;
+        if (sheet.name) {
+          children.push(
+            new DocxParagraph({
+              text: sheet.name,
+              heading: HeadingLevel.HEADING_1,
+            })
+          );
+        }
+        if (sheet.cols) {
+          children.push(new DocxParagraph(`Columns: ${sheet.cols.join(', ')}`));
+        }
+        break;
+      }
+    }
+  }
+
+  const docx = new DocxDocument({
+    sections: [{ children }],
+  });
+
+  return Packer.toBuffer(docx);
 }
 
 async function renderPptx(): Promise<Buffer> {
@@ -919,7 +1011,13 @@ async function main(): Promise<void> {
             break;
           }
           case 'docx': {
-            await renderDocx();
+            const buffer = await renderDocx(doc);
+            if (outputFile) {
+              writeFileSync(outputFile, buffer);
+              console.log(`Output written to ${outputFile}`);
+            } else {
+              process.stdout.write(buffer);
+            }
             break;
           }
           case 'pptx': {

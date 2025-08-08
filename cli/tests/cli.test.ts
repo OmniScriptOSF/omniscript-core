@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execSync } from 'child_process';
-import { writeFileSync, readFileSync, unlinkSync, existsSync } from 'fs';
+import { writeFileSync, readFileSync, unlinkSync, existsSync, statSync } from 'fs';
 import { join } from 'path';
 import { version as cliVersion } from '../package.json';
 
@@ -68,6 +68,7 @@ describe('OSF CLI', () => {
   const testFile = join(TEST_FIXTURES_DIR, 'test.osf');
   const invalidFile = join(TEST_FIXTURES_DIR, 'invalid.osf');
   const outputFile = join(TEST_FIXTURES_DIR, 'output.tmp');
+  const docxOutputFile = join(TEST_FIXTURES_DIR, 'output.docx');
 
   beforeEach(() => {
     // Ensure fixtures directory exists
@@ -82,7 +83,7 @@ describe('OSF CLI', () => {
 
   afterEach(() => {
     // Clean up test files
-    [testFile, invalidFile, outputFile].forEach(file => {
+    [testFile, invalidFile, outputFile, docxOutputFile].forEach(file => {
       if (existsSync(file)) {
         unlinkSync(file);
       }
@@ -225,16 +226,13 @@ describe('OSF CLI', () => {
       }
     });
 
-    it('should fail to render OSF to DOCX', () => {
-      try {
-        const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format docx`, {
-          encoding: 'utf8',
-        });
-        expect.fail(`Expected render command to fail but succeeded with output: ${result}`);
-      } catch (err: any) {
-        const output = (err.stderr || err.stdout) as string;
-        expect(output).toContain('DOCX rendering not implemented');
-      }
+    it('should render OSF to DOCX file', () => {
+      execSync(
+        `node "${CLI_PATH}" render "${testFile}" --format docx --output "${docxOutputFile}"`
+      );
+      expect(existsSync(docxOutputFile)).toBe(true);
+      const stats = statSync(docxOutputFile);
+      expect(stats.size).toBeGreaterThan(0);
     });
 
     it('should fail to render OSF to PPTX', () => {
