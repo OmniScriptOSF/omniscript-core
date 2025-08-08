@@ -539,9 +539,97 @@ function renderHtml(doc: OSFDocument): string {
   return parts.join('\n');
 }
 
-// Advanced format renderers using omniscript-converters
-async function renderPdf(): Promise<Buffer> {
-  throw new Error('PDF rendering not implemented');
+// Advanced format renderers using pdfkit
+async function renderPdf(doc: OSFDocument): Promise<Buffer> {
+  // Import lazily to avoid unnecessary load if PDF rendering isn't used
+  // Using require keeps TypeScript happy without needing type definitions
+  const PDFDocument = require('pdfkit');
+
+  return await new Promise<Buffer>((resolve, reject) => {
+    const pdf = new PDFDocument();
+    const chunks: Buffer[] = [];
+
+    pdf.on('data', (chunk: Buffer) => chunks.push(chunk));
+    pdf.on('end', () => resolve(Buffer.concat(chunks)));
+    pdf.on('error', (err: Error) => reject(err));
+
+    for (const block of doc.blocks) {
+      switch (block.type) {
+        case 'meta': {
+          const meta = block as MetaBlock;
+          if (meta.props.title) {
+            pdf.fontSize(20).text(String(meta.props.title));
+          }
+          if (meta.props.author) {
+            pdf.moveDown(0.5).fontSize(12).text(`Author: ${meta.props.author}`);
+          }
+          if (meta.props.date) {
+            pdf.moveDown(0.5).fontSize(12).text(`Date: ${meta.props.date}`);
+          }
+          pdf.moveDown();
+          break;
+        }
+        case 'doc': {
+          const docBlock = block as DocBlock;
+          if (docBlock.content) {
+            pdf.fontSize(12).text(docBlock.content);
+            pdf.moveDown();
+          }
+          break;
+        }
+        case 'slide': {
+          const slide = block as SlideBlock;
+          pdf.addPage();
+          if (slide.title) {
+            pdf.fontSize(18).text(slide.title);
+          }
+          if (slide.content) {
+            for (const content of slide.content) {
+              if (content.type === 'unordered_list') {
+                for (const item of content.items) {
+                  const text = item.content.map(extractText).join('');
+                  pdf.moveDown(0.5).fontSize(12).text(`• ${text}`);
+                }
+              } else if (content.type === 'paragraph') {
+                const text = content.content.map(extractText).join('');
+                pdf.moveDown(0.5).fontSize(12).text(text);
+              }
+            }
+          }
+          break;
+        }
+        case 'sheet': {
+          const sheet = block as SheetBlock;
+          pdf.addPage();
+          if (sheet.name) {
+            pdf.fontSize(16).text(sheet.name);
+          }
+          if (sheet.data) {
+            // Convert sheet data into rows for simple rendering
+            const coords: [number, number][] = Object.keys(sheet.data).map(
+              k => k.split(',').map(Number) as [number, number]
+            );
+            if (coords.length > 0) {
+              const maxRow = Math.max(...coords.map(c => c[0]));
+              const maxCol = Math.max(...coords.map(c => c[1]));
+              for (let r = 1; r <= maxRow; r++) {
+                const rowValues: string[] = [];
+                for (let c = 1; c <= maxCol; c++) {
+                  const key = `${r},${c}`;
+                  const val = sheet.data[key] ?? '';
+                  rowValues.push(String(val));
+                }
+                pdf.fontSize(10).text(rowValues.join(' \t'));
+              }
+            }
+          }
+          break;
+        }
+      }
+    }
+
+    pdf.end();
+  });
 }
 
 async function renderDocx(): Promise<Buffer> {
@@ -915,7 +1003,13 @@ async function main(): Promise<void> {
             break;
           }
           case 'pdf': {
-            await renderPdf();
+            const pdfBuffer = await renderPdf(doc);
+            if (outputFile) {
+              writeFileSync(outputFile, pdfBuffer);
+              console.log(`Output written to ${outputFile}`);
+            } else {
+              process.stdout.write(pdfBuffer);
+            }
             break;
           }
           case 'docx': {

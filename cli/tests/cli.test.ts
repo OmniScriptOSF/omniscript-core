@@ -213,15 +213,19 @@ describe('OSF CLI', () => {
       }
     });
 
-    it('should fail to render OSF to PDF', () => {
+    it('should render OSF to PDF file', () => {
+      const pdfFile = join(TEST_FIXTURES_DIR, 'output.pdf');
       try {
-        const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format pdf`, {
+        execSync(`node "${CLI_PATH}" render "${testFile}" --format pdf --output "${pdfFile}"`, {
           encoding: 'utf8',
         });
-        expect.fail(`Expected render command to fail but succeeded with output: ${result}`);
-      } catch (err: any) {
-        const output = (err.stderr || err.stdout) as string;
-        expect(output).toContain('PDF rendering not implemented');
+        expect(existsSync(pdfFile)).toBe(true);
+        const header = readFileSync(pdfFile).subarray(0, 4).toString();
+        expect(header).toBe('%PDF');
+      } finally {
+        if (existsSync(pdfFile)) {
+          unlinkSync(pdfFile);
+        }
       }
     });
 
