@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import Ajv from 'ajv';
+import PptxGenJS from 'pptxgenjs';
 import { version as cliVersion } from '../package.json';
 import {
   parse,
@@ -548,8 +549,67 @@ async function renderDocx(): Promise<Buffer> {
   throw new Error('DOCX rendering not implemented');
 }
 
-async function renderPptx(): Promise<Buffer> {
-  throw new Error('PPTX rendering not implemented');
+async function renderPptx(doc: OSFDocument): Promise<Buffer> {
+  const pptx = new PptxGenJS();
+
+  for (const block of doc.blocks) {
+    if (block.type === 'slide') {
+      const slideBlock = block as SlideBlock;
+      const slide = pptx.addSlide();
+
+      if (slideBlock.title) {
+        slide.addText(slideBlock.title, {
+          x: 0.5,
+          y: 0.5,
+          fontSize: 24,
+          bold: true,
+        });
+      }
+
+      let yPos = slideBlock.title ? 1.2 : 0.5;
+
+      if ('bullets' in slideBlock && Array.isArray(slideBlock.bullets)) {
+        const items = slideBlock.bullets.filter((b): b is string => typeof b === 'string');
+        if (items.length) {
+          const textItems = items.map(t => ({ text: t }));
+          slide.addText(textItems, {
+            x: 0.75,
+            y: yPos,
+            fontSize: 18,
+            bullet: true,
+          });
+          yPos += items.length * 0.4 + 0.4;
+        }
+      }
+
+      if (slideBlock.content) {
+        for (const content of slideBlock.content) {
+          if (content.type === 'unordered_list') {
+            const items = content.items.map(item => item.content.map(extractText).join(''));
+            const textItems = items.map(t => ({ text: t }));
+            slide.addText(textItems, {
+              x: 0.75,
+              y: yPos,
+              fontSize: 18,
+              bullet: true,
+            });
+            yPos += items.length * 0.4 + 0.4;
+          } else if (content.type === 'paragraph') {
+            const text = content.content.map(extractText).join('');
+            slide.addText(text, { x: 0.5, y: yPos, fontSize: 18 });
+            yPos += 0.5;
+          }
+        }
+      }
+    } else if (block.type === 'doc') {
+      const docBlock = block as DocBlock;
+      const slide = pptx.addSlide();
+      slide.addText(docBlock.content, { x: 0.5, y: 0.5, fontSize: 18 });
+    }
+  }
+
+  const buffer = (await pptx.write({ outputType: 'nodebuffer' })) as unknown as Buffer;
+  return buffer;
 }
 
 async function renderXlsx(): Promise<Buffer> {
@@ -923,7 +983,17 @@ async function main(): Promise<void> {
             break;
           }
           case 'pptx': {
-            await renderPptx();
+            const pptxBuffer = await renderPptx(doc);
+            const outPath = outputFile || file.replace(/\.[^.]+$/, '') + '.pptx';
+            try {
+              writeFileSync(outPath, pptxBuffer);
+              console.log(`Output written to ${outPath}`);
+            } catch (error) {
+              handleError(
+                new Error(`Failed to write file '${outPath}': ${(error as Error).message}`),
+                'render'
+              );
+            }
             break;
           }
           case 'xlsx': {

@@ -237,16 +237,14 @@ describe('OSF CLI', () => {
       }
     });
 
-    it('should fail to render OSF to PPTX', () => {
-      try {
-        const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format pptx`, {
-          encoding: 'utf8',
-        });
-        expect.fail(`Expected render command to fail but succeeded with output: ${result}`);
-      } catch (err: any) {
-        const output = (err.stderr || err.stdout) as string;
-        expect(output).toContain('PPTX rendering not implemented');
-      }
+    it('should render OSF to PPTX file', () => {
+      execSync(`node "${CLI_PATH}" render "${testFile}" --format pptx --output "${outputFile}"`, {
+        encoding: 'utf8',
+      });
+
+      expect(existsSync(outputFile)).toBe(true);
+      const buf = readFileSync(outputFile);
+      expect(buf.slice(0, 2).toString()).toBe('PK');
     });
 
     it('should fail to render OSF to XLSX', () => {
