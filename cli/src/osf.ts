@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import Ajv from 'ajv';
+import * as XLSX from 'xlsx';
 import { version as cliVersion } from '../package.json';
 import {
   parse,
@@ -552,8 +553,85 @@ async function renderPptx(): Promise<Buffer> {
   throw new Error('PPTX rendering not implemented');
 }
 
-async function renderXlsx(): Promise<Buffer> {
-  throw new Error('XLSX rendering not implemented');
+async function renderXlsx(doc: OSFDocument): Promise<Buffer> {
+  const workbook = XLSX.utils.book_new();
+
+  for (const block of doc.blocks) {
+    if (block.type !== 'sheet') continue;
+    const sheet = block as SheetBlock;
+    const sheetName = sheet.name || `Sheet${workbook.SheetNames.length + 1}`;
+
+    // Determine column headers
+    let headers: string[] = [];
+    if (sheet.cols) {
+      headers = Array.isArray(sheet.cols)
+        ? (sheet.cols as string[])
+        : String(sheet.cols)
+            .replace(/[[\]]/g, '')
+            .split(',')
+            .map((s: string) => s.trim());
+    }
+
+    // Determine sheet dimensions
+    const data = toSpreadsheetData(sheet.data);
+    const dataCoords: Array<[number, number]> = Object.keys(data).map(k => {
+      const [r, c] = k.split(',').map(Number) as [number, number];
+      return [r, c];
+    });
+    const formulaCoords: Array<[number, number]> = (sheet.formulas || []).map(f => f.cell);
+    const allCoords: Array<[number, number]> = [...dataCoords, ...formulaCoords];
+    const evaluator = new FormulaEvaluator(data, sheet.formulas || []);
+
+    let maxRow = headers.length > 0 ? 1 : 0;
+    let maxCol = headers.length;
+    for (const [r, c] of allCoords) {
+      if (r > maxRow) maxRow = r;
+      if (c > maxCol) maxCol = c;
+    }
+
+    const matrix: (CellValue | null)[][] = Array.from({ length: maxRow }, () =>
+      Array(maxCol).fill(null)
+    );
+
+    // Populate headers
+    if (headers.length > 0) {
+      headers.forEach((h, idx) => {
+        matrix[0]![idx] = h;
+      });
+    }
+
+    // Populate data cells
+    for (const [key, value] of Object.entries(data)) {
+      const [r, c] = key.split(',').map(Number) as [number, number];
+      matrix[r - 1]![c - 1] = value;
+    }
+
+    const ws = XLSX.utils.aoa_to_sheet(matrix);
+
+    // Apply formulas
+    if (sheet.formulas) {
+      for (const f of sheet.formulas) {
+        const [r, c] = f.cell;
+        const cellRef = XLSX.utils.encode_cell({ r: r - 1, c: c - 1 });
+        const cell = (ws[cellRef] || {}) as XLSX.CellObject;
+        cell.f = f.expr.startsWith('=') ? f.expr.slice(1) : f.expr;
+        try {
+          const value = evaluator.getCellValue(r, c);
+          cell.v = value as any;
+          if (typeof value === 'number') cell.t = 'n';
+          else if (typeof value === 'boolean') cell.t = 'b';
+          else cell.t = 's';
+        } catch {
+          // Ignore evaluation errors for XLSX output
+        }
+        ws[cellRef] = cell;
+      }
+    }
+
+    XLSX.utils.book_append_sheet(workbook, ws, sheetName);
+  }
+
+  return XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
 }
 
 function exportMarkdown(doc: OSFDocument): string {
@@ -927,7 +1005,13 @@ async function main(): Promise<void> {
             break;
           }
           case 'xlsx': {
-            await renderXlsx();
+            const buffer = await renderXlsx(doc);
+            if (outputFile) {
+              writeFileSync(outputFile, buffer);
+              console.log(`Output written to ${outputFile}`);
+            } else {
+              process.stdout.write(buffer);
+            }
             break;
           }
           default:

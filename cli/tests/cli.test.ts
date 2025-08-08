@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execSync } from 'child_process';
 import { writeFileSync, readFileSync, unlinkSync, existsSync } from 'fs';
 import { join } from 'path';
+import * as XLSX from 'xlsx';
 import { version as cliVersion } from '../package.json';
 
 const CLI_PATH = join(__dirname, '../dist/osf.js');
@@ -68,6 +69,7 @@ describe('OSF CLI', () => {
   const testFile = join(TEST_FIXTURES_DIR, 'test.osf');
   const invalidFile = join(TEST_FIXTURES_DIR, 'invalid.osf');
   const outputFile = join(TEST_FIXTURES_DIR, 'output.tmp');
+  const xlsxOutputFile = join(TEST_FIXTURES_DIR, 'output.xlsx');
 
   beforeEach(() => {
     // Ensure fixtures directory exists
@@ -82,7 +84,7 @@ describe('OSF CLI', () => {
 
   afterEach(() => {
     // Clean up test files
-    [testFile, invalidFile, outputFile].forEach(file => {
+    [testFile, invalidFile, outputFile, xlsxOutputFile].forEach(file => {
       if (existsSync(file)) {
         unlinkSync(file);
       }
@@ -249,16 +251,19 @@ describe('OSF CLI', () => {
       }
     });
 
-    it('should fail to render OSF to XLSX', () => {
-      try {
-        const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format xlsx`, {
-          encoding: 'utf8',
-        });
-        expect.fail(`Expected render command to fail but succeeded with output: ${result}`);
-      } catch (err: any) {
-        const output = (err.stderr || err.stdout) as string;
-        expect(output).toContain('XLSX rendering not implemented');
-      }
+    it('should render OSF to XLSX file', () => {
+      execSync(
+        `node "${CLI_PATH}" render "${testFile}" --format xlsx --output "${xlsxOutputFile}"`,
+        { encoding: 'utf8' }
+      );
+
+      expect(existsSync(xlsxOutputFile)).toBe(true);
+      const workbook = XLSX.readFile(xlsxOutputFile);
+      const sheet = workbook.Sheets['TestSheet'];
+      expect(sheet).toBeTruthy();
+      expect(sheet['A1'].v).toBe('Column1');
+      expect(sheet['B2'].v).toBe(100);
+      expect(sheet['C2'].f).toBe('(B2-100)/100*100');
     });
 
     it('should render OSF to HTML file', () => {
