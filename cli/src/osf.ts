@@ -120,7 +120,7 @@ class FormulaEvaluator {
   private data: SpreadsheetData;
   private formulas: Map<string, string>;
   private computed: Map<string, CellValue>;
-  private evaluating: Set<string>; // For circular reference detection
+  private evaluating: Set<string>; // For circular reference detection; see cli/tests/cli.test.ts
 
   constructor(data: SpreadsheetData, formulas: FormulaDefinition[]) {
     this.data = { ...data };
@@ -175,7 +175,7 @@ class FormulaEvaluator {
   getCellValue(row: number, col: number): CellValue {
     const key = `${row},${col}`;
 
-    // Check for circular reference
+    // Check for circular reference (validated by cli/tests/cli.test.ts)
     if (this.evaluating.has(key)) {
       throw new Error(`Circular reference detected at cell ${this.coordsToCellRef(row, col)}`);
     }
@@ -724,6 +724,14 @@ function exportJson(doc: OSFDocument): string {
 
           // Get all computed values including formulas
           const allValues = evaluator.getAllComputedValues(maxRow, maxCol);
+
+          // Fail if any formula evaluation resulted in an error (e.g., circular references)
+          const errorCell = Object.values(allValues).find(
+            v => typeof v === 'string' && v.startsWith('#ERROR:')
+          );
+          if (typeof errorCell === 'string') {
+            throw new Error(errorCell.replace('#ERROR: ', ''));
+          }
 
           // Convert to array format with computed values
           const computedData = Object.entries(allValues).map(([cell, value]) => {

@@ -60,6 +60,20 @@ const FORMULA_TEST_OSF = `@meta {
   formula (2,4): "=C1+C2";
 }`;
 
+const CIRCULAR_FORMULA_OSF = `@meta {
+  title: "Circular Formula Test";
+}
+
+@sheet {
+  name: "CycleSheet";
+  cols: [A, B];
+  data {
+    (2,1) = 1;
+  }
+  formula (1,1): "=B1";
+  formula (1,2): "=A1";
+}`;
+
 const INVALID_OSF = `@meta {
   title: "Unclosed Block"
   // Missing closing brace`;
@@ -373,6 +387,25 @@ describe('OSF CLI', () => {
       } finally {
         if (existsSync(formulaFile)) {
           unlinkSync(formulaFile);
+        }
+      }
+    });
+
+    it('should fail exporting OSF with circular formulas to JSON', () => {
+      const cycleFile = join(TEST_FIXTURES_DIR, 'cycle_test.osf');
+      writeFileSync(cycleFile, CIRCULAR_FORMULA_OSF, 'utf8');
+
+      try {
+        const result = execSync(`node "${CLI_PATH}" export "${cycleFile}" --target json`, {
+          encoding: 'utf8',
+        });
+        expect.fail(`Expected export to fail but succeeded with output: ${result}`);
+      } catch (err: any) {
+        const output = (err.stderr || err.stdout) as string;
+        expect(output).toContain('Circular reference detected');
+      } finally {
+        if (existsSync(cycleFile)) {
+          unlinkSync(cycleFile);
         }
       }
     });
