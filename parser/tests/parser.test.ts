@@ -8,7 +8,7 @@ describe('OSF Parser', () => {
       const input =
         '@slide {\n' +
         '  title: "Comprehensive Slide";\n\n' +
-        '  This is a paragraph with **bold**, *italic*, and __underlined__ text.\n\n' +
+        '  This is a paragraph with **bold**, *italic*, __underlined__, and ~~struck through~~ text.\n\n' +
         '  - Unordered item 1\n' +
         '  - Unordered item 2\n\n' +
         '  1. Ordered item 1\n' +
@@ -50,6 +50,9 @@ describe('OSF Parser', () => {
 
       // Paragraph with link
       expect(slide.content?.[6].type).toBe('paragraph');
+
+      const paragraph = slide.content?.[0] as any;
+      expect(paragraph.content).toContainEqual({ text: 'struck through', strike: true });
     });
   });
 
@@ -64,13 +67,33 @@ describe('OSF Parser', () => {
               {
                 type: 'paragraph',
                 content: [
-                  { text: 'A paragraph with ', bold: false, italic: false, underline: false },
-                  { text: 'bold', bold: true, italic: false, underline: false },
-                  { text: ', ', bold: false, italic: false, underline: false },
-                  { text: 'italic', bold: false, italic: true, underline: false },
-                  { text: ', and ', bold: false, italic: false, underline: false },
-                  { text: 'underlined', bold: false, italic: false, underline: true },
-                  { text: ' text.', bold: false, italic: false, underline: false },
+                  {
+                    text: 'A paragraph with ',
+                    bold: false,
+                    italic: false,
+                    underline: false,
+                    strike: false,
+                  },
+                  { text: 'bold', bold: true, italic: false, underline: false, strike: false },
+                  { text: ', ', bold: false, italic: false, underline: false, strike: false },
+                  { text: 'italic', bold: false, italic: true, underline: false, strike: false },
+                  { text: ', ', bold: false, italic: false, underline: false, strike: false },
+                  {
+                    text: 'underlined',
+                    bold: false,
+                    italic: false,
+                    underline: true,
+                    strike: false,
+                  },
+                  { text: ', and ', bold: false, italic: false, underline: false, strike: false },
+                  {
+                    text: 'struck through',
+                    bold: false,
+                    italic: false,
+                    underline: false,
+                    strike: true,
+                  },
+                  { text: ' text.', bold: false, italic: false, underline: false, strike: false },
                 ],
               },
               {
@@ -115,7 +138,9 @@ describe('OSF Parser', () => {
       const result = serialize(doc);
 
       expect(result).toContain('@slide {\n  title: "Comprehensive Slide";');
-      expect(result).toContain('A paragraph with **bold**, *italic*, and __underlined__ text.');
+      expect(result).toContain(
+        'A paragraph with **bold**, *italic*, __underlined__, and ~~struck through~~ text.'
+      );
       expect(result).toContain('- Unordered item 1');
       expect(result).toContain('1. Ordered item 1');
       expect(result).toContain('> This is a blockquote.');
@@ -130,7 +155,7 @@ describe('OSF Parser', () => {
       const original =
         '@slide {\n' +
         '  title: "Round Trip Test";\n\n' +
-        '  A paragraph with **bold** and *italic*.\n\n' +
+        '  A paragraph with **bold**, *italic*, and ~~strike~~.\n\n' +
         '  - Item 1\n' +
         '  - Item 2\n\n' +
         '  1. First\n' +

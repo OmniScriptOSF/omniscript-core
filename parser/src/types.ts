@@ -15,6 +15,7 @@ export interface StyledText {
   bold?: boolean;
   italic?: boolean;
   underline?: boolean;
+  strike?: boolean;
 }
 
 export type TextRun = string | StyledText | Link | Image;

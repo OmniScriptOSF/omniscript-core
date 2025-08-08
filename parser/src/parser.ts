@@ -210,7 +210,7 @@ function parseKV(content: string): Record<string, OSFValue> {
 
 function parseStyledText(text: string): TextRun[] {
   const runs: TextRun[] = [];
-  const regex = /(\*\*.*?\*\*|__.*?__|\*.*?\*|!\[.*?\]\(.*?\)|\[.*?\]\(.*?\))/g;
+  const regex = /(\*\*.*?\*\*|__.*?__|\*.*?\*|~~.*?~~|!\[.*?\]\(.*?\)|\[.*?\]\(.*?\))/g;
   const parts = text.split(regex).filter(p => p);
 
   for (const part of parts) {
@@ -220,6 +220,8 @@ function parseStyledText(text: string): TextRun[] {
       runs.push({ text: part.slice(2, -2), underline: true });
     } else if (part.startsWith('*') && part.endsWith('*')) {
       runs.push({ text: part.slice(1, -1), italic: true });
+    } else if (part.startsWith('~~') && part.endsWith('~~')) {
+      runs.push({ text: part.slice(2, -2), strike: true });
     } else if (part.startsWith('![') && part.includes('](') && part.endsWith(')')) {
       const alt = part.slice(2, part.indexOf(']('));
       const url = part.slice(part.indexOf('](') + 2, -1);
@@ -588,6 +590,7 @@ function serializeTextRun(run: TextRun): string {
     if (styledText.bold) text = `**${text}**`;
     if (styledText.italic) text = `*${text}*`;
     if (styledText.underline) text = `__${text}__`;
+    if (styledText.strike) text = `~~${text}~~`;
     return text;
   }
   return '';
