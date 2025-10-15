@@ -69,8 +69,8 @@ importers:
         specifier: ^3.10.1
         version: 3.10.1
       omniscript-parser:
-        specifier: ^0.5.6
-        version: 0.5.6
+        specifier: workspace:../omniscript-core/parser
+        version: link:../omniscript-core/parser
       pptxgenjs:
         specifier: ^4.0.1
         version: 4.0.1
@@ -100,11 +100,11 @@ importers:
         specifier: ^8.12.0
         version: 8.17.1
       omniscript-converters:
-        specifier: ^0.5.6
-        version: 0.5.6(omniscript-parser@0.5.6)(typescript@5.8.3)
+        specifier: workspace:../../omniscript-converters
+        version: link:../../omniscript-converters
       omniscript-parser:
-        specifier: ^0.5.6
-        version: 0.5.6
+        specifier: workspace:*
+        version: link:../parser
     devDependencies:
       '@types/node':
         specifier: ^22.15.33
@@ -1673,14 +1673,6 @@ packages:
   npm-run-path@5.3.0:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-
-  omniscript-converters@0.5.6:
-    resolution: {integrity: sha512-61nS4gwVU51I4VFt2HF7Gw3JZKQPQwfwPZmRjEZ6JOkGAKHaGo4Zd3xKKGBK136N5gYRhOBudrACDELLW4aT2A==}
-    peerDependencies:
-      omniscript-parser: ^0.5.0
-
-  omniscript-parser@0.5.6:
-    resolution: {integrity: sha512-YY+7+JsGIuOTukfI9/Q5Gaivap5lBOnv2nWN+G7n15CeEEGM8XsOQ8X3+s89VZELg3rjkh0gsONfp6ick/B+4g==}
 
   once@1.4.0:
     resolution: {integrity: sha512-lNaJgI+2Q5URQBkccEKHTQOPaXdUxnZZElQTZY0MFUAuaEqe1E+Nyvgdz/aIyNi6Z9MzO5dv1H8n58/GELp3+w==}
@@ -3924,23 +3916,6 @@ snapshots:
   npm-run-path@5.3.0:
     dependencies:
       path-key: 4.0.0
-
-  omniscript-converters@0.5.6(omniscript-parser@0.5.6)(typescript@5.8.3):
-    dependencies:
-      docx: 8.6.0
-      exceljs: 4.4.0
-      jszip: 3.10.1
-      omniscript-parser: 0.5.6
-      pptxgenjs: 4.0.1
-      puppeteer: 21.11.0(typescript@5.8.3)
-    transitivePeerDependencies:
-      - bufferutil
-      - encoding
-      - supports-color
-      - typescript
-      - utf-8-validate
-
-  omniscript-parser@0.5.6: {}
 
   once@1.4.0:
     dependencies:
