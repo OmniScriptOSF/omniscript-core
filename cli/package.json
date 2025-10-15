@@ -1,8 +1,9 @@
 {
   "name": "omniscript-cli",
   "version": "0.5.7",
-  "description": "OmniScript Format (OSF) CLI tools",
+  "description": "OmniScript Format (OSF) CLI tools - Command-line interface for parsing, validating, and converting OSF documents",
   "main": "dist/osf.js",
+  "types": "dist/osf.d.ts",
   "bin": {
     "osf": "bin/osf.js"
   },
@@ -13,6 +14,10 @@
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/OmniScriptOSF/omniscript-core.git",
@@ -28,7 +33,8 @@
     "dev": "pnpm exec tsc -p tsconfig.json --watch",
     "test": "pnpm exec vitest run",
     "test:watch": "pnpm exec vitest",
-    "typecheck": "pnpm exec tsc --noEmit -p tsconfig.json"
+    "typecheck": "pnpm exec tsc --noEmit -p tsconfig.json",
+    "prepublishOnly": "pnpm run build && pnpm test"
   },
   "dependencies": {
     "ajv": "^8.12.0",
@@ -41,12 +47,29 @@
     "typescript": "^5.8.3",
     "vitest": "^2.1.8"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "keywords": [
     "osf",
+    "omniscript",
     "cli",
+    "command-line",
     "document",
-    "parser"
+    "parser",
+    "converter",
+    "markdown",
+    "slides",
+    "spreadsheet",
+    "llm",
+    "ai",
+    "git-native",
+    "typescript"
   ],
-  "author": "Alphin Tom",
+  "author": {
+    "name": "Alphin Tom",
+    "email": "alpha912@github.com",
+    "url": "https://github.com/alpha912"
+  },
   "license": "MIT"
 }

@@ -1,14 +1,25 @@
 {
   "name": "omniscript-parser",
   "version": "0.5.6",
-  "description": "OmniScript Format (OSF) parser and serializer",
+  "description": "OmniScript Format (OSF) parser and serializer - A universal document DSL for LLMs, Agentic AI, and Git-native workflows",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
   "files": [
     "dist/**/*",
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/OmniScriptOSF/omniscript-core.git",
@@ -24,7 +35,8 @@
     "dev": "pnpm exec tsc -p tsconfig.json --watch",
     "test": "pnpm exec vitest run",
     "test:watch": "pnpm exec vitest",
-    "typecheck": "pnpm exec tsc --noEmit -p tsconfig.json"
+    "typecheck": "pnpm exec tsc --noEmit -p tsconfig.json",
+    "prepublishOnly": "pnpm run build && pnpm test"
   },
   "devDependencies": {
     "@types/node": "^22.15.33",
@@ -32,12 +44,27 @@
     "typescript": "^5.8.3",
     "vitest": "^2.1.8"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "keywords": [
     "osf",
+    "omniscript",
     "parser",
     "document",
-    "dsl"
+    "dsl",
+    "markdown",
+    "slides",
+    "spreadsheet",
+    "llm",
+    "ai",
+    "git-native",
+    "typescript"
   ],
-  "author": "Alphin Tom",
+  "author": {
+    "name": "Alphin Tom",
+    "email": "alpha912@github.com",
+    "url": "https://github.com/alpha912"
+  },
   "license": "MIT"
 }
