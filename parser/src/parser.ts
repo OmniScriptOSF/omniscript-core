@@ -5,6 +5,9 @@ import {
   DocBlock,
   SlideBlock,
   SheetBlock,
+  ChartBlock,
+  DiagramBlock,
+  OSFCodeBlock,
   OSFValue,
   ContentBlock,
   TextRun,
@@ -539,6 +542,69 @@ export function parse(input: string): OSFDocument {
         }
         return sheet;
       }
+      case 'chart': {
+        const props = parseKV(b.content);
+
+        // Validate chart type
+        const validChartTypes = ['bar', 'line', 'pie', 'scatter', 'area'];
+        const chartTypeStr = props.type as string;
+        const chartType =
+          chartTypeStr && validChartTypes.includes(chartTypeStr)
+            ? (chartTypeStr as 'bar' | 'line' | 'pie' | 'scatter' | 'area')
+            : 'bar';
+
+        // Validate data is array
+        const data = Array.isArray(props.data) ? (props.data as any[]) : [];
+
+        const chart: ChartBlock = {
+          type: 'chart',
+          chartType,
+          title: (props.title as string) || 'Chart',
+          data,
+          options: props.options as any,
+        };
+        return chart;
+      }
+      case 'diagram': {
+        const props = parseKV(b.content);
+
+        // Validate diagram type
+        const validDiagramTypes = ['flowchart', 'sequence', 'gantt', 'mindmap'];
+        const diagramTypeStr = props.type as string;
+        const diagramType =
+          diagramTypeStr && validDiagramTypes.includes(diagramTypeStr)
+            ? (diagramTypeStr as 'flowchart' | 'sequence' | 'gantt' | 'mindmap')
+            : 'flowchart';
+
+        // Validate engine
+        const validEngines = ['mermaid', 'graphviz'];
+        const engineStr = props.engine as string;
+        const engine =
+          engineStr && validEngines.includes(engineStr)
+            ? (engineStr as 'mermaid' | 'graphviz')
+            : 'mermaid';
+
+        const diagram: DiagramBlock = {
+          type: 'diagram',
+          diagramType,
+          engine,
+          code: (props.code as string) || '',
+          title: props.title as string,
+        };
+        return diagram;
+      }
+      case 'code': {
+        const props = parseKV(b.content);
+        const codeBlock: OSFCodeBlock = {
+          type: 'osfcode',
+          language: (props.language as string) || 'text',
+          caption: props.caption as string,
+          lineNumbers: props.lineNumbers as boolean,
+          highlight: props.highlight as number[],
+          code: (props.code as string) || '',
+        };
+        return codeBlock;
+      }
       default: {
         return { type: 'doc', content: b.content } as DocBlock;
       }
@@ -682,6 +748,66 @@ export function serialize(doc: OSFDocument): string {
           }
 
           return `@sheet {\n${parts.join('\n')}\n}`;
+        }
+        case 'chart': {
+          const chartBlock = b as ChartBlock;
+          const parts: string[] = [];
+          parts.push(`  type: "${chartBlock.chartType}";`);
+          parts.push(`  title: "${escapeString(chartBlock.title)}";`);
+
+          // Serialize data array in OSF format
+          const dataStr =
+            '[' +
+            chartBlock.data
+              .map(
+                series =>
+                  `{ label: "${escapeString(series.label)}"; values: [${series.values.join(', ')}]; }`
+              )
+              .join(', ') +
+            ']';
+          parts.push(`  data: ${dataStr};`);
+
+          if (chartBlock.options) {
+            const optsStr =
+              '{ ' +
+              Object.entries(chartBlock.options)
+                .map(([k, v]) => {
+                  if (typeof v === 'boolean') return `${k}: ${v}`;
+                  if (Array.isArray(v)) return `${k}: [${v.map(x => `"${x}"`).join(', ')}]`;
+                  return `${k}: "${v}"`;
+                })
+                .join('; ') +
+              '; }';
+            parts.push(`  options: ${optsStr};`);
+          }
+          return `@chart {\n${parts.join('\n')}\n}`;
+        }
+        case 'diagram': {
+          const diagramBlock = b as DiagramBlock;
+          const parts: string[] = [];
+          parts.push(`  type: "${diagramBlock.diagramType}";`);
+          parts.push(`  engine: "${diagramBlock.engine}";`);
+          if (diagramBlock.title) {
+            parts.push(`  title: "${diagramBlock.title}";`);
+          }
+          parts.push(`  code: "${escapeString(diagramBlock.code)}";`);
+          return `@diagram {\n${parts.join('\n')}\n}`;
+        }
+        case 'osfcode': {
+          const codeBlock = b as OSFCodeBlock;
+          const parts: string[] = [];
+          parts.push(`  language: "${codeBlock.language}";`);
+          if (codeBlock.caption) {
+            parts.push(`  caption: "${codeBlock.caption}";`);
+          }
+          if (codeBlock.lineNumbers !== undefined) {
+            parts.push(`  lineNumbers: ${codeBlock.lineNumbers};`);
+          }
+          if (codeBlock.highlight) {
+            parts.push(`  highlight: ${serializeValue(codeBlock.highlight)};`);
+          }
+          parts.push(`  code: "${escapeString(codeBlock.code)}";`);
+          return `@code {\n${parts.join('\n')}\n}`;
         }
         default: {
           const docBlock = b as DocBlock;

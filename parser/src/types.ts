@@ -81,8 +81,53 @@ export interface SheetBlock {
   [key: string]: OSFValue | undefined;
 }
 
-export type OSFBlock = MetaBlock | DocBlock | SlideBlock | SheetBlock;
+export interface ChartDataSeries {
+  label: string;
+  values: number[];
+}
+
+export interface ChartOptions {
+  xAxis?: string;
+  yAxis?: string;
+  legend?: boolean;
+  colors?: string[];
+}
+
+export interface ChartBlock {
+  type: 'chart';
+  chartType: 'bar' | 'line' | 'pie' | 'scatter' | 'area';
+  title: string;
+  data: ChartDataSeries[];
+  options?: ChartOptions;
+}
+
+export interface DiagramBlock {
+  type: 'diagram';
+  diagramType: 'flowchart' | 'sequence' | 'gantt' | 'mindmap';
+  engine: 'mermaid' | 'graphviz';
+  code: string;
+  title?: string;
+}
+
+export interface OSFCodeBlock {
+  type: 'osfcode';
+  language: string;
+  caption?: string;
+  lineNumbers?: boolean;
+  highlight?: number[];
+  code: string;
+}
+
+export type OSFBlock =
+  | MetaBlock
+  | DocBlock
+  | SlideBlock
+  | SheetBlock
+  | ChartBlock
+  | DiagramBlock
+  | OSFCodeBlock;
 
 export interface OSFDocument {
+  version?: string;
   blocks: OSFBlock[];
 }

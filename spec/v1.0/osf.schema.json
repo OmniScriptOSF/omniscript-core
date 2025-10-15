@@ -1,10 +1,222 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "OmniScript Format 1.0",
+  "$id": "https://omniscriptosf.github.io/schemas/v1.0/osf.schema.json",
+  "title": "OmniScript Format v1.0",
+  "description": "JSON Schema for OmniScript Format (OSF) v1.0 AST",
   "type": "object",
+  "required": ["version", "blocks"],
   "properties": {
+    "version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "OSF specification version"
+    },
+    "metadata": {
+      "$ref": "#/definitions/MetaBlock"
+    },
     "blocks": {
-      "type": "array"
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "$ref": "#/definitions/DocBlock" },
+          { "$ref": "#/definitions/SlideBlock" },
+          { "$ref": "#/definitions/SheetBlock" },
+          { "$ref": "#/definitions/ChartBlock" },
+          { "$ref": "#/definitions/DiagramBlock" },
+          { "$ref": "#/definitions/CodeBlock" }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "MetaBlock": {
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "author": { "type": "string" },
+        "date": { "type": "string" },
+        "version": { "type": "string" },
+        "theme": {
+          "type": "string",
+          "enum": [
+            "default",
+            "minimal",
+            "corporate",
+            "academic",
+            "creative",
+            "technical",
+            "retro",
+            "modern",
+            "elegant",
+            "bold"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "DocBlock": {
+      "type": "object",
+      "required": ["type", "content"],
+      "properties": {
+        "type": { "const": "doc" },
+        "properties": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "content": { "type": "string", "description": "Markdown content" }
+      }
+    },
+    "SlideBlock": {
+      "type": "object",
+      "required": ["type", "properties"],
+      "properties": {
+        "type": { "const": "slide" },
+        "properties": {
+          "type": "object",
+          "required": ["title"],
+          "properties": {
+            "title": { "type": "string" },
+            "layout": {
+              "type": "string",
+              "enum": ["TitleOnly", "TitleAndContent", "TwoColumn", "ThreeColumn"]
+            }
+          },
+          "additionalProperties": true
+        },
+        "content": { "type": "string", "description": "Markdown content" }
+      }
+    },
+    "SheetBlock": {
+      "type": "object",
+      "required": ["type", "properties"],
+      "properties": {
+        "type": { "const": "sheet" },
+        "properties": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": { "type": "string" },
+            "cols": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": true
+        },
+        "cells": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Z]+[0-9]+$": {
+              "oneOf": [
+                { "type": "string" },
+                { "type": "number" },
+                { "type": "boolean" },
+                {
+                  "type": "object",
+                  "required": ["formula"],
+                  "properties": {
+                    "formula": { "type": "string" }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "ChartBlock": {
+      "type": "object",
+      "required": ["type", "properties"],
+      "properties": {
+        "type": { "const": "chart" },
+        "properties": {
+          "type": "object",
+          "required": ["chartType", "title", "data"],
+          "properties": {
+            "chartType": {
+              "type": "string",
+              "enum": ["bar", "line", "pie", "scatter", "area"]
+            },
+            "title": { "type": "string" },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["label", "values"],
+                "properties": {
+                  "label": { "type": "string" },
+                  "values": {
+                    "type": "array",
+                    "items": { "type": "number" }
+                  }
+                }
+              }
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "xAxis": { "type": "string" },
+                "yAxis": { "type": "string" },
+                "legend": { "type": "boolean" },
+                "colors": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              },
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "DiagramBlock": {
+      "type": "object",
+      "required": ["type", "properties"],
+      "properties": {
+        "type": { "const": "diagram" },
+        "properties": {
+          "type": "object",
+          "required": ["diagramType", "engine", "code"],
+          "properties": {
+            "diagramType": {
+              "type": "string",
+              "enum": ["flowchart", "sequence", "gantt", "mindmap"]
+            },
+            "engine": {
+              "type": "string",
+              "enum": ["mermaid", "graphviz"]
+            },
+            "code": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "CodeBlock": {
+      "type": "object",
+      "required": ["type", "properties"],
+      "properties": {
+        "type": { "const": "code" },
+        "properties": {
+          "type": "object",
+          "required": ["language", "code"],
+          "properties": {
+            "language": { "type": "string" },
+            "caption": { "type": "string" },
+            "lineNumbers": { "type": "boolean" },
+            "highlight": {
+              "type": "array",
+              "items": { "type": "integer", "minimum": 1 }
+            },
+            "code": { "type": "string" }
+          },
+          "additionalProperties": true
+        }
+      }
     }
   }
 }

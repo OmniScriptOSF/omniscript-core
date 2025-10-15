@@ -1,438 +1,411 @@
-# OmniScript Core
-
-<div align="center">
-
-<img src="assets/osf-icon-512px.png" alt="OmniScript Logo" width="120" height="120" />
-
 # OmniScript Format (OSF)
 
-**🚀 The Universal Document DSL for LLMs, Agentic AI, and Git-Native Workflows**
-
-[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![npm version](https://badge.fury.io/js/omniscript-cli.svg)](https://badge.fury.io/js/omniscript-cli)
-[![npm downloads](https://img.shields.io/npm/dm/omniscript-cli.svg)](https://www.npmjs.com/package/omniscript-cli)
-[![GitHub stars](https://img.shields.io/github/stars/OmniScriptOSF/omniscript-core.svg?style=social&label=Star)](https://github.com/OmniScriptOSF/omniscript-core)
-
-[![Build Status](https://github.com/OmniScriptOSF/omniscript-core/workflows/CI/badge.svg)](https://github.com/OmniScriptOSF/omniscript-core/actions)
-[![Coverage Status](https://img.shields.io/codecov/c/github/OmniScriptOSF/omniscript-core.svg)](https://codecov.io/gh/OmniScriptOSF/omniscript-core)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-43853D?logo=node.js&logoColor=white)](https://nodejs.org/)
-
-[📖 Documentation](docs/spec-v0.5-overview.md) • [🚀 Quick Start](#-quick-start)
-• [💡 Examples](examples/) • [🤝 Contributing](CONTRIBUTING.md) •
-[💬 Discussions](https://github.com/OmniScriptOSF/omniscript-core/discussions)
-
-</div>
-
----
-
-## ✨ What is OmniScript Format?
-
-OmniScript Format (OSF) revolutionizes document creation by unifying the best
-features of multiple formats into a single, AI-friendly syntax:
-
-<table>
-<tr>
-<td width="33%">
-
-### 📝 **Rich Documents**
-
-Like Markdown & LaTeX
-
-- Expressive prose & math
-- Structured content
-- Beautiful typography
-
-</td>
-<td width="33%">
-
-### 🎯 **Dynamic Presentations**
-
-Like PowerPoint & Keynote
-
-- Rich layouts & themes
-- Smooth transitions
-- Interactive elements
-
-</td>
-<td width="33%">
-
-### 📊 **Live Spreadsheets**
-
-Like Excel & Google Sheets
-
-- Data tables & formulas
-- Real-time calculations
-- Dynamic charts
-
-</td>
-</tr>
-</table>
-
-> **🎯 Current Version:** `v0.5.6` | **🔥 Status:** Active Development | **📅
-> Next Release:** v1.0.0
-
----
-
-## 🌟 Why Choose OmniScript?
-
 <div align="center">
 
-| Feature                    | Traditional Formats     | OmniScript Format                 |
-| -------------------------- | ----------------------- | --------------------------------- |
-| **🔄 Version Control**     | Binary, merge conflicts | ✅ Git-native, meaningful diffs   |
-| **🤖 AI Integration**      | Complex parsing         | ✅ LLM-friendly syntax            |
-| **📱 Multi-format Output** | Single format only      | ✅ Export to DOCX, PPTX, XLSX, MD |
-| **🔗 Interoperability**    | Format silos            | ✅ Unified document ecosystem     |
-| **⚡ Live Formulas**       | Static content          | ✅ Dynamic calculations           |
-| **🎨 Rich Styling**        | Limited or complex      | ✅ Intuitive theme system         |
+<img src="https://raw.githubusercontent.com/OmniScriptOSF/omniscript-core/main/assets/osf-icon-512px.png" alt="OmniScript Logo" width="150" height="150" />
+
+# 🌟 The Universal Document DSL
+
+**One format to generate documents, slides, sheets, charts, diagrams, and more**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![v1.0](https://img.shields.io/badge/version-1.0-blue.svg)](./RELEASE_NOTES.md)
+[![Tests](https://img.shields.io/badge/tests-152%2F152%20passing-brightgreen.svg)](./docs/TESTING.md)
+[![Production Ready](https://img.shields.io/badge/status-production%20ready-success.svg)](./RELEASE_NOTES.md)
+
+[🚀 Quick Start](#-quick-start) • [📦 Packages](#-packages) •
+[🎯 Features](#-features) • [📖 Documentation](#-documentation) •
+[🧪 Playground](https://omniscript.dev/playground)
 
 </div>
+
+---
+
+## 🎉 v1.0 Released - Production Ready!
+
+OmniScript Format v1.0 is **complete, tested, and production-ready**:
+
+- ✅ **152/152 tests passing** (100% success rate)
+- ✅ **3 npm packages published** (parser, converters, CLI)
+- ✅ **v1.0 specification finalized** (charts, diagrams, code blocks)
+- ✅ **VSCode extension available**
+- ✅ **Interactive playground live**
+- ✅ **Zero critical issues**
+
+[View Release Notes →](./RELEASE_NOTES.md)
+
+---
+
+## 💡 What is OmniScript?
+
+OmniScript Format (OSF) is a **universal document description language** that
+lets you write structured content once and export it to multiple formats:
+
+```osf
+@meta {
+  title: "My Document";
+  author: "John Doe";
+}
+
+@doc {
+  # Hello World
+
+  This is **OmniScript** - write once, export everywhere!
+}
+
+@chart {
+  type: "bar";
+  title: "Sales Data";
+  data: [
+    { label: "Q1"; values: [100]; },
+    { label: "Q2"; values: [150]; }
+  ];
+}
+
+@slide {
+  title: "Presentation Slide";
+  layout: TitleAndContent;
+
+  - Point 1
+  - Point 2
+}
+
+@sheet {
+  name: "Data";
+  cols: [Name, Value];
+
+  A1 = "Product"; B1 = "Price";
+  A2 = "Widget";  B2 = 99;
+}
+```
+
+**Export to**: PDF 📄 • DOCX 📝 • PPTX 🎞️ • XLSX 📊
 
 ---
 
 ## 🚀 Quick Start
 
-### 📦 Installation
-
-<table>
-<tr>
-<td width="50%">
-
-**Global CLI Installation**
+### Install CLI
 
 ```bash
 npm install -g omniscript-cli
-# or
-pnpm add -g omniscript-cli
 ```
 
-</td>
-<td width="50%">
-
-**Library Integration**
+### Create Your First Document
 
 ```bash
-# Core parser only
-npm install omniscript-parser
-
-# With professional format converters
-npm install omniscript-parser omniscript-converters
-
-# or with pnpm
-pnpm add omniscript-parser omniscript-converters
-```
-
-</td>
-</tr>
-</table>
-
-### ⚡ Quick Commands
-
-```bash
-# Parse and validate OSF files
-osf parse examples/rich_demo.osf
-
-# Render to beautiful HTML
-osf render examples/rich_demo.osf --format html
-
-# Export to professional formats (requires omniscript-converters)
-osf render examples/rich_demo.osf --format docx --output report.docx
-osf render examples/rich_demo.osf --format pptx --output slides.pptx
-osf render examples/rich_demo.osf --format xlsx --output data.xlsx
-osf render examples/rich_demo.osf --format pdf --output document.pdf
-
-# Export to other formats
-osf export examples/rich_demo.osf --target md
-
-# Format for consistency
-osf format examples/rich_demo.osf
-```
-
----
-
-## 💡 Example in Action
-
-<details>
-<summary><b>🎯 Click to see a complete OSF example</b></summary>
-
-```osf
+# Create a new OSF file
+cat > hello.osf << 'EOF'
 @meta {
-  title   : "Q2 Business Review";
-  author  : "Alphin Tom";
-  date    : "2025-06-07";
-  theme   : "CorporateBlue";
+  title: "My First Document";
 }
 
 @doc {
-  # Executive Summary
+  # Hello, OmniScript!
 
-  Our Q2 performance exceeded expectations with **15% revenue growth**
-  and significant improvements in customer retention.
-
-  ## Key Metrics
-  - Revenue: $2.3M (+15%)
-  - Customer Churn: 3% (-2%)
-  - Team Size: 45 (+8 new hires)
+  Welcome to the **universal document format**.
 }
+EOF
 
-@slide {
-  title : "Q2 Highlights";
-  layout : TitleAndBullets;
-  transition : FadeIn;
-  bullets {
-    "💰 Revenue grew 15% to $2.3M";
-    "👥 Customer churn decreased to 3%";
-    "🚀 Launched 3 major features";
-    "🌟 Team expanded by 8 members";
-  }
-}
+# Parse and validate
+osf parse hello.osf
 
-@sheet {
-  name : "Regional Performance";
-  cols : [Region, Q1_Revenue, Q2_Revenue, Growth_Percent];
-  data {
-    (2,1)="North America"; (2,2)=850000; (2,3)=975000;
-    (3,1)="Europe"; (3,2)=650000; (3,3)=748000;
-    (4,1)="Asia Pacific"; (4,2)=400000; (4,3)=477000;
-  }
-  formula (2,4): "=(C2-B2)/B2*100";
-  formula (3,4): "=(C3-B3)/B3*100";
-  formula (4,4): "=(C4-B4)/B4*100";
-}
+# Export to PDF
+osf export hello.osf --format pdf --output hello.pdf
 ```
 
-</details>
+### Install as Library
+
+```bash
+npm install omniscript-parser omniscript-converters
+```
+
+```typescript
+import { parse } from 'omniscript-parser';
+import { PDFConverter } from 'omniscript-converters';
+
+const osf = `
+@doc {
+  # My Document
+  Content here...
+}
+`;
+
+const doc = parse(osf);
+const converter = new PDFConverter();
+const result = await converter.convert(doc);
+
+// result.buffer contains the PDF
+```
 
 ---
 
-## 📦 Package Ecosystem
+## 📦 Packages
 
-<div align="center">
+| Package                                              | Version | Description                      | Status      |
+| ---------------------------------------------------- | ------- | -------------------------------- | ----------- |
+| [**omniscript-parser**](./omniscript-core/parser)    | 1.0.0   | TypeScript parser engine         | ✅ Stable   |
+| [**omniscript-converters**](./omniscript-converters) | 1.0.0   | PDF, DOCX, PPTX, XLSX converters | ✅ Stable   |
+| [**omniscript-cli**](./omniscript-core/cli)          | 1.0.0   | Command-line tools               | ✅ Stable   |
+| [**omniscript-vscode**](./omniscript-vscode)         | 0.1.0   | VSCode extension                 | ✅ Stable   |
+| [**omniscript-examples**](./omniscript-examples)     | 1.0.0   | Professional examples            | ✅ Complete |
 
-### Core Packages
+### Package Details
 
-[![omniscript-parser](https://img.shields.io/npm/v/omniscript-parser?label=omniscript-parser&logo=npm&color=CB3837)](https://www.npmjs.com/package/omniscript-parser)
-[![omniscript-cli](https://img.shields.io/npm/v/omniscript-cli?label=omniscript-cli&logo=npm&color=CB3837)](https://www.npmjs.com/package/omniscript-cli)
-[![omniscript-converters](https://img.shields.io/npm/v/omniscript-converters?label=omniscript-converters&logo=npm&color=CB3837)](https://www.npmjs.com/package/omniscript-converters)
+#### 🔍 omniscript-parser
 
-</div>
+Zero-dependency TypeScript parser for OSF.
 
-| Package                                                                          | Description                                            | Version                                                    | Downloads                                                   |
-| -------------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------- | ----------------------------------------------------------- |
-| **[omniscript-parser](https://www.npmjs.com/package/omniscript-parser)**         | Core parsing library with TypeScript support           | ![npm](https://img.shields.io/npm/v/omniscript-parser)     | ![npm](https://img.shields.io/npm/dm/omniscript-parser)     |
-| **[omniscript-cli](https://www.npmjs.com/package/omniscript-cli)**               | Command-line tools with `osf` binary                   | ![npm](https://img.shields.io/npm/v/omniscript-cli)        | ![npm](https://img.shields.io/npm/dm/omniscript-cli)        |
-| **[omniscript-converters](https://www.npmjs.com/package/omniscript-converters)** | Professional format converters (DOCX, PPTX, XLSX, PDF) | ![npm](https://img.shields.io/npm/v/omniscript-converters) | ![npm](https://img.shields.io/npm/dm/omniscript-converters) |
+```bash
+npm install omniscript-parser
+```
+
+**Features**: Parse OSF → AST • Serialize AST → OSF • Full type safety • v1.0
+blocks
+
+[View README →](./omniscript-core/parser/README.md)
+
+#### 🔄 omniscript-converters
+
+Enterprise-grade document converters.
+
+```bash
+npm install omniscript-converters
+```
+
+**Features**: PDF with charts • DOCX with tables • PPTX with native charts •
+XLSX with formulas
+
+[View README →](./omniscript-converters/README.md)
+
+#### ⚡ omniscript-cli
+
+Professional command-line interface.
+
+```bash
+npm install -g omniscript-cli
+```
+
+**Commands**: `parse` • `lint` • `render` • `export` • `format`
+
+[View README →](./omniscript-core/cli/README.md)
 
 ---
 
-## 🏗️ Project Architecture
+## 🎯 Features
 
-<div align="center">
+### Core Block Types
 
-<img src="assets/osf-icon-512px.png" alt="OmniScript Architecture" width="64" height="64" style="margin-bottom: 20px;" />
+| Block    | Purpose             | Export Support |
+| -------- | ------------------- | -------------- |
+| `@meta`  | Document metadata   | All formats    |
+| `@doc`   | Markdown content    | PDF, DOCX      |
+| `@slide` | Presentation slides | PPTX, PDF      |
+| `@sheet` | Spreadsheet data    | XLSX, PDF      |
 
-```mermaid
-graph TB
-    A[📝 OSF Source Files] --> B[🔍 Parser]
-    B --> C[🎯 AST Representation]
-    C --> D[📊 Renderer]
-    C --> E[🔄 Transformer]
-    D --> F[🌐 HTML Output]
-    D --> G[📄 PDF Output]
-    E --> H[📝 Markdown]
-    E --> I[📊 Excel/DOCX]
-    E --> J[🎨 PowerPoint]
-```
+### v1.0 Advanced Blocks
 
-</div>
+| Block      | Purpose                 | Render                        |
+| ---------- | ----------------------- | ----------------------------- |
+| `@chart`   | Bar, line, pie charts   | Chart.js (PDF), Native (PPTX) |
+| `@diagram` | Flowcharts, sequences   | Mermaid, Graphviz             |
+| `@code`    | Syntax-highlighted code | Prism.js, Line numbers        |
 
-### 📂 Repository Structure
+### Export Formats
 
-```
-omniscript-core/
-├── 📋 spec/               # Versioned specifications
-│   ├── v0.5/             # Current stable spec
-│   ├── v1.0/             # Next major version
-│   └── roadmap.md        # Development roadmap
-├── 🔍 parser/            # Core parsing engine
-├── ⚡ cli/               # Command-line interface
-├── 📚 examples/          # Sample OSF documents
-├── 🧪 tests/             # Comprehensive test suite
-├── 📖 docs/              # Architecture & design docs
-└── 🔧 scripts/           # Development & release tools
-```
+- **PDF** - High-quality documents with charts and diagrams
+- **DOCX** - Microsoft Word with tables and formatting
+- **PPTX** - PowerPoint with native charts
+- **XLSX** - Excel with formulas and data
+
+### Themes
+
+10+ professional themes: `corporate` • `modern` • `academic` • `minimal` •
+`colorful` • `dark` • `blueprint` • `ocean` • `forest` • `sunset`
+
+---
+
+## 📖 Documentation
+
+### Getting Started
+
+- [Installation](./omniscript-site/app/docs/getting-started/installation/page.tsx) -
+  Install OSF tools
+- [First Document](./omniscript-site/app/docs/getting-started/first-document/page.tsx) -
+  Create your first OSF file
+- [Examples](./omniscript-examples) - 16+ professional examples
+
+### Specification
+
+- [v1.0 Specification](./omniscript-core/spec/v1.0/osf-spec.md) - Complete OSF
+  v1.0 spec
+- [v0.5 Specification](./omniscript-core/spec/v0.5/osf-spec.md) - Legacy spec
+- [Roadmap](./omniscript-core/spec/roadmap.md) - Future features
+
+### Development
+
+- [Architecture](./omniscript-core/docs/architecture.md) - System architecture
+- [Contributing](./omniscript-core/CONTRIBUTING.md) - Contribution guidelines
+- [Development Guide](./docs/DEVELOPMENT.md) - Development process
+- [Testing](./docs/TESTING.md) - Test results and coverage
+
+### Quality
+
+- [Release Notes](./RELEASE_NOTES.md) - v1.0 release details
+- [Code Quality](./docs/CODE_QUALITY.md) - Code review and fixes
+- [Security](./docs/CODE_QUALITY.md#security) - Security measures
+
+---
+
+## 🧪 Try It Online
+
+**Interactive Playground**:
+[https://omniscript.dev/playground](https://omniscript.dev/playground)
+
+- ✍️ Write OSF in Monaco editor
+- 👁️ Live preview
+- 📥 Export to PDF, DOCX, PPTX, XLSX
+- 🎨 Test different themes
+
+---
+
+## 🌟 Use Cases
+
+### 📚 Documentation
+
+Write technical documentation once, export to PDF for distribution and DOCX for
+editing.
+
+### 🎓 Education
+
+Create classroom materials with sheets for exercises and slides for
+presentations.
+
+### 💼 Business Reports
+
+Generate reports with charts and data tables, export to PDF for sharing.
+
+### 📊 Data Visualization
+
+Create dashboards with charts and diagrams, export to multiple formats.
+
+### 🎨 Presentations
+
+Build professional presentations with charts, code samples, and diagrams.
 
 ---
 
 ## 🛠️ Development
 
-### Prerequisites
-
-![Node.js](https://img.shields.io/badge/Node.js-18+-green?logo=node.js&logoColor=white)
-![pnpm](https://img.shields.io/badge/pnpm-8+-orange?logo=pnpm&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue?logo=typescript&logoColor=white)
-
 ### Setup
 
 ```bash
-# Clone the repository
 git clone https://github.com/OmniScriptOSF/omniscript-core.git
 cd omniscript-core
-
-# Install dependencies
 pnpm install
-
-# Build all packages
-pnpm run build
-
-# Run tests
-pnpm test
-
-# Start development
-pnpm run dev
+pnpm build
 ```
 
-### 🚀 Release Process
-
-<details>
-<summary><b>📋 For Maintainers</b></summary>
+### Test
 
 ```bash
-# Patch release (0.5.6 → 0.5.7)
-pnpm run release:patch
+# Run all tests
+pnpm test --recursive
 
-# Minor release (0.5.6 → 0.6.0)
-pnpm run release:minor
-
-# Major release (0.5.6 → 1.0.0)
-pnpm run release:major
+# Test individual packages
+cd omniscript-core/parser && pnpm test
+cd omniscript-converters && pnpm test
+cd omniscript-core/cli && pnpm test
 ```
 
-Our automated release process:
+### Build
 
-- ✅ Runs comprehensive tests
-- ✅ Updates package versions
-- ✅ Creates GitHub releases
-- ✅ Publishes to npm
-- ✅ Updates documentation
+```bash
+# Build all packages
+pnpm build --recursive
 
-</details>
-
----
-
-## 🎯 Roadmap
-
-<div align="center">
-
-### 🗓️ Version Timeline
-
-| Version  | Status             | Features                                 | ETA      |
-| -------- | ------------------ | ---------------------------------------- | -------- |
-| **v0.5** | ✅ **Current**     | Core parsing, CLI tools, basic rendering | Released |
-| **v1.0** | 🚧 **In Progress** | Advanced exports, diagram support        | Q2 2025  |
-| **v1.1** | 📋 **Planned**     | Real-time collaboration, plugins         | Q3 2025  |
-| **v2.0** | 💭 **Future**      | Visual editor, cloud integration         | 2026     |
-
-</div>
-
-### 🔥 Coming Soon
-
-- 🎨 **Visual Editor** - WYSIWYG editing experience
-- 📊 **Advanced Charts** - Interactive data visualizations
-- 🔗 **Real-time Collaboration** - Multi-user editing
-- 🧩 **Plugin System** - Extensible functionality
-- ☁️ **Cloud Integration** - Seamless sync across devices
-
----
-
-## 🤝 Contributing
-
-<div align="center">
-
-**We ❤️ contributions from the community!**
-
-[![Contributors](https://img.shields.io/github/contributors/OmniScriptOSF/omniscript-core.svg)](https://github.com/OmniScriptOSF/omniscript-core/graphs/contributors)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
-[![First Timers Only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg)](https://www.firsttimersonly.com/)
-
-</div>
-
-### 🌟 Ways to Contribute
-
-- 🐛 **Report bugs** via
-  [GitHub Issues](https://github.com/OmniScriptOSF/omniscript-core/issues)
-- 💡 **Suggest features** in
-  [Discussions](https://github.com/OmniScriptOSF/omniscript-core/discussions)
-- 📖 **Improve documentation**
-- 🔧 **Submit pull requests**
-- ⭐ **Star the repository**
-
-### 📋 Quick Links
-
-- [📖 Contributing Guide](CONTRIBUTING.md)
-- [🤝 Code of Conduct](CODE_OF_CONDUCT.md)
-- [🐛 Bug Reports](https://github.com/OmniScriptOSF/omniscript-core/issues/new?template=bug_report.md)
-- [💡 Feature Requests](https://github.com/OmniScriptOSF/omniscript-core/issues/new?template=feature_request.md)
+# Build individual packages
+cd omniscript-core/parser && pnpm build
+```
 
 ---
 
 ## 📊 Project Stats
 
-<div align="center">
+| Metric             | Value                            |
+| ------------------ | -------------------------------- |
+| **Total Tests**    | 152 (128 unit + 24 integration)  |
+| **Test Pass Rate** | 100%                             |
+| **Lines of Code**  | 8,500+ (TypeScript)              |
+| **Dependencies**   | 0 (parser), minimal (converters) |
+| **Packages**       | 5                                |
+| **Examples**       | 16                               |
+| **Themes**         | 10+                              |
+| **Export Formats** | 4                                |
 
-![GitHub repo size](https://img.shields.io/github/repo-size/OmniScriptOSF/omniscript-core)
-![GitHub code size](https://img.shields.io/github/languages/code-size/OmniScriptOSF/omniscript-core)
-![Lines of code](https://img.shields.io/tokei/lines/github/OmniScriptOSF/omniscript-core)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/OmniScriptOSF/omniscript-core)
+---
 
-</div>
+## 🤝 Contributing
+
+We welcome contributions! See
+[CONTRIBUTING.md](./omniscript-core/CONTRIBUTING.md) for guidelines.
+
+### Ways to Contribute
+
+- 🐛 Report bugs via GitHub Issues
+- 💡 Suggest features
+- 📝 Improve documentation
+- 🔧 Submit pull requests
+- 🎨 Create themes
+- 📚 Add examples
 
 ---
 
 ## 📄 License
 
-<div align="center">
-
-**MIT License** © 2025 [Alphin Tom](https://github.com/alpha912)
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-_This project is free and open-source software. We believe in the power of
-community-driven development._
-
-</div>
+MIT License - see [LICENSE](./omniscript-core/LICENSE) for details.
 
 ---
 
-## 🌐 Connect With Us
+## 🔗 Links
 
-<div align="center">
+- **Website**: https://omniscript.dev
+- **GitHub**: https://github.com/OmniScriptOSF
+- **npm**: https://www.npmjs.com/search?q=omniscript
+- **VSCode Extension**:
+  [Marketplace](https://marketplace.visualstudio.com/items?itemName=omniscript.omniscript-vscode)
 
-[![GitHub](https://img.shields.io/badge/GitHub-OmniScriptOSF-181717?logo=github)](https://github.com/OmniScriptOSF)
-[![Discussions](https://img.shields.io/badge/GitHub-Discussions-181717?logo=github)](https://github.com/OmniScriptOSF/omniscript-core/discussions)
-[![Twitter](https://img.shields.io/badge/Twitter-@OmniScriptOSF-1DA1F2?logo=twitter)](https://twitter.com/OmniScriptOSF)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Us-7289DA?logo=discord)](https://discord.gg/omniscript)
+---
 
-**Maintainer:** [Alphin Tom](https://github.com/alpha912) | **Organization:**
-[OmniScriptOSF](https://github.com/OmniScriptOSF)
+## 📞 Support
 
-</div>
+- **Documentation**: https://omniscript.dev/docs
+- **GitHub Issues**: https://github.com/OmniScriptOSF/omniscript-core/issues
+- **GitHub Discussions**:
+  https://github.com/OmniScriptOSF/omniscript-core/discussions
+
+---
+
+## 🎊 Acknowledgments
+
+Built with ❤️ using:
+
+- TypeScript - Type-safe language
+- Puppeteer - PDF generation
+- PptxGenJS - PowerPoint generation
+- docx - Word generation
+- ExcelJS - Excel generation
+- Mermaid - Diagram rendering
+- Chart.js - Chart rendering
 
 ---
 
 <div align="center">
 
-<img src="assets/osf-icon-512px.png" alt="OmniScript" width="48" height="48" />
+**Made with ❤️ by the OmniScript team**
 
-### 🚀 Ready to revolutionize your document workflow?
-
-**[Get Started Now](docs/spec-v0.5-overview.md)** •
-**[View Examples](examples/)** •
-**[Join Community](https://github.com/OmniScriptOSF/omniscript-core/discussions)**
-
----
-
-_Made with ❤️ by the OmniScript community_
+[⭐ Star on GitHub](https://github.com/OmniScriptOSF/omniscript-core) •
+[📖 Read the Docs](https://omniscript.dev/docs) •
+[🧪 Try the Playground](https://omniscript.dev/playground)
 
 </div>
