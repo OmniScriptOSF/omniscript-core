@@ -439,6 +439,7 @@ Quoted text with escape sequences:
 title: "Hello, World!";
 message: "Line 1\nLine 2";
 path: "C:\\Users\\John";
+unicode: "Check \u2713";  // New in v1.1
 ```
 
 **Escape Sequences**:
@@ -447,6 +448,19 @@ path: "C:\\Users\\John";
 - `\t`: Tab
 - `\"`: Quote
 - `\\`: Backslash
+- `\uXXXX`: Unicode character (4-digit hex) **(New in v1.1)**
+- `\xXX`: ASCII character (2-digit hex) **(New in v1.1)**
+
+**Unicode Examples (v1.1)**:
+
+```osf
+@meta {
+  copyright: "\u00A9 2025";     // © 2025
+  checkmark: "\u2713";           // ✓
+  trademark: "\u2122";           // ™
+  cafe: "Caf\xE9";              // Café
+}
+```
 
 ### 5.2 Number
 
