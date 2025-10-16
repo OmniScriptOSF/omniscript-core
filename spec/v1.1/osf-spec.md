@@ -558,6 +558,21 @@ Themes are implementation-defined. Standard themes:
 
 ## 7. Version History
 
+### v1.1 (January 2025)
+
+**Enhanced Features & Security Release**
+
+- Added strikethrough text formatting: `~~text~~`
+- Added unicode escape sequences: `\uXXXX` (4-digit hex), `\xXX` (2-digit hex)
+- Added line:column position tracking in parser errors
+- Extended HTML rendering: ordered lists, blockquotes, code blocks, images,
+  links
+- Enhanced Markdown export with full formatting preservation
+- Security: HTML escaping to prevent XSS attacks
+- CLI: Integrated omniscript-converters for working PDF/DOCX/PPTX/XLSX rendering
+- Quality: 88 tests passing (31 new tests for v1.1 features)
+- 100% backward compatible with v1.0
+
 ### v1.0 (October 2025)
 
 - Added `@chart` block for data visualization
