@@ -132,6 +132,9 @@ function parseString(str: string, i: number): { value: string; index: number } {
       j++;
     }
   }
+  if (j >= str.length || str[j] !== '"') {
+    throw new Error('Unterminated string literal');
+  }
   return { value: out, index: j + 1 };
 }
 
