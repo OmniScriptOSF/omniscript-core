@@ -39,7 +39,7 @@
   "dependencies": {
     "ajv": "^8.12.0",
     "omniscript-parser": "workspace:*",
-    "omniscript-converters": "^1.0.0"
+    "omniscript-converters": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.15.33",

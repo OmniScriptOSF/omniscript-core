@@ -5,7 +5,14 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['**/*.{test,spec}.{js,ts}'],
-    exclude: ['node_modules', 'dist', '.git'],
+    exclude: [
+      'node_modules',
+      'dist',
+      '.git',
+      '**/node_modules/**',
+      'cli/node_modules',
+      'parser/node_modules',
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

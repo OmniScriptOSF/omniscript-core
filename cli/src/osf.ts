@@ -13,6 +13,7 @@ import {
   OSFValue,
   TextRun,
 } from 'omniscript-parser';
+import { PDFConverter, DOCXConverter, PPTXConverter, XLSXConverter } from 'omniscript-converters';
 
 // Type definitions for formula handling
 interface FormulaDefinition {
@@ -591,20 +592,28 @@ function renderHtml(doc: OSFDocument): string {
 }
 
 // Advanced format renderers using omniscript-converters
-async function renderPdf(): Promise<Buffer> {
-  throw new Error('PDF rendering not implemented');
+async function renderPdf(doc: OSFDocument, options?: any): Promise<Buffer> {
+  const converter = new PDFConverter();
+  const result = await converter.convert(doc, options || {});
+  return result.buffer;
 }
 
-async function renderDocx(): Promise<Buffer> {
-  throw new Error('DOCX rendering not implemented');
+async function renderDocx(doc: OSFDocument, options?: any): Promise<Buffer> {
+  const converter = new DOCXConverter();
+  const result = await converter.convert(doc, options || {});
+  return result.buffer;
 }
 
-async function renderPptx(): Promise<Buffer> {
-  throw new Error('PPTX rendering not implemented');
+async function renderPptx(doc: OSFDocument, options?: any): Promise<Buffer> {
+  const converter = new PPTXConverter();
+  const result = await converter.convert(doc, options || {});
+  return result.buffer;
 }
 
-async function renderXlsx(): Promise<Buffer> {
-  throw new Error('XLSX rendering not implemented');
+async function renderXlsx(doc: OSFDocument, options?: any): Promise<Buffer> {
+  const converter = new XLSXConverter();
+  const result = await converter.convert(doc, options || {});
+  return result.buffer;
 }
 
 // Helper to convert TextRun to Markdown
@@ -995,6 +1004,9 @@ async function main(): Promise<void> {
 
         const doc = parse(loadFile(file));
 
+        const themeFlag = commandArgs.indexOf('--theme');
+        const theme = themeFlag >= 0 ? commandArgs[themeFlag + 1] : 'default';
+
         switch (format) {
           case 'html': {
             const htmlOutput = renderHtml(doc);
@@ -1006,19 +1018,43 @@ async function main(): Promise<void> {
             break;
           }
           case 'pdf': {
-            await renderPdf();
+            const pdfBuffer = await renderPdf(doc, { theme });
+            if (outputFile) {
+              writeFileSync(outputFile, pdfBuffer);
+              console.log(`PDF written to ${outputFile}`);
+            } else {
+              process.stdout.write(pdfBuffer);
+            }
             break;
           }
           case 'docx': {
-            await renderDocx();
+            const docxBuffer = await renderDocx(doc, { theme });
+            if (outputFile) {
+              writeFileSync(outputFile, docxBuffer);
+              console.log(`DOCX written to ${outputFile}`);
+            } else {
+              process.stdout.write(docxBuffer);
+            }
             break;
           }
           case 'pptx': {
-            await renderPptx();
+            const pptxBuffer = await renderPptx(doc, { theme });
+            if (outputFile) {
+              writeFileSync(outputFile, pptxBuffer);
+              console.log(`PPTX written to ${outputFile}`);
+            } else {
+              process.stdout.write(pptxBuffer);
+            }
             break;
           }
           case 'xlsx': {
-            await renderXlsx();
+            const xlsxBuffer = await renderXlsx(doc, { theme });
+            if (outputFile) {
+              writeFileSync(outputFile, xlsxBuffer);
+              console.log(`XLSX written to ${outputFile}`);
+            } else {
+              process.stdout.write(xlsxBuffer);
+            }
             break;
           }
           default:

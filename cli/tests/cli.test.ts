@@ -227,51 +227,59 @@ describe('OSF CLI', () => {
       }
     });
 
-    it('should fail to render OSF to PDF', () => {
+    it('should render OSF to PDF', () => {
+      const pdfFile = join(TEST_FIXTURES_DIR, 'test.pdf');
       try {
-        const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format pdf`, {
+        execSync(`node "${CLI_PATH}" render "${testFile}" --format pdf --output "${pdfFile}"`, {
           encoding: 'utf8',
         });
-        expect.fail(`Expected render command to fail but succeeded with output: ${result}`);
-      } catch (err: any) {
-        const output = (err.stderr || err.stdout) as string;
-        expect(output).toContain('PDF rendering not implemented');
+        expect(existsSync(pdfFile)).toBe(true);
+      } finally {
+        if (existsSync(pdfFile)) {
+          unlinkSync(pdfFile);
+        }
       }
     });
 
-    it('should fail to render OSF to DOCX', () => {
+    it('should render OSF to DOCX', () => {
+      const docxFile = join(TEST_FIXTURES_DIR, 'test.docx');
       try {
-        const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format docx`, {
+        execSync(`node "${CLI_PATH}" render "${testFile}" --format docx --output "${docxFile}"`, {
           encoding: 'utf8',
         });
-        expect.fail(`Expected render command to fail but succeeded with output: ${result}`);
-      } catch (err: any) {
-        const output = (err.stderr || err.stdout) as string;
-        expect(output).toContain('DOCX rendering not implemented');
+        expect(existsSync(docxFile)).toBe(true);
+      } finally {
+        if (existsSync(docxFile)) {
+          unlinkSync(docxFile);
+        }
       }
     });
 
-    it('should fail to render OSF to PPTX', () => {
+    it('should render OSF to PPTX', () => {
+      const pptxFile = join(TEST_FIXTURES_DIR, 'test.pptx');
       try {
-        const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format pptx`, {
+        execSync(`node "${CLI_PATH}" render "${testFile}" --format pptx --output "${pptxFile}"`, {
           encoding: 'utf8',
         });
-        expect.fail(`Expected render command to fail but succeeded with output: ${result}`);
-      } catch (err: any) {
-        const output = (err.stderr || err.stdout) as string;
-        expect(output).toContain('PPTX rendering not implemented');
+        expect(existsSync(pptxFile)).toBe(true);
+      } finally {
+        if (existsSync(pptxFile)) {
+          unlinkSync(pptxFile);
+        }
       }
     });
 
-    it('should fail to render OSF to XLSX', () => {
+    it('should render OSF to XLSX', () => {
+      const xlsxFile = join(TEST_FIXTURES_DIR, 'test.xlsx');
       try {
-        const result = execSync(`node "${CLI_PATH}" render "${testFile}" --format xlsx`, {
+        execSync(`node "${CLI_PATH}" render "${testFile}" --format xlsx --output "${xlsxFile}"`, {
           encoding: 'utf8',
         });
-        expect.fail(`Expected render command to fail but succeeded with output: ${result}`);
-      } catch (err: any) {
-        const output = (err.stderr || err.stdout) as string;
-        expect(output).toContain('XLSX rendering not implemented');
+        expect(existsSync(xlsxFile)).toBe(true);
+      } finally {
+        if (existsSync(xlsxFile)) {
+          unlinkSync(xlsxFile);
+        }
       }
     });
 
