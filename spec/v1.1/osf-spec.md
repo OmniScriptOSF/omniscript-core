@@ -156,10 +156,12 @@ theme: corporate;
 **Content**: Markdown text with support for:
 
 - Headings (`#`, `##`, `###`, etc.)
-- Bold (`**text**`), Italic (`*text*`)
+- Bold (`**text**`), Italic (`*text*`), Underline (`__text__`)
+- Strikethrough (`~~text~~`) **(New in v1.1)**
 - Inline code (`` `code` ``)
 - Lists (unordered `-`, ordered `1.`)
-- Links, images, tables (future)
+- Links (`[text](url)`), Images (`![alt](url)`)
+- Blockquotes (`> text`) **(New in v1.1)**
 
 **Example**:
 
@@ -196,7 +198,8 @@ theme: corporate;
   - `TwoColumn`: Title + two side-by-side columns
   - `ThreeColumn`: Title + three columns
 
-**Content**: Markdown text, rendered according to layout
+**Content**: Markdown text with formatting support (bold, italic, underline,
+strikethrough, links, images, lists, blockquotes), rendered according to layout
 
 **Example**:
 
@@ -610,7 +613,7 @@ Themes are implementation-defined. Standard themes:
 ## 8. Grammar (EBNF)
 
 ```ebnf
-(* OSF Grammar v1.0 *)
+(* OSF Grammar v1.1 *)
 
 document = { block } ;
 
@@ -704,24 +707,35 @@ docs: Update product roadmap slides
 
 ---
 
-## 10. Migration from v0.5
+## 10. Migration from v1.0
 
 ### Breaking Changes
 
-None. v1.0 is fully backward compatible with v0.5.
+None. v1.1 is fully backward compatible with v1.0.
 
-### New Features
+### New Features (v1.1)
 
-All new features (`@chart`, `@diagram`, `@code`) are additive. Existing
-documents continue to work.
+All new features are additive and optional. Existing v1.0 documents continue to
+work:
+
+- **Strikethrough**: Use `~~text~~` for strikethrough formatting
+- **Unicode Escapes**: Use `\uXXXX` or `\xXX` for special characters
+- **Better Errors**: Parser now reports exact line:column positions
+- **Enhanced Rendering**: HTML output includes ordered lists, blockquotes, code
+  blocks
+- **Security**: HTML output is automatically escaped to prevent XSS
 
 ### Recommended Updates
 
-1. Add explicit `version: "1.0"` to `@meta` blocks
-2. Convert manual chart descriptions to `@chart` blocks
-3. Replace ASCII diagrams with `@diagram` blocks
-4. Use `@code` blocks instead of markdown code fences for better syntax
-   highlighting
+1. Update `version: "1.1"` in `@meta` blocks
+2. Use unicode escapes for special characters (©, ™, ✓, etc.)
+3. Add strikethrough for pricing updates: `~~$99~~ $79`
+4. Benefit from improved error messages automatically
+
+### Migration from v0.5
+
+See v1.0 specification for migration from v0.5 to v1.0, then apply v1.1 updates
+above.
 
 ---
 
@@ -793,17 +807,20 @@ Implementations may add custom properties prefixed with `x-`:
 
 ```osf
 @meta {
-  title: "OmniScript v1.0 Demo";
+  title: "OmniScript v1.1 Demo";
   author: "OmniScript Team";
-  date: "2025-10-15";
-  version: "1.0";
+  date: "2025-01-16";
+  version: "1.1";
   theme: modern;
 }
 
 @doc {
   # Introduction
 
-  This document demonstrates all v1.0 features.
+  This document demonstrates all v1.1 features including **bold**, *italic*,
+  __underline__, and ~~strikethrough~~ text.
+
+  Unicode support: \u2713 Check \u00A9 2025
 }
 
 @slide {
