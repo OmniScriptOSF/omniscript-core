@@ -50,10 +50,11 @@ validate, format, and render documents with ease**
 
 ### 🌐 **Render & Export**
 
+- **NEW:** Extended HTML elements
 - HTML with live formulas
-- Multiple output formats
+- **NEW:** Enhanced Markdown export
 - Theme-based styling
-- Professional layouts
+- **SECURITY:** XSS protection
 
 </td>
 <td width="25%">
@@ -259,7 +260,8 @@ osf export spreadsheet.osf --target json --evaluate-formulas
 
 **Export Formats:**
 
-- 📝 **Markdown** - Clean MD with frontmatter and computed values
+- 📝 **Markdown** - Clean MD with frontmatter, computed values, **NEW:** ordered
+  lists, blockquotes, code blocks, images
 - 🔧 **JSON** - Structured data with AST and evaluated content
 
 ---

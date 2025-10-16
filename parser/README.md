@@ -31,6 +31,8 @@ TypeScript support and bidirectional conversion**
 ### 📝 **Complete OSF Parsing**
 
 - Full OSF syntax support
+- **NEW:** Strikethrough (`~~text~~`)
+- **NEW:** Unicode escapes (`\uXXXX`)
 - Comprehensive error handling
 - Detailed parse diagnostics
 - Schema validation
@@ -44,6 +46,7 @@ TypeScript support and bidirectional conversion**
 - Serialize AST to OSF
 - Lossless round-trip
 - Format preservation
+- **NEW:** Position tracking
 
 </td>
 <td width="25%">
@@ -64,6 +67,7 @@ TypeScript support and bidirectional conversion**
 - Comprehensive interfaces
 - Type-safe operations
 - IntelliSense support
+- **NEW:** Enhanced error messages
 
 </td>
 </tr>
@@ -100,9 +104,10 @@ const osfContent = `
   # Welcome to OmniScript
   
   This is a **powerful** document format that supports:
-  - Rich text formatting
+  - Rich text formatting (bold, italic, ~~strikethrough~~)
   - Structured data
   - Formula calculations
+  - Unicode characters: \u2713 (checkmark)
 }
 
 @sheet {
@@ -163,9 +168,10 @@ try {
 
 **Throws:** `ParseError` with detailed error information including:
 
-- Line and column numbers
+- **NEW:** Line and column numbers (e.g., "Error at 5:12")
 - Error descriptions
-- Suggested fixes
+- Context-aware messages
+- Unterminated string detection
 
 #### `serialize(document: OSFDocument): string`
 

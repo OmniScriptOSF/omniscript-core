@@ -9,8 +9,8 @@
 **One format to generate documents, slides, sheets, charts, diagrams, and more**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![v1.0](https://img.shields.io/badge/version-1.0-blue.svg)](./RELEASE_NOTES.md)
-[![Tests](https://img.shields.io/badge/tests-152%2F152%20passing-brightgreen.svg)](./docs/TESTING.md)
+[![v1.1](https://img.shields.io/badge/version-1.1-blue.svg)](./RELEASE_NOTES.md)
+[![Tests](https://img.shields.io/badge/tests-56%2F56%20passing-brightgreen.svg)](./docs/TESTING.md)
 [![Production Ready](https://img.shields.io/badge/status-production%20ready-success.svg)](./RELEASE_NOTES.md)
 
 [🚀 Quick Start](#-quick-start) • [📦 Packages](#-packages) •
@@ -21,16 +21,20 @@
 
 ---
 
-## 🎉 v1.0 Released - Production Ready!
+## 🎉 v1.1 Released - Enhanced Features!
 
-OmniScript Format v1.0 is **complete, tested, and production-ready**:
+OmniScript Format v1.1 brings **new formatting capabilities and security
+improvements**:
 
-- ✅ **152/152 tests passing** (100% success rate)
-- ✅ **3 npm packages published** (parser, converters, CLI)
-- ✅ **v1.0 specification finalized** (charts, diagrams, code blocks)
-- ✅ **VSCode extension available**
-- ✅ **Interactive playground live**
-- ✅ **Zero critical issues**
+- ✨ **NEW:** Strikethrough text support (`~~text~~`)
+- ✨ **NEW:** Unicode escape sequences (`\uXXXX`, `\xXX`)
+- ✨ **NEW:** Line:column error tracking for better debugging
+- ✨ **NEW:** Extended HTML rendering (ordered lists, blockquotes, code, images)
+- ✨ **NEW:** Enhanced Markdown export with full formatting
+- 🔒 **SECURITY:** HTML escaping to prevent XSS attacks
+- ✅ **56 tests passing** (all new features covered)
+
+Fully backward compatible with v1.0.0 - no breaking changes!
 
 [View Release Notes →](./RELEASE_NOTES.md)
 
@@ -51,6 +55,13 @@ lets you write structured content once and export it to multiple formats:
   # Hello World
 
   This is **OmniScript** - write once, export everywhere!
+
+  Supports ~~deprecated~~ **modern** formatting with **NEW** features:
+  1. Ordered lists
+  2. Blockquotes
+  3. Code blocks
+
+  > "The future of documents" - Dev Team
 }
 
 @chart {
