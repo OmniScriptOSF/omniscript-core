@@ -45,6 +45,30 @@ function extractText(run: TextRun): string {
   return '';
 }
 
+// Helper function to render TextRun to HTML
+function renderTextRun(run: TextRun): string {
+  if (typeof run === 'string') {
+    return escapeHtml(run);
+  }
+  if ('type' in run) {
+    if (run.type === 'link') {
+      return `<a href="${escapeHtml(run.url)}">${escapeHtml(run.text)}</a>`;
+    }
+    if (run.type === 'image') {
+      return `<img src="${escapeHtml(run.url)}" alt="${escapeHtml(run.alt)}" />`;
+    }
+  }
+  if ('text' in run) {
+    let text = escapeHtml(run.text);
+    if ((run as any).bold) text = `<strong>${text}</strong>`;
+    if ((run as any).italic) text = `<em>${text}</em>`;
+    if ((run as any).underline) text = `<u>${text}</u>`;
+    if ((run as any).strike) text = `<s>${text}</s>`;
+    return text;
+  }
+  return '';
+}
+
 // Escape HTML special characters to prevent XSS injection
 function escapeHtml(str: string): string {
   return str.replace(/[&<>"']/g, ch => {
@@ -477,13 +501,37 @@ function renderHtml(doc: OSFDocument): string {
             if (block.type === 'unordered_list') {
               parts.push('      <ul>');
               for (const item of block.items) {
-                const itemText = escapeHtml(item.content.map(extractText).join(''));
+                const itemText = item.content.map(renderTextRun).join('');
                 parts.push(`        <li>${itemText}</li>`);
               }
               parts.push('      </ul>');
+            } else if (block.type === 'ordered_list') {
+              parts.push('      <ol>');
+              for (const item of block.items) {
+                const itemText = item.content.map(renderTextRun).join('');
+                parts.push(`        <li>${itemText}</li>`);
+              }
+              parts.push('      </ol>');
             } else if (block.type === 'paragraph') {
-              const paragraphText = escapeHtml(block.content.map(extractText).join(''));
+              const paragraphText = block.content.map(renderTextRun).join('');
               parts.push(`      <p>${paragraphText}</p>`);
+            } else if (block.type === 'blockquote') {
+              parts.push('      <blockquote>');
+              for (const para of block.content) {
+                const quoteText = para.content.map(renderTextRun).join('');
+                parts.push(`        <p>${quoteText}</p>`);
+              }
+              parts.push('      </blockquote>');
+            } else if (block.type === 'code') {
+              const langClass = block.language
+                ? ` class="language-${escapeHtml(block.language)}"`
+                : '';
+              const codeContent = escapeHtml(block.content);
+              parts.push(`      <pre><code${langClass}>${codeContent}</code></pre>`);
+            } else if (block.type === 'image') {
+              parts.push(
+                `      <img src="${escapeHtml(block.url)}" alt="${escapeHtml(block.alt)}" />`
+              );
             }
           }
           parts.push('    </div>');
