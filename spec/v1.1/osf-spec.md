@@ -834,6 +834,6 @@ Implementations may add custom properties prefixed with `x-`:
 
 ---
 
-**End of OmniScript Format Specification v1.0**
+**End of OmniScript Format Specification v1.1**
 
 _© 2025 OmniScript OSF. Licensed under MIT._
