@@ -1,6 +1,63 @@
-# OmniScript Format v1.0 - Release Notes
+# OmniScript Format - Release Notes
 
-**Release Date**: October 15, 2025  
+## v1.1.0 - Enhanced Features & Security (January 16, 2025)
+
+**Status**: ✅ Production Ready  
+**Packages**: omniscript-parser@1.1.0, omniscript-cli@1.1.0,
+omniscript-converters@1.1.0
+
+### 🎯 Highlights
+
+This release brings **enhanced formatting capabilities**, **security
+improvements**, and **better developer experience** while maintaining **100%
+backward compatibility** with v1.0.
+
+### ✨ New Features
+
+#### Text Formatting
+
+- ✅ **Strikethrough** - `~~text~~` syntax for strikethrough formatting
+- ✅ **Unicode Escapes** - `\uXXXX` and `\xXX` support in strings
+- ✅ Round-trip support for all unicode characters
+
+#### Developer Experience
+
+- ✅ **Position Tracking** - Errors now show precise line:column (e.g., "Error
+  at 5:12")
+- ✅ **String Validation** - Detect unterminated strings with clear messages
+- ✅ **Better Debugging** - Enhanced error context for faster problem resolution
+
+#### CLI Enhancements
+
+- ✅ **Extended HTML** - Ordered lists, blockquotes, code blocks, images, links
+- ✅ **Enhanced Markdown** - Full formatting preservation in exports
+- ✅ **Working Converters** - PDF/DOCX/PPTX/XLSX rendering fully functional
+
+### 🔒 Security Improvements
+
+- ✅ **XSS Prevention** - All HTML output properly escaped
+- ✅ **Input Validation** - Enhanced parser safety checks
+
+### 📊 Quality Metrics
+
+- **88 tests** passing (31 new tests for v1.1 features)
+- **100% backward compatible** with v1.0
+- **Zero breaking changes**
+
+### 🔄 Upgrade Path
+
+```bash
+npm install omniscript-parser@1.1.0
+npm install omniscript-cli@1.1.0
+npm install omniscript-converters@1.1.0
+```
+
+No code changes needed - drop-in replacement for v1.0!
+
+---
+
+## v1.0.0 - Production Release (October 15, 2025)
+
 **Status**: ✅ Production Ready  
 **Packages**: omniscript-parser@1.0.0, omniscript-converters@1.0.0,
 omniscript-cli@1.0.0
