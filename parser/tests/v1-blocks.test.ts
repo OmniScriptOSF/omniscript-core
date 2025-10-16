@@ -241,7 +241,7 @@ describe('v1.0 Block Types', () => {
   caption: "Main Function";
   lineNumbers: true;
   highlight: [1, 2];
-  code: "fn main() {\\n    println!(\\\"Hello\\\");\\n}";
+  code: "fn main() {\\n    println!(\\"Hello\\");\\n}";
 }`;
       const doc = parse(osf);
       const code = doc.blocks[0] as OSFCodeBlock;

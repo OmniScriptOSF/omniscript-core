@@ -13,7 +13,13 @@ import {
   OSFValue,
   TextRun,
 } from 'omniscript-parser';
-import { PDFConverter, DOCXConverter, PPTXConverter, XLSXConverter } from 'omniscript-converters';
+import {
+  PDFConverter,
+  DOCXConverter,
+  PPTXConverter,
+  XLSXConverter,
+  ConverterOptions,
+} from 'omniscript-converters';
 
 // Type definitions for formula handling
 interface FormulaDefinition {
@@ -26,6 +32,15 @@ type CellValue = string | number | boolean;
 
 // Type for spreadsheet data
 type SpreadsheetData = Record<string, CellValue>;
+
+// Type for styled text with optional formatting
+interface StyledText {
+  text: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strike?: boolean;
+}
 
 // Helper function to render TextRun to HTML
 function renderTextRun(run: TextRun): string {
@@ -42,10 +57,11 @@ function renderTextRun(run: TextRun): string {
   }
   if ('text' in run) {
     let text = escapeHtml(run.text);
-    if ((run as any).bold) text = `<strong>${text}</strong>`;
-    if ((run as any).italic) text = `<em>${text}</em>`;
-    if ((run as any).underline) text = `<u>${text}</u>`;
-    if ((run as any).strike) text = `<s>${text}</s>`;
+    const styledRun = run as StyledText;
+    if (styledRun.bold) text = `<strong>${text}</strong>`;
+    if (styledRun.italic) text = `<em>${text}</em>`;
+    if (styledRun.underline) text = `<u>${text}</u>`;
+    if (styledRun.strike) text = `<s>${text}</s>`;
     return text;
   }
   return '';
@@ -592,25 +608,25 @@ function renderHtml(doc: OSFDocument): string {
 }
 
 // Advanced format renderers using omniscript-converters
-async function renderPdf(doc: OSFDocument, options?: any): Promise<Buffer> {
+async function renderPdf(doc: OSFDocument, options?: ConverterOptions): Promise<Buffer> {
   const converter = new PDFConverter();
   const result = await converter.convert(doc, options || {});
   return result.buffer;
 }
 
-async function renderDocx(doc: OSFDocument, options?: any): Promise<Buffer> {
+async function renderDocx(doc: OSFDocument, options?: ConverterOptions): Promise<Buffer> {
   const converter = new DOCXConverter();
   const result = await converter.convert(doc, options || {});
   return result.buffer;
 }
 
-async function renderPptx(doc: OSFDocument, options?: any): Promise<Buffer> {
+async function renderPptx(doc: OSFDocument, options?: ConverterOptions): Promise<Buffer> {
   const converter = new PPTXConverter();
   const result = await converter.convert(doc, options || {});
   return result.buffer;
 }
 
-async function renderXlsx(doc: OSFDocument, options?: any): Promise<Buffer> {
+async function renderXlsx(doc: OSFDocument, options?: ConverterOptions): Promise<Buffer> {
   const converter = new XLSXConverter();
   const result = await converter.convert(doc, options || {});
   return result.buffer;
@@ -631,10 +647,11 @@ function textRunToMarkdown(run: TextRun): string {
   }
   if ('text' in run) {
     let text = run.text;
-    if ((run as any).bold) text = `**${text}**`;
-    if ((run as any).italic) text = `*${text}*`;
-    if ((run as any).underline) text = `__${text}__`;
-    if ((run as any).strike) text = `~~${text}~~`;
+    const styledRun = run as StyledText;
+    if (styledRun.bold) text = `**${text}**`;
+    if (styledRun.italic) text = `*${text}*`;
+    if (styledRun.underline) text = `__${text}__`;
+    if (styledRun.strike) text = `~~${text}~~`;
     return text;
   }
   return '';
@@ -1018,7 +1035,7 @@ async function main(): Promise<void> {
             break;
           }
           case 'pdf': {
-            const pdfBuffer = await renderPdf(doc, { theme });
+            const pdfBuffer = await renderPdf(doc, { theme } as ConverterOptions);
             if (outputFile) {
               writeFileSync(outputFile, pdfBuffer);
               console.log(`PDF written to ${outputFile}`);
@@ -1028,7 +1045,7 @@ async function main(): Promise<void> {
             break;
           }
           case 'docx': {
-            const docxBuffer = await renderDocx(doc, { theme });
+            const docxBuffer = await renderDocx(doc, { theme } as ConverterOptions);
             if (outputFile) {
               writeFileSync(outputFile, docxBuffer);
               console.log(`DOCX written to ${outputFile}`);
@@ -1038,7 +1055,7 @@ async function main(): Promise<void> {
             break;
           }
           case 'pptx': {
-            const pptxBuffer = await renderPptx(doc, { theme });
+            const pptxBuffer = await renderPptx(doc, { theme } as ConverterOptions);
             if (outputFile) {
               writeFileSync(outputFile, pptxBuffer);
               console.log(`PPTX written to ${outputFile}`);
@@ -1048,7 +1065,7 @@ async function main(): Promise<void> {
             break;
           }
           case 'xlsx': {
-            const xlsxBuffer = await renderXlsx(doc, { theme });
+            const xlsxBuffer = await renderXlsx(doc, { theme } as ConverterOptions);
             if (outputFile) {
               writeFileSync(outputFile, xlsxBuffer);
               console.log(`XLSX written to ${outputFile}`);
