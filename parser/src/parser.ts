@@ -619,16 +619,39 @@ export function parse(input: string): OSFDocument {
 }
 
 function escapeString(str: string): string {
-  return str
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, '\\n')
-    .replace(/\t/g, '\\t')
-    .replace(/\r/g, '\\r')
-    .replace(String.fromCharCode(8), '\\b')
-    .replace(/\f/g, '\\f')
-    .replace(/\v/g, '\\v')
-    .replace(/\0/g, '\\0');
+  // eslint-disable-next-line no-control-regex
+  return str.replace(/[\x00-\x1F\x7F-\uFFFF\\"]/g, ch => {
+    switch (ch) {
+      case '\\':
+        return '\\\\';
+      case '"':
+        return '\\"';
+      case '\n':
+        return '\\n';
+      case '\t':
+        return '\\t';
+      case '\r':
+        return '\\r';
+      case '\b':
+        return '\\b';
+      case '\f':
+        return '\\f';
+      case '\v':
+        return '\\v';
+      case '\0':
+        return '\\0';
+      default: {
+        const code = ch.charCodeAt(0);
+        if (code < 0x20 || code > 0x7e) {
+          if (code <= 0xff) {
+            return `\\x${code.toString(16).padStart(2, '0').toUpperCase()}`;
+          }
+          return `\\u${code.toString(16).padStart(4, '0').toUpperCase()}`;
+        }
+        return ch;
+      }
+    }
+  });
 }
 
 function serializeValue(v: OSFValue): string {
