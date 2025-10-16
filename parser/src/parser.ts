@@ -21,6 +21,21 @@ interface RawBlock {
   content: string;
 }
 
+function getLineColumn(str: string, index: number): { line: number; column: number } {
+  let line = 1;
+  let column = 1;
+  for (let i = 0; i < index && i < str.length; i++) {
+    const ch = str[i];
+    if (ch === '\n') {
+      line++;
+      column = 1;
+    } else {
+      column++;
+    }
+  }
+  return { line, column };
+}
+
 function findBlocks(input: string): RawBlock[] {
   const blocks: RawBlock[] = [];
   const regex = /@(\w+)\s*\{/g;
@@ -41,7 +56,8 @@ function findBlocks(input: string): RawBlock[] {
     }
 
     if (depth > 0) {
-      throw new Error(`Missing closing } for block ${type}`);
+      const { line, column } = getLineColumn(input, end);
+      throw new Error(`Missing closing } for block ${type} at ${line}:${column}`);
     }
 
     const content = input.slice(match.index + match[0].length, end - 1);
@@ -76,7 +92,8 @@ function skipWS(str: string, i: number): number {
 function parseIdentifier(str: string, i: number): { id: string; index: number } {
   const start = i;
   if (i >= str.length || !/[A-Za-z]/.test(str[i] || '')) {
-    throw new Error('Expected identifier starting with a letter');
+    const { line, column } = getLineColumn(str, i);
+    throw new Error(`Expected identifier starting with a letter at ${line}:${column}`);
   }
   i++; // consume first letter
   while (i < str.length && /[A-Za-z0-9_%]/.test(str[i] || '')) i++;
@@ -151,7 +168,8 @@ function parseNumber(str: string, i: number): { value: number; index: number } {
 
   // Ensure we actually parsed some digits after the optional minus sign
   if (j === i || (j === i + 1 && str[i] === '-')) {
-    throw new Error('Invalid number format');
+    const { line, column } = getLineColumn(str, i);
+    throw new Error(`Invalid number format at ${line}:${column}`);
   }
 
   return { value: Number(str.slice(i, j)), index: j };
