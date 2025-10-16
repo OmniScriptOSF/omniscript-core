@@ -100,11 +100,11 @@ importers:
         specifier: ^8.12.0
         version: 8.17.1
       omniscript-converters:
-        specifier: workspace:*
-        version: link:../../omniscript-converters
+        specifier: ^1.2.0
+        version: 1.2.0(omniscript-parser@1.2.0)(typescript@5.9.3)
       omniscript-parser:
-        specifier: workspace:*
-        version: link:../parser
+        specifier: ^1.2.0
+        version: 1.2.0
     devDependencies:
       '@types/node':
         specifier: ^22.15.33
@@ -1741,8 +1741,18 @@ packages:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
     engines: {node: '>=0.10.0'}
 
+  omniscript-converters@1.2.0:
+    resolution: {integrity: sha512-j3pdrcdPFyZu03PdRj/5S+Z4PUcTeExb8D0CnAcM/DEtxina7i2IZpL7IJ8B/nniXDt8MY42cMtQlS6MMGFLRg==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      omniscript-parser: ^1.0.0
+
   omniscript-parser@1.0.0:
     resolution: {integrity: sha512-L25H30zSBqrIDyYt+uuAHYcJ53alsBcPuD/vpUHMmcZi0EDTErSVOtxuQOajkIABPsrgRaiMbxLxIUiO3+PAHg==}
+    engines: {node: '>=18.0.0'}
+
+  omniscript-parser@1.2.0:
+    resolution: {integrity: sha512-nLrafd0TSXhkBnPWAy09JlNkvsaBx+j8by+0VBhKOxDPSOXqf9Kv3ZlavYNATnTu6xMOsooBDaX3X5LrTsCK4w==}
     engines: {node: '>=18.0.0'}
 
   once@1.4.0:
@@ -3937,7 +3947,26 @@ snapshots:
 
   normalize-path@3.0.0: {}
 
+  omniscript-converters@1.2.0(omniscript-parser@1.2.0)(typescript@5.9.3):
+    dependencies:
+      docx: 9.5.1
+      exceljs: 4.4.0
+      jszip: 3.10.1
+      omniscript-parser: 1.2.0
+      pptxgenjs: 4.0.1
+      puppeteer: 24.25.0(typescript@5.9.3)
+    transitivePeerDependencies:
+      - bare-abort-controller
+      - bare-buffer
+      - bufferutil
+      - react-native-b4a
+      - supports-color
+      - typescript
+      - utf-8-validate
+
   omniscript-parser@1.0.0: {}
+
+  omniscript-parser@1.2.0: {}
 
   once@1.4.0:
     dependencies:

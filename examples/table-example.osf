@@ -1,0 +1,47 @@
+// =============================================================================
+// Example: Table Feature Demonstration
+// Category: Tables
+// Description: Demonstrates @table block with various features
+// Features: @table, caption, style, alignment
+// Estimated time: 5 minutes
+// Version: 1.2.0
+// =============================================================================
+
+@meta {
+  title: "Product Comparison";
+  author: "OmniScript Examples";
+  date: "2025-10-16";
+  theme: "corporate";
+  version: "1.2";
+}
+
+@doc {
+  # Product Comparison Report
+
+  This report compares three products across key metrics.
+}
+
+@table {
+  caption: "Product Feature Comparison";
+  style: "bordered";
+  alignment: ["left", "center", "center", "center"];
+  
+  | Feature        | Product A | Product B | Product C |
+  | --- | --- | --- | --- |
+  | Price          | $99       | $149      | $199      |
+  | Memory         | 8GB       | 16GB      | 32GB      |
+  | Storage        | 256GB     | 512GB     | 1TB       |
+  | Battery Life   | 8 hours   | 12 hours  | 16 hours  |
+  | Weight         | 1.2kg     | 1.5kg     | 1.8kg     |
+  | Rating         | 4/5       | 5/5       | 5/5       |
+}
+
+@doc {
+  ## Analysis
+
+  Based on the comparison:
+
+  - **Best Value**: Product A offers excellent features at the lowest price
+  - **Best Performance**: Product C has superior specs across all categories
+  - **Best Balance**: Product B provides the optimal price-performance ratio
+}

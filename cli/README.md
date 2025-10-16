@@ -11,6 +11,8 @@ validate, format, and render documents with ease**
 
 [![npm version](https://badge.fury.io/js/omniscript-cli.svg)](https://badge.fury.io/js/omniscript-cli)
 [![npm downloads](https://img.shields.io/npm/dm/omniscript-cli.svg)](https://www.npmjs.com/package/omniscript-cli)
+[![v1.2.0](https://img.shields.io/badge/version-1.2.0-blue.svg)](../../RELEASE_NOTES.md)
+[![Tests](https://img.shields.io/badge/tests-47%2F47%20passing-brightgreen.svg)](./tests)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
@@ -50,11 +52,14 @@ validate, format, and render documents with ease**
 
 ### 🌐 **Render & Export**
 
-- **NEW:** Extended HTML elements
+- **NEW v1.2:** Table rendering with alignment
+- **NEW v1.2:** HTML with table support
+- **NEW v1.2:** Defense-in-depth sanitization
+- **NEW v1.1:** Extended HTML elements
 - HTML with live formulas
-- **NEW:** Enhanced Markdown export
+- **NEW v1.1:** Enhanced Markdown export
 - Theme-based styling
-- **SECURITY:** XSS protection
+- **SECURITY:** Grade A+ XSS protection
 
 </td>
 <td width="25%">

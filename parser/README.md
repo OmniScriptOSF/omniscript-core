@@ -11,6 +11,9 @@ TypeScript support and bidirectional conversion**
 
 [![npm version](https://badge.fury.io/js/omniscript-parser.svg)](https://badge.fury.io/js/omniscript-parser)
 [![npm downloads](https://img.shields.io/npm/dm/omniscript-parser.svg)](https://www.npmjs.com/package/omniscript-parser)
+[![v1.2.0](https://img.shields.io/badge/version-1.2.0-blue.svg)](../../RELEASE_NOTES.md)
+[![Tests](https://img.shields.io/badge/tests-83%2F83%20passing-brightgreen.svg)](./tests)
+[![Security](https://img.shields.io/badge/security-A+-brightgreen.svg)](../../P%23_REVIEW_CLEAN_SUMMARY.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
@@ -30,9 +33,11 @@ TypeScript support and bidirectional conversion**
 
 ### 📝 **Complete OSF Parsing**
 
-- Full OSF syntax support
-- **NEW:** Strikethrough (`~~text~~`)
-- **NEW:** Unicode escapes (`\uXXXX`)
+- Full OSF v1.2 syntax support
+- **NEW v1.2:** @table blocks with markdown syntax
+- **NEW v1.2:** @include directive for file composition
+- **NEW v1.1:** Strikethrough (`~~text~~`)
+- **NEW v1.1:** Unicode escapes (`\uXXXX`)
 - Comprehensive error handling
 - Detailed parse diagnostics
 - Schema validation
@@ -46,7 +51,9 @@ TypeScript support and bidirectional conversion**
 - Serialize AST to OSF
 - Lossless round-trip
 - Format preservation
-- **NEW:** Position tracking
+- **NEW v1.2:** Table serialization
+- **NEW v1.2:** Include resolution
+- **NEW v1.1:** Position tracking
 
 </td>
 <td width="25%">
@@ -65,9 +72,11 @@ TypeScript support and bidirectional conversion**
 
 - Full type definitions
 - Comprehensive interfaces
-- Type-safe operations
+- Type-safe operations (0 'any' types)
 - IntelliSense support
-- **NEW:** Enhanced error messages
+- **NEW v1.2:** Strict validation
+- **NEW v1.2:** Security-hardened
+- **NEW v1.1:** Enhanced error messages
 
 </td>
 </tr>

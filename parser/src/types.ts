@@ -119,6 +119,23 @@ export interface OSFCodeBlock {
   code: string;
 }
 
+export interface TableCell {
+  text: string;
+}
+
+export interface TableRow {
+  cells: TableCell[];
+}
+
+export interface TableBlock {
+  type: 'table';
+  caption?: string;
+  style?: 'bordered' | 'striped' | 'minimal';
+  alignment?: ('left' | 'center' | 'right')[];
+  headers: string[];
+  rows: TableRow[];
+}
+
 export type OSFBlock =
   | MetaBlock
   | DocBlock
@@ -126,9 +143,23 @@ export type OSFBlock =
   | SheetBlock
   | ChartBlock
   | DiagramBlock
-  | OSFCodeBlock;
+  | OSFCodeBlock
+  | TableBlock;
+
+export interface IncludeDirective {
+  type: 'include';
+  path: string;
+  resolved?: OSFDocument;
+}
+
+export interface ParseOptions {
+  resolveIncludes?: boolean;
+  basePath?: string;
+  maxDepth?: number;
+}
 
 export interface OSFDocument {
   version?: string;
   blocks: OSFBlock[];
+  includes?: IncludeDirective[];
 }
