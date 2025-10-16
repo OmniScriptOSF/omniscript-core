@@ -1,6 +1,6 @@
 # OmniScript Format v1.1 Changelog
 
-**Release Date**: January 16, 2025  
+**Release Date**: October 16, 2025  
 **Status**: Production Release
 
 ---

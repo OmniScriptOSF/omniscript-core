@@ -575,7 +575,7 @@ Themes are implementation-defined. Standard themes:
 
 ## 7. Version History
 
-### v1.1 (January 2025)
+### v1.1 (October 2025)
 
 **Enhanced Features & Security Release**
 
@@ -809,7 +809,7 @@ Implementations may add custom properties prefixed with `x-`:
 @meta {
   title: "OmniScript v1.1 Demo";
   author: "OmniScript Team";
-  date: "2025-01-16";
+  date: "2025-10-16";
   version: "1.1";
   theme: modern;
 }

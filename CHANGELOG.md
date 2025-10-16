@@ -9,7 +9,7 @@ and this project adheres to
 
 ## [Unreleased]
 
-## [1.1.0] - 2025-01-16
+## [1.1.0] - 2025-10-16
 
 ### Added - Parser
 

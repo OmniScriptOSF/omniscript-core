@@ -1,6 +1,6 @@
 # OmniScript Format - Release Notes
 
-## v1.1.0 - Enhanced Features & Security (January 16, 2025)
+## v1.1.0 - Enhanced Features & Security (October 16, 2025)
 
 **Status**: ✅ Production Ready  
 **Packages**: omniscript-parser@1.1.0, omniscript-cli@1.1.0,
