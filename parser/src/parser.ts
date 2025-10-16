@@ -110,40 +110,78 @@ function parseString(str: string, i: number): { value: string; index: number } {
       switch (nextChar) {
         case '"':
           out += '"';
+          j += 2;
           break;
         case '\\':
           out += '\\';
+          j += 2;
           break;
         case 'n':
           out += '\n';
+          j += 2;
           break;
         case 't':
           out += '\t';
+          j += 2;
           break;
         case 'r':
           out += '\r';
+          j += 2;
           break;
         case 'b':
           out += '\b';
+          j += 2;
           break;
         case 'f':
           out += '\f';
+          j += 2;
           break;
         case 'v':
           out += '\v';
+          j += 2;
           break;
         case '0':
           out += '\0';
+          j += 2;
           break;
         case '/':
           out += '/';
+          j += 2;
+          break;
+        case 'u':
+          // Parse \uXXXX (4-digit hex unicode)
+          if (j + 5 < str.length) {
+            const hex = str.slice(j + 2, j + 6);
+            if (/^[0-9A-Fa-f]{4}$/.test(hex)) {
+              out += String.fromCharCode(parseInt(hex, 16));
+              j += 6;
+              break;
+            }
+          }
+          // Invalid \u sequence, preserve as-is
+          out += str[j] + (nextChar || '');
+          j += 2;
+          break;
+        case 'x':
+          // Parse \xXX (2-digit hex ascii)
+          if (j + 3 < str.length) {
+            const hex = str.slice(j + 2, j + 4);
+            if (/^[0-9A-Fa-f]{2}$/.test(hex)) {
+              out += String.fromCharCode(parseInt(hex, 16));
+              j += 4;
+              break;
+            }
+          }
+          // Invalid \x sequence, preserve as-is
+          out += str[j] + (nextChar || '');
+          j += 2;
           break;
         default:
           // For unknown escape sequences, preserve the backslash and character
           out += str[j] + (nextChar || '');
+          j += 2;
           break;
       }
-      j += 2;
     } else {
       out += str[j];
       j++;
