@@ -25,10 +25,15 @@ export function parseChartBlock(content: string): ChartBlock {
       chartType,
       title: validateString(props.title, 'Chart'),
       data,
-      options: props.options as { xAxis?: string; yAxis?: string; legend?: boolean; colors?: string[] },
+      options: props.options as {
+        xAxis?: string;
+        yAxis?: string;
+        legend?: boolean;
+        colors?: string[];
+      },
     };
   }
-  
+
   return {
     type: 'chart',
     chartType,

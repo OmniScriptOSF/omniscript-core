@@ -27,12 +27,14 @@
 OmniScript Format v1.2.0 brings **major new features and security hardening**:
 
 ### 🆕 New Features
+
 - ✨ **@table** - Markdown-style tables with alignment, captions, and styling
 - ✨ **@include** - Modular documents with file composition
 - 🏗️ **Refactored Architecture** - 85-91% code reduction, highly modular
 - 📊 **130 tests** - 70% more test coverage including 19 security tests
 
 ### 🔒 Security (Grade A+)
+
 - 🛡️ **Path traversal protection** - Prevents directory escape attacks
 - 🛡️ **ReDoS prevention** - Bounded regex quantifiers
 - 🛡️ **Strict input validation** - All inputs validated at multiple layers
@@ -40,12 +42,14 @@ OmniScript Format v1.2.0 brings **major new features and security hardening**:
 - ✅ **All P0-P2 security issues fixed**
 
 ### 💯 Quality Improvements
+
 - ✅ **130/130 tests passing** (was 56 - +132% increase)
 - ✅ **Zero breaking changes** - Fully backward compatible
 - ✅ **Better error messages** - Contextual debugging information
 - ✅ **Type-safe** - Zero 'any' types, strict TypeScript mode
 
-[View Full Release Notes →](./RELEASE_NOTES.md) | [Security Review →](./P%23_REVIEW_CLEAN_SUMMARY.md)
+[View Full Release Notes →](./RELEASE_NOTES.md) |
+[Security Review →](./P%23_REVIEW_CLEAN_SUMMARY.md)
 
 ---
 
@@ -70,7 +74,7 @@ lets you write structured content once and export it to multiple formats:
   caption: "Sales Report";
   style: "bordered";
   alignment: ["left", "right", "center"];
-  
+
   | Product | Revenue | Status |
   | --- | --- | --- |
   | Widget A | $100K | ✓ Growth |
@@ -186,7 +190,8 @@ Zero-dependency TypeScript parser for OSF.
 npm install omniscript-parser
 ```
 
-**Features**: Parse OSF → AST • @table & @include support • Security grade A+ • 83 tests passing
+**Features**: Parse OSF → AST • @table & @include support • Security grade A+ •
+83 tests passing
 
 [View README →](./omniscript-core/parser/README.md)
 
@@ -211,7 +216,8 @@ Professional command-line interface.
 npm install -g omniscript-cli
 ```
 
-**Commands**: `parse` • `lint` • `render` • `export` • `format` • `diff` • Table & include support
+**Commands**: `parse` • `lint` • `render` • `export` • `format` • `diff` • Table
+& include support
 
 [View README →](./omniscript-core/cli/README.md)
 
@@ -221,12 +227,12 @@ npm install -g omniscript-cli
 
 ### Core Block Types
 
-| Block    | Purpose             | Export Support | Version |
-| -------- | ------------------- | -------------- | ------- |
-| `@meta`  | Document metadata   | All formats    | v1.0    |
-| `@doc`   | Markdown content    | PDF, DOCX      | v1.0    |
-| `@slide` | Presentation slides | PPTX, PDF      | v1.0    |
-| `@sheet` | Spreadsheet data    | XLSX, PDF      | v1.0    |
+| Block    | Purpose                 | Export Support  | Version  |
+| -------- | ----------------------- | --------------- | -------- |
+| `@meta`  | Document metadata       | All formats     | v1.0     |
+| `@doc`   | Markdown content        | PDF, DOCX       | v1.0     |
+| `@slide` | Presentation slides     | PPTX, PDF       | v1.0     |
+| `@sheet` | Spreadsheet data        | XLSX, PDF       | v1.0     |
 | `@table` | **NEW** Markdown tables | HTML, PDF, DOCX | **v1.2** |
 
 ### Advanced Blocks
@@ -239,8 +245,8 @@ npm install -g omniscript-cli
 
 ### Directives
 
-| Directive  | Purpose                 | Use Case                      | Version |
-| ---------- | ----------------------- | ----------------------------- | ------- |
+| Directive  | Purpose                  | Use Case                             | Version  |
+| ---------- | ------------------------ | ------------------------------------ | -------- |
 | `@include` | **NEW** File composition | Modular documents, reusable sections | **v1.2** |
 
 ### Export Formats

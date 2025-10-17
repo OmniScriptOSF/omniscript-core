@@ -51,7 +51,7 @@ function exportDocBlock(doc: DocBlock): string[] {
 
 function exportSlideBlock(slide: SlideBlock): string[] {
   const out: string[] = [];
-  
+
   if (slide.title) {
     out.push(`## ${slide.title}`);
   }
@@ -94,14 +94,14 @@ function exportSlideBlock(slide: SlideBlock): string[] {
       }
     }
   }
-  
+
   out.push('');
   return out;
 }
 
 function exportSheetBlock(sheet: SheetBlock): string[] {
   const out: string[] = [];
-  
+
   if (sheet.name) {
     out.push(`### ${sheet.name}\n`);
   }
@@ -119,10 +119,7 @@ function exportSheetBlock(sheet: SheetBlock): string[] {
 
   if (sheet.data) {
     // Evaluate formulas
-    const evaluator = new FormulaEvaluator(
-      toSpreadsheetData(sheet.data),
-      sheet.formulas || []
-    );
+    const evaluator = new FormulaEvaluator(toSpreadsheetData(sheet.data), sheet.formulas || []);
 
     // Calculate dimensions including formula cells
     const dataCoords = Object.keys(sheet.data).map(k => k.split(',').map(Number));
@@ -154,7 +151,7 @@ function exportSheetBlock(sheet: SheetBlock): string[] {
       out.push('| ' + cells.join(' | ') + ' |');
     }
   }
-  
+
   out.push('');
   return out;
 }

@@ -121,7 +121,7 @@ async function main(): Promise<void> {
         const formatFlag = commandArgs.indexOf('--format');
         const outputFlag = commandArgs.indexOf('--output');
         const themeFlag = commandArgs.indexOf('--theme');
-        
+
         const format = formatFlag >= 0 ? commandArgs[formatFlag + 1] || 'html' : 'html';
         const outputFile = outputFlag >= 0 ? commandArgs[outputFlag + 1] : undefined;
         const theme = themeFlag >= 0 ? commandArgs[themeFlag + 1] : 'default';
@@ -137,7 +137,7 @@ async function main(): Promise<void> {
         }
         const targetFlag = commandArgs.indexOf('--target');
         const outputFlag = commandArgs.indexOf('--output');
-        
+
         const target = targetFlag >= 0 ? commandArgs[targetFlag + 1] || 'md' : 'md';
         const outputFile = outputFlag >= 0 ? commandArgs[outputFlag + 1] : undefined;
 

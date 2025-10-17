@@ -3,7 +3,8 @@
 All notable changes to OmniScript Format will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
@@ -11,12 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🎉 Major Release - Tables, Includes & Enterprise Security
 
-This is a major feature release bringing tables, file composition, and comprehensive security hardening.
+This is a major feature release bringing tables, file composition, and
+comprehensive security hardening.
 
 ### Added
 
 #### Features
-- **@table blocks** - Markdown-style tables with captions, alignment, and styling
+
+- **@table blocks** - Markdown-style tables with captions, alignment, and
+  styling
   - Pipe syntax (`| Header | Header |`)
   - Column alignment (left, center, right)
   - Optional captions and style variants
@@ -38,6 +42,7 @@ This is a major feature release bringing tables, file composition, and comprehen
   - Edge case tests
 
 #### Architecture
+
 - **Refactored parser** - 904 lines → 173 lines (81% reduction)
   - Split into lexer, block-parsers, serializers, utils
   - 25 focused modules
@@ -50,6 +55,7 @@ This is a major feature release bringing tables, file composition, and comprehen
   - Runtime checks (tertiary)
 
 #### Testing
+
 - 70% increase in test coverage (56 → 130 tests)
 - Parser: 64 → 83 tests (+19 security tests)
 - CLI: 42 → 47 tests (+5 table rendering tests)
@@ -58,25 +64,30 @@ This is a major feature release bringing tables, file composition, and comprehen
 ### Changed
 
 #### Security Improvements
+
 - **Path validation** - Prevents directory escape attacks
-- **Regex bounds** - Prevents ReDoS with bounded quantifiers (`\s{0,20}` vs `\s*`)
+- **Regex bounds** - Prevents ReDoS with bounded quantifiers (`\s{0,20}` vs
+  `\s*`)
 - **Input validation** - All inputs validated at multiple layers
 - **Error messages** - More contextual, helpful debugging information
 - **Number parsing** - Validates against NaN and Infinity
 
 #### Code Quality
+
 - Zero `any` types throughout codebase
 - TypeScript strict mode with `exactOptionalPropertyTypes`
 - All files under 300 lines (maintainability)
 - Comprehensive JSDoc documentation
 
 #### Developer Experience
+
 - Better error messages with line/column info
 - Clear validation failures
 - Improved type inference
 - Enhanced IntelliSense support
 
 ### Fixed
+
 - [P1] Path traversal vulnerability in @include
 - [P1] Unsafe basePath default (browser compatibility)
 - [P1] No alignment validation in @table
@@ -87,18 +98,21 @@ This is a major feature release bringing tables, file composition, and comprehen
 - [P2] Weak error messages (added context)
 
 ### Security
+
 - **Grade**: C+ → A+
 - **Vulnerabilities Fixed**: 8 (5 P1, 3 P2)
 - **Security Tests**: 0 → 19
 - **Audit**: Full staff engineer-level P# review
 
 ### Performance
+
 - No performance degradation
 - Validation overhead: <1ms per document
 - Build times unchanged (<5s)
 - Test times: <30s for 130 tests
 
 ### Breaking Changes
+
 - **None** - Fully backward compatible with v1.0 and v1.1
 
 ---
@@ -106,6 +120,7 @@ This is a major feature release bringing tables, file composition, and comprehen
 ## [1.1.0] - 2025-10-XX
 
 ### Added
+
 - Strikethrough text support (`~~text~~`)
 - Unicode escape sequences (`\uXXXX`, `\xXX`)
 - Line:column error tracking
@@ -113,9 +128,11 @@ This is a major feature release bringing tables, file composition, and comprehen
 - Enhanced Markdown export
 
 ### Security
+
 - HTML escaping to prevent XSS attacks
 
 ### Changed
+
 - 56 tests passing (all new features covered)
 
 ---
@@ -123,6 +140,7 @@ This is a major feature release bringing tables, file composition, and comprehen
 ## [1.0.0] - 2025-10-XX
 
 ### Added
+
 - Initial production release
 - Core block types: @meta, @doc, @slide, @sheet
 - Advanced blocks: @chart, @diagram, @code
@@ -137,6 +155,7 @@ This is a major feature release bringing tables, file composition, and comprehen
 ## [0.6.0] - 2025-10-XX
 
 ### Added
+
 - Beta release with core functionality
 - Parser engine
 - Basic converters
@@ -147,6 +166,7 @@ This is a major feature release bringing tables, file composition, and comprehen
 ## [0.5.0] - 2025-10-XX
 
 ### Added
+
 - Initial alpha release
 - Proof of concept
 - Basic parsing

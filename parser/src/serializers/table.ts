@@ -8,7 +8,7 @@ import { escapeString } from '../lexer/strings';
 
 export function serializeTableBlock(block: TableBlock): string {
   const parts: string[] = ['@table {'];
-  
+
   // Add properties
   if (block.caption) {
     parts.push(`  caption: "${escapeString(block.caption)}";`);
@@ -20,23 +20,23 @@ export function serializeTableBlock(block: TableBlock): string {
     const alignmentStr = block.alignment.map(a => `"${a}"`).join(', ');
     parts.push(`  alignment: [${alignmentStr}];`);
   }
-  
+
   // Add blank line before table
   if (block.caption || block.style || block.alignment) {
     parts.push('');
   }
-  
+
   // Add header row
   parts.push('  ' + formatTableRow(block.headers));
-  
+
   // Add separator row
   parts.push('  ' + formatSeparatorRow(block.headers.length));
-  
+
   // Add data rows
   for (const row of block.rows) {
     parts.push('  ' + formatTableRow(row.cells.map(c => c.text)));
   }
-  
+
   parts.push('}');
   return parts.join('\n');
 }

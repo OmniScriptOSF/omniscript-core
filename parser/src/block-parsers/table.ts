@@ -11,7 +11,7 @@ export function parseTableBlock(content: string): TableBlock {
   const lines = content.trim().split('\n');
   const kvLines: string[] = [];
   const tableLines: string[] = [];
-  
+
   // Separate property lines from table lines
   for (const line of lines) {
     const trimmed = line.trim();
@@ -21,17 +21,17 @@ export function parseTableBlock(content: string): TableBlock {
       kvLines.push(trimmed);
     }
   }
-  
+
   // Parse properties
   const properties = kvLines.length > 0 ? parseKV(kvLines.join('\n')) : {};
-  
+
   // Validate table has at least header and separator
   if (tableLines.length < 2) {
     throw new Error(
       `Table must have at least header and separator rows (found ${tableLines.length} line${tableLines.length === 1 ? '' : 's'})`
     );
   }
-  
+
   // Parse header row
   const headerLine = tableLines[0];
   if (!headerLine) {
@@ -39,11 +39,11 @@ export function parseTableBlock(content: string): TableBlock {
   }
   const headers = parseTableRow(headerLine);
   const expectedColumnCount = headers.length;
-  
+
   if (expectedColumnCount === 0) {
     throw new Error('Table must have at least one column');
   }
-  
+
   // Skip separator row (second line with dashes)
   // Parse data rows (everything after separator) with validation
   const rows: TableRow[] = [];
@@ -51,25 +51,25 @@ export function parseTableBlock(content: string): TableBlock {
     const line = tableLines[i];
     if (line) {
       const cells = parseTableRow(line);
-      
+
       // Validate column count matches header
       if (cells.length !== expectedColumnCount) {
         throw new Error(
           `Table row ${i - 1} has ${cells.length} column${cells.length === 1 ? '' : 's'}, ` +
-          `expected ${expectedColumnCount} to match header`
+            `expected ${expectedColumnCount} to match header`
         );
       }
-      
+
       rows.push({ cells: cells.map(text => ({ text })) });
     }
   }
-  
+
   const table: TableBlock = {
     type: 'table',
     headers,
     rows,
   };
-  
+
   // Add optional properties only if present and valid
   if (properties.caption && typeof properties.caption === 'string') {
     table.caption = properties.caption;
@@ -83,7 +83,7 @@ export function parseTableBlock(content: string): TableBlock {
   if (properties.alignment && Array.isArray(properties.alignment)) {
     // Validate all alignment values
     const validAlignments: ('left' | 'center' | 'right')[] = [];
-    
+
     for (let i = 0; i < properties.alignment.length; i++) {
       const val = properties.alignment[i];
       if (val === 'left' || val === 'center' || val === 'right') {
@@ -94,17 +94,17 @@ export function parseTableBlock(content: string): TableBlock {
         );
       }
     }
-    
+
     // Validate length matches headers
     if (validAlignments.length !== expectedColumnCount) {
       throw new Error(
         `Alignment array length (${validAlignments.length}) must match number of columns (${expectedColumnCount})`
       );
     }
-    
+
     table.alignment = validAlignments;
   }
-  
+
   return table;
 }
 

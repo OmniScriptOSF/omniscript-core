@@ -81,7 +81,7 @@ export function parseNumber(str: string, i: number): { value: number; index: num
   }
 
   const digitStart = j;
-  
+
   // Parse digits and decimal point
   while (j < str.length && /[0-9.]/.test(str[j] || '')) j++;
 
@@ -93,7 +93,7 @@ export function parseNumber(str: string, i: number): { value: number; index: num
 
   const numStr = str.slice(i, j);
   const value = Number(numStr);
-  
+
   // Validate the parsed number is valid
   if (isNaN(value) || !isFinite(value)) {
     const { line, column } = getLineColumn(str, i);
@@ -136,7 +136,10 @@ export function parseValue(str: string, i: number): { value: OSFValue; index: nu
   return { value: id.id, index: id.index };
 }
 
-export function parseKVInternal(str: string, i: number): { obj: Record<string, OSFValue>; index: number } {
+export function parseKVInternal(
+  str: string,
+  i: number
+): { obj: Record<string, OSFValue>; index: number } {
   const obj: Record<string, OSFValue> = {};
   while (i < str.length) {
     i = skipWS(str, i);

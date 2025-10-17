@@ -5,13 +5,7 @@
 
 import { readFileSync } from 'fs';
 import { resolve, dirname, relative, normalize } from 'path';
-import {
-  OSFDocument,
-  OSFBlock,
-  DocBlock,
-  IncludeDirective,
-  ParseOptions,
-} from './types';
+import { OSFDocument, OSFBlock, DocBlock, IncludeDirective, ParseOptions } from './types';
 import { findBlocks } from './lexer';
 import {
   parseMetaBlock,
@@ -37,7 +31,7 @@ import {
 export function parse(input: string, options: ParseOptions = {}): OSFDocument {
   const { resolveIncludes = false, maxDepth = 10 } = options;
   let { basePath } = options;
-  
+
   // Validate basePath when includes need to be resolved
   if (resolveIncludes) {
     if (!basePath) {
@@ -45,11 +39,13 @@ export function parse(input: string, options: ParseOptions = {}): OSFDocument {
       if (typeof process !== 'undefined' && process.cwd) {
         basePath = process.cwd();
       } else {
-        throw new Error('basePath is required when resolveIncludes is true (process.cwd not available)');
+        throw new Error(
+          'basePath is required when resolveIncludes is true (process.cwd not available)'
+        );
       }
     }
   }
-  
+
   const blocksRaw = findBlocks(input);
   const blocks: OSFBlock[] = blocksRaw
     .filter(b => b.type !== 'include')
@@ -75,18 +71,18 @@ export function parse(input: string, options: ParseOptions = {}): OSFDocument {
           return parseDocBlock(b.content);
       }
     });
-  
+
   // Find @include directives
   const includes = findIncludes(input);
   const doc: OSFDocument = { blocks };
-  
+
   if (includes.length > 0) {
     doc.includes = includes;
     if (resolveIncludes && basePath) {
       resolveDocumentIncludes(doc, basePath, maxDepth);
     }
   }
-  
+
   return doc;
 }
 
@@ -94,7 +90,7 @@ function findIncludes(input: string): IncludeDirective[] {
   // Use bounded quantifiers to prevent ReDoS
   const includeRegex = /@include\s{0,20}\{\s{0,20}path:\s{0,20}"([^"]+)"\s{0,20};\s{0,20}\}/g;
   const includes: IncludeDirective[] = [];
-  
+
   let match;
   while ((match = includeRegex.exec(input)) !== null) {
     const path = match[1];
@@ -105,7 +101,7 @@ function findIncludes(input: string): IncludeDirective[] {
       });
     }
   }
-  
+
   return includes;
 }
 
@@ -116,21 +112,21 @@ function findIncludes(input: string): IncludeDirective[] {
 function validateIncludePath(basePath: string, includePath: string): string {
   // Resolve the full path
   const fullPath = resolve(basePath, includePath);
-  
+
   // Normalize both paths to handle .. and . segments
   const normalizedBase = normalize(basePath);
   const normalizedFull = normalize(fullPath);
-  
+
   // Get relative path from base to full
   const rel = relative(normalizedBase, normalizedFull);
-  
+
   // Check if path escapes basePath (starts with .. or is absolute)
   if (rel.startsWith('..') || resolve(rel) === rel) {
     throw new Error(
       `Security: Include path "${includePath}" attempts to access files outside base directory`
     );
   }
-  
+
   return fullPath;
 }
 
@@ -144,35 +140,41 @@ function resolveDocumentIncludes(
   if (currentDepth >= maxDepth) {
     throw new Error(`Include depth exceeded ${maxDepth} (circular reference detected)`);
   }
-  
+
   if (!doc.includes) return;
-  
+
   for (const include of doc.includes) {
     try {
       // Validate and resolve path (prevents path traversal)
       const fullPath = validateIncludePath(basePath, include.path);
-      
+
       // Check for circular reference by path
       if (resolvedPaths.has(fullPath)) {
         throw new Error(`Circular reference detected: ${fullPath} is already being resolved`);
       }
-      
+
       resolvedPaths.add(fullPath);
-      
+
       const content = readFileSync(fullPath, 'utf-8');
       const included = parse(content, {
         resolveIncludes: false, // Don't auto-resolve, we'll do it manually
         basePath: dirname(fullPath),
         maxDepth,
       });
-      
+
       include.resolved = included;
-      
+
       // Recursively resolve nested includes
       if (included.includes && included.includes.length > 0) {
-        resolveDocumentIncludes(included, dirname(fullPath), maxDepth, currentDepth + 1, new Set(resolvedPaths));
+        resolveDocumentIncludes(
+          included,
+          dirname(fullPath),
+          maxDepth,
+          currentDepth + 1,
+          new Set(resolvedPaths)
+        );
       }
-      
+
       resolvedPaths.delete(fullPath);
     } catch (error) {
       const errorMsg = (error as Error).message;

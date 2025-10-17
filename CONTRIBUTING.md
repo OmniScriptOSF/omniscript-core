@@ -94,7 +94,8 @@ Write examples and test documents ✅ Improve documentation, READMEs, and guides
 
 ### Commit Message Convention
 
-We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+We follow the [Conventional Commits](https://www.conventionalcommits.org/)
+specification:
 
 - `feat:` - A new feature
 - `fix:` - A bug fix
@@ -107,6 +108,7 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 - `ci:` - CI/CD configuration changes
 
 **Examples:**
+
 ```
 feat: add @diagram block support
 fix: handle nested bullets in slides properly
@@ -119,7 +121,8 @@ test: add tests for formula parsing
 - **TypeScript**: Use strict mode with proper type annotations
 - **Formatting**: Automatically handled by Prettier (run `pnpm run format`)
 - **Linting**: Follow ESLint rules (run `pnpm run lint`)
-- **Naming**: Use camelCase for variables/functions, PascalCase for classes/types
+- **Naming**: Use camelCase for variables/functions, PascalCase for
+  classes/types
 
 ### Testing Requirements
 
@@ -220,7 +223,8 @@ node index.js parse ../../examples/rich_demo.osf
 ### Getting Help
 
 - 📖 Read the [documentation](docs/spec-v0.5-overview.md)
-- 💬 Ask in [GitHub Discussions](https://github.com/OmniScriptOSF/omniscript-core/discussions)
+- 💬 Ask in
+  [GitHub Discussions](https://github.com/OmniScriptOSF/omniscript-core/discussions)
 - 🐛 Report issues using [issue templates](.github/ISSUE_TEMPLATE/)
 - 📧 Contact maintainer: [@alpha912](https://github.com/alpha912)
 

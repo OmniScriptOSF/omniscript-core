@@ -3,7 +3,14 @@
 // Why: Convert OSF documents to standalone HTML with CSS
 // Related: osf.ts, utils/text-renderer.ts
 
-import { OSFDocument, MetaBlock, DocBlock, SlideBlock, SheetBlock, TableBlock } from 'omniscript-parser';
+import {
+  OSFDocument,
+  MetaBlock,
+  DocBlock,
+  SlideBlock,
+  SheetBlock,
+  TableBlock,
+} from 'omniscript-parser';
 import { escapeHtml } from '../utils/html-escape';
 import { renderTextRun } from '../utils/text-renderer';
 import { FormulaEvaluator } from '../utils/formula-evaluator';
@@ -84,11 +91,11 @@ function renderDocBlock(docBlock: DocBlock): string[] {
 function renderSlideBlock(slide: SlideBlock): string[] {
   const parts: string[] = [];
   parts.push('  <section class="slide">');
-  
+
   if (slide.title) {
     parts.push(`    <h2>${escapeHtml(slide.title)}</h2>`);
   }
-  
+
   if (slide.content && Array.isArray(slide.content)) {
     parts.push('    <div class="slide-content">');
     for (const block of slide.content) {
@@ -117,27 +124,23 @@ function renderSlideBlock(slide: SlideBlock): string[] {
         }
         parts.push('      </blockquote>');
       } else if (block.type === 'code') {
-        const langClass = block.language
-          ? ` class="language-${escapeHtml(block.language)}"`
-          : '';
+        const langClass = block.language ? ` class="language-${escapeHtml(block.language)}"` : '';
         const codeContent = escapeHtml(block.content);
         parts.push(`      <pre><code${langClass}>${codeContent}</code></pre>`);
       } else if (block.type === 'image') {
-        parts.push(
-          `      <img src="${escapeHtml(block.url)}" alt="${escapeHtml(block.alt)}" />`
-        );
+        parts.push(`      <img src="${escapeHtml(block.url)}" alt="${escapeHtml(block.alt)}" />`);
       }
     }
     parts.push('    </div>');
   }
-  
+
   parts.push('  </section>');
   return parts;
 }
 
 function renderSheetBlock(sheet: SheetBlock): string[] {
   const parts: string[] = [];
-  
+
   if (sheet.name) {
     parts.push(`  <h3>${escapeHtml(sheet.name)}</h3>`);
   }
@@ -159,10 +162,7 @@ function renderSheetBlock(sheet: SheetBlock): string[] {
 
   if (sheet.data) {
     // Evaluate formulas
-    const evaluator = new FormulaEvaluator(
-      toSpreadsheetData(sheet.data),
-      sheet.formulas || []
-    );
+    const evaluator = new FormulaEvaluator(toSpreadsheetData(sheet.data), sheet.formulas || []);
 
     // Calculate dimensions including formula cells
     const dataCoords = Object.keys(sheet.data).map(k => k.split(',').map(Number));
@@ -202,15 +202,15 @@ function renderSheetBlock(sheet: SheetBlock): string[] {
 
 function renderTableBlock(table: TableBlock): string[] {
   const parts: string[] = [];
-  
+
   if (table.caption) {
     parts.push(`  <p><strong>${escapeHtml(table.caption)}</strong></p>`);
   }
-  
+
   // Sanitize style class name (defense in depth)
   const styleClass = table.style ? ` class="table-${sanitizeCssClass(table.style)}"` : '';
   parts.push(`  <table${styleClass}>`);
-  
+
   // Render header row
   parts.push('    <thead><tr>');
   table.headers.forEach((header, idx) => {
@@ -219,7 +219,7 @@ function renderTableBlock(table: TableBlock): string[] {
     parts.push(`      <th style="text-align: ${align}">${escapeHtml(header)}</th>`);
   });
   parts.push('    </tr></thead>');
-  
+
   // Render data rows
   parts.push('    <tbody>');
   for (const row of table.rows) {
@@ -232,7 +232,7 @@ function renderTableBlock(table: TableBlock): string[] {
     parts.push('      </tr>');
   }
   parts.push('    </tbody>');
-  
+
   parts.push('  </table>');
   return parts;
 }

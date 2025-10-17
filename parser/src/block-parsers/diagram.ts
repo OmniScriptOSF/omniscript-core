@@ -25,11 +25,11 @@ export function parseDiagramBlock(content: string): DiagramBlock {
     engine,
     code: validateString(props.code, ''),
   };
-  
+
   // Add title only if present
   if (props.title && typeof props.title === 'string') {
     diagram.title = props.title;
   }
-  
+
   return diagram;
 }

@@ -14,7 +14,7 @@ export function parseCodeBlock(content: string): OSFCodeBlock {
     language: validateString(props.language, 'text'),
     code: validateString(props.code, ''),
   };
-  
+
   // Add optional properties only if present
   if (props.caption && typeof props.caption === 'string') {
     codeBlock.caption = props.caption;
@@ -25,6 +25,6 @@ export function parseCodeBlock(content: string): OSFCodeBlock {
   if (Array.isArray(props.highlight)) {
     codeBlock.highlight = props.highlight as number[];
   }
-  
+
   return codeBlock;
 }
