@@ -119,8 +119,8 @@ export function parseSheetBlock(content: string): SheetBlock {
     try {
       Object.assign(sheet, parseKV(restSheet));
     } catch (e) {
-      // Log the error for debugging, but continue processing
-      console.error('Error parsing sheet properties:', e);
+      // Silently ignore parsing errors for optional sheet properties
+      // Properties are validated at the type level
     }
   }
   return sheet;

@@ -117,7 +117,7 @@ comprehensive security hardening.
 
 ---
 
-## [1.1.0] - 2025-10-XX
+## [1.1.0] - 2025-10-15
 
 ### Added
 
@@ -137,7 +137,7 @@ comprehensive security hardening.
 
 ---
 
-## [1.0.0] - 2025-10-XX
+## [1.0.0] - 2025-10-14
 
 ### Added
 
@@ -152,7 +152,7 @@ comprehensive security hardening.
 
 ---
 
-## [0.6.0] - 2025-10-XX
+## [0.6.0] - 2025-10-13
 
 ### Added
 
@@ -163,7 +163,7 @@ comprehensive security hardening.
 
 ---
 
-## [0.5.0] - 2025-10-XX
+## [0.5.0] - 2025-10-12
 
 ### Added
 
