@@ -52,6 +52,7 @@ jobs:
         run: pnpm install --frozen-lockfile
         
       - name: Install Chrome for Puppeteer
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y chromium-browser
@@ -220,6 +221,7 @@ jobs:
         run: pnpm install --frozen-lockfile
         
       - name: Install Puppeteer Chrome browser
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y chromium-browser
