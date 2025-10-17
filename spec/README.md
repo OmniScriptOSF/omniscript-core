@@ -7,7 +7,11 @@ This directory contains the formal specification for the OmniScript Format
 
 ## 📄 Specification Versions
 
-- **[v1.1/](v1.1/)** - Current stable specification (January 2025)
+- **[v1.2/](v1.2/)** - Current stable specification (October 2025)
+  - @table blocks with styling and alignment
+  - @include directive for modular composition
+  - Enhanced security (Grade A+)
+- **[v1.1/](v1.1/)** - Previous stable specification (October 2025)
   - Strikethrough text support
   - Unicode escape sequences
   - Enhanced error reporting
@@ -17,20 +21,6 @@ This directory contains the formal specification for the OmniScript Format
 - **[v0.5/](v0.5/)** - Initial release (October 2024)
   - Core block types
   - Basic syntax
-
----
-
-## 🆕 What's New in v1.2?
-
-v1.2 (October 2025) adds two major features but doesn't yet have a separate spec
-document:
-
-- **@table blocks** - Markdown-style tables with alignment and styling
-- **@include directive** - Modular document composition
-
-**Documentation**: See
-[v1.2 Features Guide](https://omniscriptosf.github.io/docs/v1-2-features) and
-[Release Notes](https://github.com/OmniScriptOSF/omniscript-core/blob/main/RELEASE_NOTES_v1.2.0.md)
 
 ---
 
