@@ -3,7 +3,17 @@
 // Why: Entry point for parsing OSF documents and converting them back to text
 // Related: types.ts, lexer/index.ts, block-parsers/index.ts, serializers/index.ts
 
-import { readFileSync } from 'fs';
+// Conditional fs import - only available in Node.js/Bun environments
+// eslint-disable-next-line no-unused-vars
+let readFileSync: ((path: string, encoding: string) => string) | undefined;
+try {
+  // This will work in Node.js and Bun, but throw in browsers
+  readFileSync = require('fs').readFileSync;
+} catch {
+  // Browser environment - fs not available
+  // @include directive will throw helpful error if attempted
+}
+
 import { resolve, dirname, relative, normalize } from 'path';
 import { OSFDocument, OSFBlock, DocBlock, IncludeDirective, ParseOptions } from './types';
 import { findBlocks } from './lexer';
@@ -154,6 +164,15 @@ function resolveDocumentIncludes(
       }
 
       resolvedPaths.add(fullPath);
+
+      // Check if fs is available (Node.js/Bun environment)
+      if (!readFileSync) {
+        throw new Error(
+          `@include directive requires a Node.js or Bun environment. ` +
+            `The parser is running in a browser where file system access is not available. ` +
+            `Path attempted: ${fullPath}`
+        );
+      }
 
       const content = readFileSync(fullPath, 'utf-8');
       const included = parse(content, {

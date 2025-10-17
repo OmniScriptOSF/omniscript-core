@@ -52,7 +52,7 @@ jobs:
         run: pnpm install --frozen-lockfile
         
       - name: Install Chrome for Puppeteer
-        run: npx puppeteer browsers install chrome
+        run: cd cli && pnpm exec puppeteer browsers install chrome
         
       - name: Type check
         run: pnpm run typecheck
@@ -218,9 +218,7 @@ jobs:
         run: pnpm install --frozen-lockfile
         
       - name: Install Puppeteer Chrome browser
-        run: |
-          cd cli
-          npx --yes puppeteer browsers install chrome
+        run: cd cli && pnpm exec puppeteer browsers install chrome
         
       - name: Build packages
         run: pnpm run build
