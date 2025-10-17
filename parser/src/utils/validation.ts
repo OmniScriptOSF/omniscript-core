@@ -15,6 +15,7 @@ export function validateBoolean(value: unknown, defaultValue: boolean = false): 
   return typeof value === 'boolean' ? value : defaultValue;
 }
 
+// eslint-disable-next-line no-unused-vars
 export function validateArray<T>(value: unknown, validator: (item: unknown) => T): T[] {
   if (!Array.isArray(value)) return [];
   return value.map(validator);
