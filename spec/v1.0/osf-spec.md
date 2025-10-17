@@ -2,7 +2,17 @@
 
 **Status**: Release Candidate  
 **Date**: October 15, 2025  
-**Authors**: OmniScript Core Team
+**Authors**: OmniScript Core Team  
+**License**: [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
+
+---
+
+## License Notice
+
+This specification is licensed under the Creative Commons Attribution 4.0
+International License (CC-BY-4.0). You are free to implement this specification
+in any software under any license, with attribution to "OmniScript Format" and
+"Alphin Tom". See [../LICENSE](../LICENSE) for full terms.
 
 ---
 

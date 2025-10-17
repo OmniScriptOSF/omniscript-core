@@ -1,0 +1,44 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2025 Alphin Tom
+
+The OmniScript Format Specification is licensed under the Creative Commons 
+Attribution 4.0 International License.
+
+You are free to:
+  - Share: copy and redistribute the specification in any medium or format
+  - Adapt: remix, transform, and build upon the specification for any purpose, 
+    even commercially
+
+Under the following terms:
+  - Attribution: You must give appropriate credit to "OmniScript Format" and 
+    "Alphin Tom", provide a link to the license, and indicate if changes were 
+    made. You may do so in any reasonable manner, but not in any way that 
+    suggests the licensor endorses you or your use.
+
+No additional restrictions: You may not apply legal terms or technological 
+measures that legally restrict others from doing anything the license permits.
+
+This license does NOT apply to:
+  - Software implementations of the OmniScript Format (covered by MIT License)
+  - Example code in the specification (covered by MIT License)
+  - The OmniScript parser, CLI, or other tools (covered by MIT License)
+
+This license ONLY applies to:
+  - The specification documents themselves (*.md files in this directory)
+  - Diagrams and illustrations in the specification
+  - The formal grammar and syntax definitions
+
+Full license text: https://creativecommons.org/licenses/by/4.0/legalcode
+
+---
+
+Why CC-BY-4.0 for the specification?
+
+1. Allows anyone to implement the specification without restriction
+2. Allows creating derivative specifications with attribution
+3. Permits commercial use of the specification
+4. Requires only attribution, not license propagation
+5. Standard for open specifications (used by W3C, WHATWG, etc.)
+
+For software implementations, use the MIT License in the root of this repository.

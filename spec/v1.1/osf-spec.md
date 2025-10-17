@@ -2,11 +2,21 @@
 
 **Status**: Production Release  
 **Date**: January 16, 2025  
-**Authors**: OmniScript Core Team
+**Authors**: OmniScript Core Team  
+**License**: [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
 
 **Changes from v1.0**: This version adds strikethrough text formatting, unicode
 escape sequences, enhanced error reporting with position tracking, and security
 improvements. All v1.0 features remain supported.
+
+---
+
+## License Notice
+
+This specification is licensed under the Creative Commons Attribution 4.0
+International License (CC-BY-4.0). You are free to implement this specification
+in any software under any license, with attribution to "OmniScript Format" and
+"Alphin Tom". See [../LICENSE](../LICENSE) for full terms.
 
 ---
 
