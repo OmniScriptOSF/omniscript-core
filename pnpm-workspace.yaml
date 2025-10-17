@@ -1,8 +1,0 @@
-packages:
-  - parser
-  - cli
-  - ../omniscript-converters
-
-ignoredBuiltDependencies:
-  - esbuild
-  - puppeteer

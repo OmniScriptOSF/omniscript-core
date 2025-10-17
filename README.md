@@ -340,30 +340,30 @@ Build professional presentations with charts, code samples, and diagrams.
 ```bash
 git clone https://github.com/OmniScriptOSF/omniscript-core.git
 cd omniscript-core
-pnpm install
-pnpm build
+bun install
+bun run build
 ```
 
 ### Test
 
 ```bash
 # Run all tests
-pnpm test --recursive
+bun test --recursive
 
 # Test individual packages
-cd omniscript-core/parser && pnpm test
-cd omniscript-converters && pnpm test
-cd omniscript-core/cli && pnpm test
+cd omniscript-core/parser && bun test
+cd omniscript-converters && bun test
+cd omniscript-core/cli && bun test
 ```
 
 ### Build
 
 ```bash
 # Build all packages
-pnpm build --recursive
+bun run build --recursive
 
 # Build individual packages
-cd omniscript-core/parser && pnpm build
+cd omniscript-core/parser && bun run build
 ```
 
 ---
