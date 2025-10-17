@@ -217,8 +217,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
         
-      - name: Install Chrome for Puppeteer
-        run: npx puppeteer browsers install chrome
+      - name: Install Puppeteer and Chrome
+        run: |
+          pnpm add -D puppeteer
+          npx puppeteer browsers install chrome
         
       - name: Build packages
         run: pnpm run build
