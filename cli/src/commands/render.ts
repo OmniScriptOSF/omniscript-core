@@ -4,7 +4,7 @@
 // Related: osf.ts, renderers/*.ts
 
 import { writeFileSync } from 'fs';
-import { parse } from 'omniscript-parser';
+import { parse, ParseOptions } from 'omniscript-parser';
 import { ConverterOptions } from 'omniscript-converters';
 import { loadFile, saveFile } from '../utils/file-ops';
 import { renderHtml, renderPdf, renderDocx, renderPptx, renderXlsx } from '../renderers';
@@ -13,9 +13,10 @@ export async function renderCommand(
   file: string,
   format: string = 'html',
   outputFile?: string,
-  theme: string = 'default'
+  theme: string = 'default',
+  options: ParseOptions = {}
 ): Promise<void> {
-  const doc = parse(loadFile(file));
+  const doc = parse(loadFile(file), options);
 
   switch (format) {
     case 'html': {

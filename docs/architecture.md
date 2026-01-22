@@ -5,8 +5,8 @@ This repository hosts the reference implementation of **OmniScript Format
 parser and CLI.
 
 The `spec/` directory contains versioned specifications. The current release is
-[spec/v0.5](../spec/v0.5/) which defines the grammar and JSON schema used by the
-parser.
+[spec/v1.2](../spec/v1.2/) which defines the grammar and JSON schema used by the
+parser (with [v0.5](../spec/v0.5/) retained as legacy reference).
 
 ```
 omniscript-core/

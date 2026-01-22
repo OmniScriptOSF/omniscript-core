@@ -6,9 +6,8 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import Ajv from 'ajv';
-import { parse } from 'omniscript-parser';
+import { parse, ParseOptions } from 'omniscript-parser';
 import { loadFile } from '../utils/file-ops';
-import { exportJson } from '../renderers';
 
 // Load and compile OSF schema
 const schemaPath = join(__dirname, '../../schema/osf.schema.json');
@@ -17,9 +16,9 @@ const ajv = new Ajv();
 ajv.addFormat('date', /^\d{4}-\d{2}-\d{2}$/);
 const validateOsf = ajv.compile(schema);
 
-export function lintCommand(fileName: string): void {
+export function lintCommand(fileName: string, options: ParseOptions = {}): void {
   // Basic syntax validation through parsing
-  const doc = parse(loadFile(fileName));
+  const doc = parse(loadFile(fileName), options);
 
   // If parsing succeeds, the document is syntactically valid
   if (doc.blocks.length === 0) {
@@ -27,9 +26,7 @@ export function lintCommand(fileName: string): void {
   }
 
   // Schema validation
-  const obj = exportJson(doc);
-  const parsed = JSON.parse(obj);
-  if (!validateOsf(parsed)) {
+  if (!validateOsf(doc)) {
     console.error('❌ Lint failed: Schema validation errors');
     console.error(ajv.errorsText(validateOsf.errors || undefined));
     process.exit(1);

@@ -11,7 +11,7 @@ TypeScript support and bidirectional conversion**
 
 [![npm version](https://badge.fury.io/js/omniscript-parser.svg)](https://badge.fury.io/js/omniscript-parser)
 [![npm downloads](https://img.shields.io/npm/dm/omniscript-parser.svg)](https://www.npmjs.com/package/omniscript-parser)
-[![v1.2.0](https://img.shields.io/badge/version-1.2.0-blue.svg)](../../RELEASE_NOTES.md)
+[![v1.3.0](https://img.shields.io/badge/version-1.3.0-blue.svg)](../../RELEASE_NOTES.md)
 [![Tests](https://img.shields.io/badge/tests-83%2F83%20passing-brightgreen.svg)](./tests)
 [![Security](https://img.shields.io/badge/security-A+-brightgreen.svg)](../../P%23_REVIEW_CLEAN_SUMMARY.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -33,11 +33,11 @@ TypeScript support and bidirectional conversion**
 
 ### 📝 **Complete OSF Parsing**
 
-- Full OSF v1.2 syntax support
-- **NEW v1.2:** @table blocks with markdown syntax
-- **NEW v1.2:** @include directive for file composition
-- **NEW v1.1:** Strikethrough (`~~text~~`)
-- **NEW v1.1:** Unicode escapes (`\uXXXX`)
+- Full OSF v1.2 specification support (tables, includes)
+- @table blocks with markdown syntax
+- @include directive for file composition
+- Strikethrough (`~~text~~`)
+- Unicode escapes (`\uXXXX`)
 - Comprehensive error handling
 - Detailed parse diagnostics
 - Schema validation
@@ -51,9 +51,9 @@ TypeScript support and bidirectional conversion**
 - Serialize AST to OSF
 - Lossless round-trip
 - Format preservation
-- **NEW v1.2:** Table serialization
-- **NEW v1.2:** Include resolution
-- **NEW v1.1:** Position tracking
+- Table serialization
+- Include resolution
+- Position tracking
 
 </td>
 <td width="25%">
@@ -74,9 +74,9 @@ TypeScript support and bidirectional conversion**
 - Comprehensive interfaces
 - Type-safe operations (0 'any' types)
 - IntelliSense support
-- **NEW v1.2:** Strict validation
-- **NEW v1.2:** Security-hardened
-- **NEW v1.1:** Enhanced error messages
+- Strict validation
+- Security-hardened parsing
+- Enhanced error messages
 
 </td>
 </tr>
@@ -153,7 +153,7 @@ console.log(regenerated);
 
 ### Core Functions
 
-#### `parse(content: string): OSFDocument`
+#### `parse(content: string, options?: ParseOptions): OSFDocument`
 
 Parses OSF content string into a structured document object.
 
@@ -172,12 +172,25 @@ try {
 **Parameters:**
 
 - `content: string` - The OSF content to parse
+- `options?: ParseOptions` - Include resolution settings
+
+**ParseOptions:**
+
+```typescript
+interface ParseOptions {
+  resolveIncludes?: boolean;
+  basePath?: string;
+  maxDepth?: number;
+}
+```
+
+When `resolveIncludes` is true, `basePath` is required.
 
 **Returns:** `OSFDocument` object with parsed blocks
 
 **Throws:** `ParseError` with detailed error information including:
 
-- **NEW:** Line and column numbers (e.g., "Error at 5:12")
+- Line and column numbers (e.g., "Error at 5:12")
 - Error descriptions
 - Context-aware messages
 - Unterminated string detection
@@ -215,15 +228,24 @@ console.log(osfString);
 
 ```typescript
 interface OSFDocument {
+  version?: string;
   blocks: OSFBlock[];
-  metadata?: DocumentMetadata;
+  includes?: IncludeDirective[];
 }
 ```
 
 #### OSFBlock Union Type
 
 ```typescript
-type OSFBlock = MetaBlock | DocBlock | SlideBlock | SheetBlock;
+type OSFBlock =
+  | MetaBlock
+  | DocBlock
+  | SlideBlock
+  | SheetBlock
+  | ChartBlock
+  | DiagramBlock
+  | OSFCodeBlock
+  | TableBlock;
 ```
 
 ### Block Types
@@ -264,9 +286,8 @@ interface SlideBlock {
   type: 'slide';
   title?: string;
   layout?: string;
-  content?: string;
+  content?: ContentBlock[];
   bullets?: string[];
-  props?: Record<string, OSFValue>;
   location?: SourceLocation;
 }
 
@@ -276,13 +297,26 @@ console.log(slideBlock.title); // Slide title
 console.log(slideBlock.bullets); // Bullet points array
 ```
 
+#### Slide Content Blocks
+
+```typescript
+type ContentBlock = Paragraph | OrderedList | UnorderedList | CodeBlock | Blockquote | Image;
+
+interface Paragraph {
+  type: 'paragraph';
+  content: TextRun[];
+}
+
+type TextRun = string | StyledText | Link | Image;
+```
+
 #### SheetBlock - Spreadsheet Data
 
 ```typescript
 interface SheetBlock {
   type: 'sheet';
   name?: string;
-  cols?: OSFValue;
+  cols?: string[];
   data?: Record<string, OSFValue>;
   formulas?: Array<{
     cell: [number, number];
@@ -301,10 +335,7 @@ console.log(sheetBlock.formulas); // Formula definitions
 ### Value Types
 
 ```typescript
-type OSFValue = string | number | boolean | OSFArray | OSFObject | null;
-
-interface OSFArray extends Array<OSFValue> {}
-interface OSFObject extends Record<string, OSFValue> {}
+type OSFValue = string | number | boolean | OSFValue[] | { [key: string]: OSFValue };
 ```
 
 ### Source Location Tracking

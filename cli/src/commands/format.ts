@@ -3,12 +3,12 @@
 // Why: Handle the 'format' CLI command for consistent style
 // Related: osf.ts
 
-import { parse, serialize } from 'omniscript-parser';
+import { parse, ParseOptions, serialize } from 'omniscript-parser';
 import { loadFile, saveFile } from '../utils/file-ops';
 
-export function formatCommand(file: string, outputFile?: string): void {
+export function formatCommand(file: string, outputFile?: string, options: ParseOptions = {}): void {
   const text = loadFile(file);
-  const doc = parse(text);
+  const doc = parse(text, options);
   const formatted = serialize(doc);
 
   if (outputFile) {

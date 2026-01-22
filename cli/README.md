@@ -11,7 +11,7 @@ validate, format, and render documents with ease**
 
 [![npm version](https://badge.fury.io/js/omniscript-cli.svg)](https://badge.fury.io/js/omniscript-cli)
 [![npm downloads](https://img.shields.io/npm/dm/omniscript-cli.svg)](https://www.npmjs.com/package/omniscript-cli)
-[![v1.2.0](https://img.shields.io/badge/version-1.2.0-blue.svg)](../../RELEASE_NOTES.md)
+[![v1.3.0](https://img.shields.io/badge/version-1.3.0-blue.svg)](../../RELEASE_NOTES.md)
 [![Tests](https://img.shields.io/badge/tests-47%2F47%20passing-brightgreen.svg)](./tests)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -52,9 +52,9 @@ validate, format, and render documents with ease**
 
 ### 🌐 **Render & Export**
 
-- **NEW v1.2:** Table rendering with alignment
-- **NEW v1.2:** HTML with table support
-- **NEW v1.2:** Defense-in-depth sanitization
+- **NEW v1.3:** Table export parity across formats
+- **NEW v1.3:** Blockquote styling support
+- **NEW v1.3:** Preview/export alignment
 - **NEW v1.1:** Extended HTML elements
 - HTML with live formulas
 - **NEW v1.1:** Enhanced Markdown export
@@ -628,6 +628,14 @@ Create `.osfrc.json` in your project root:
     "standalone": true
   }
 }
+```
+
+### 🧩 Include Resolution
+
+Resolve `@include` directives when parsing, linting, rendering, exporting, or formatting:
+
+```bash
+osf render report.osf --format pdf --resolve-includes --max-depth 10
 ```
 
 ### 🔄 Batch Processing

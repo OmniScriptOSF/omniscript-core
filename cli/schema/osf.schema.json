@@ -1,78 +1,301 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "OmniScript Format v0.5",
+  "title": "OmniScript Format v1.3 (AST)",
   "type": "object",
+  "required": ["blocks"],
   "properties": {
-    "meta": {
-      "type": "object",
-      "additionalProperties": true,
-      "properties": {
-        "title": { "type": "string" },
-        "author": { "type": "string" },
-        "date": { "type": "string", "format": "date" },
-        "theme": { "type": "string" }
-      }
-    },
-    "docs": {
+    "version": { "type": "string" },
+    "blocks": {
       "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "content": { "type": "string" }
-        },
-        "required": ["content"]
-      }
+      "items": { "$ref": "#/definitions/block" }
     },
-    "slides": {
+    "includes": {
       "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "title": { "type": "string" },
-          "layout": { "type": "string" },
-          "bullets": { "type": "array", "items": { "type": "string" } },
-          "notes": { "type": "string" },
-          "image": { "type": "string" }
-        },
-        "required": ["title"]
-      }
-    },
-    "sheets": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": { "type": "string" },
-          "cols": { "type": "array", "items": { "type": "string" } },
-          "data": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "row": { "type": "integer" },
-                "col": { "type": "integer" },
-                "value": {}
-              },
-              "required": ["row", "col", "value"]
-            }
-          },
-          "formulas": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "row": { "type": "integer" },
-                "col": { "type": "integer" },
-                "expr": { "type": "string" }
-              },
-              "required": ["row", "col", "expr"]
-            }
-          }
-        },
-        "required": ["name"]
-      }
+      "items": { "$ref": "#/definitions/include" }
     }
   },
-  "required": ["meta"],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "definitions": {
+    "include": {
+      "type": "object",
+      "required": ["type", "path"],
+      "properties": {
+        "type": { "const": "include" },
+        "path": { "type": "string" },
+        "resolved": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "block": {
+      "oneOf": [
+        { "$ref": "#/definitions/meta" },
+        { "$ref": "#/definitions/doc" },
+        { "$ref": "#/definitions/slide" },
+        { "$ref": "#/definitions/sheet" },
+        { "$ref": "#/definitions/chart" },
+        { "$ref": "#/definitions/diagram" },
+        { "$ref": "#/definitions/osfcode" },
+        { "$ref": "#/definitions/table" }
+      ]
+    },
+    "meta": {
+      "type": "object",
+      "required": ["type", "props"],
+      "properties": {
+        "type": { "const": "meta" },
+        "props": { "type": "object", "additionalProperties": true }
+      },
+      "additionalProperties": true
+    },
+    "doc": {
+      "type": "object",
+      "required": ["type", "content"],
+      "properties": {
+        "type": { "const": "doc" },
+        "content": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "slide": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "slide" },
+        "title": { "type": "string" },
+        "layout": { "type": "string" },
+        "content": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/contentBlock" }
+        },
+        "bullets": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "sheet": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "sheet" },
+        "name": { "type": "string" },
+        "cols": { "type": "array", "items": { "type": "string" } },
+        "data": { "type": "object", "additionalProperties": true },
+        "formulas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["cell", "expr"],
+            "properties": {
+              "cell": {
+                "type": "array",
+                "items": { "type": "number" },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "expr": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "chart": {
+      "type": "object",
+      "required": ["type", "chartType", "title", "data"],
+      "properties": {
+        "type": { "const": "chart" },
+        "chartType": { "enum": ["bar", "line", "pie", "scatter", "area"] },
+        "title": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/chartSeries" }
+        },
+        "options": {
+          "type": "object",
+          "properties": {
+            "xAxis": { "type": "string" },
+            "yAxis": { "type": "string" },
+            "legend": { "type": "boolean" },
+            "colors": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "chartSeries": {
+      "type": "object",
+      "required": ["label", "values"],
+      "properties": {
+        "label": { "type": "string" },
+        "values": { "type": "array", "items": { "type": "number" } }
+      },
+      "additionalProperties": true
+    },
+    "diagram": {
+      "type": "object",
+      "required": ["type", "diagramType", "engine", "code"],
+      "properties": {
+        "type": { "const": "diagram" },
+        "diagramType": { "enum": ["flowchart", "sequence", "gantt", "mindmap"] },
+        "engine": { "enum": ["mermaid", "graphviz"] },
+        "code": { "type": "string" },
+        "title": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "osfcode": {
+      "type": "object",
+      "required": ["type", "language", "code"],
+      "properties": {
+        "type": { "const": "osfcode" },
+        "language": { "type": "string" },
+        "caption": { "type": "string" },
+        "lineNumbers": { "type": "boolean" },
+        "highlight": { "type": "array", "items": { "type": "number" } },
+        "code": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "table": {
+      "type": "object",
+      "required": ["type", "headers", "rows"],
+      "properties": {
+        "type": { "const": "table" },
+        "caption": { "type": "string" },
+        "style": { "enum": ["bordered", "striped", "minimal"] },
+        "alignment": {
+          "type": "array",
+          "items": { "enum": ["left", "center", "right"] }
+        },
+        "headers": { "type": "array", "items": { "type": "string" } },
+        "rows": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/tableRow" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "tableRow": {
+      "type": "object",
+      "required": ["cells"],
+      "properties": {
+        "cells": { "type": "array", "items": { "$ref": "#/definitions/tableCell" } }
+      },
+      "additionalProperties": true
+    },
+    "tableCell": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "contentBlock": {
+      "oneOf": [
+        { "$ref": "#/definitions/paragraph" },
+        { "$ref": "#/definitions/orderedList" },
+        { "$ref": "#/definitions/unorderedList" },
+        { "$ref": "#/definitions/code" },
+        { "$ref": "#/definitions/blockquote" },
+        { "$ref": "#/definitions/image" }
+      ]
+    },
+    "paragraph": {
+      "type": "object",
+      "required": ["type", "content"],
+      "properties": {
+        "type": { "const": "paragraph" },
+        "content": { "type": "array", "items": { "$ref": "#/definitions/textRun" } }
+      },
+      "additionalProperties": true
+    },
+    "orderedList": {
+      "type": "object",
+      "required": ["type", "items"],
+      "properties": {
+        "type": { "const": "ordered_list" },
+        "items": { "type": "array", "items": { "$ref": "#/definitions/listItem" } }
+      },
+      "additionalProperties": true
+    },
+    "unorderedList": {
+      "type": "object",
+      "required": ["type", "items"],
+      "properties": {
+        "type": { "const": "unordered_list" },
+        "items": { "type": "array", "items": { "$ref": "#/definitions/listItem" } }
+      },
+      "additionalProperties": true
+    },
+    "listItem": {
+      "type": "object",
+      "required": ["type", "content"],
+      "properties": {
+        "type": { "const": "list_item" },
+        "content": { "type": "array", "items": { "$ref": "#/definitions/textRun" } }
+      },
+      "additionalProperties": true
+    },
+    "code": {
+      "type": "object",
+      "required": ["type", "content"],
+      "properties": {
+        "type": { "const": "code" },
+        "language": { "type": "string" },
+        "content": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "blockquote": {
+      "type": "object",
+      "required": ["type", "content"],
+      "properties": {
+        "type": { "const": "blockquote" },
+        "content": { "type": "array", "items": { "$ref": "#/definitions/paragraph" } }
+      },
+      "additionalProperties": true
+    },
+    "image": {
+      "type": "object",
+      "required": ["type", "alt", "url"],
+      "properties": {
+        "type": { "const": "image" },
+        "alt": { "type": "string" },
+        "url": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "textRun": {
+      "oneOf": [
+        { "type": "string" },
+        { "$ref": "#/definitions/styledText" },
+        { "$ref": "#/definitions/link" },
+        { "$ref": "#/definitions/image" }
+      ]
+    },
+    "styledText": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": { "type": "string" },
+        "bold": { "type": "boolean" },
+        "italic": { "type": "boolean" },
+        "underline": { "type": "boolean" },
+        "strike": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "link": {
+      "type": "object",
+      "required": ["type", "text", "url"],
+      "properties": {
+        "type": { "const": "link" },
+        "text": { "type": "string" },
+        "url": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  }
 }

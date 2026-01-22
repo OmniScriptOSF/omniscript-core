@@ -9,7 +9,7 @@
 **One format to generate documents, slides, sheets, charts, diagrams, and more**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![v1.2.0](https://img.shields.io/badge/version-1.2.0-blue.svg)](./RELEASE_NOTES.md)
+[![v1.3.0](https://img.shields.io/badge/version-1.3.0-blue.svg)](./RELEASE_NOTES.md)
 [![Tests](https://img.shields.io/badge/tests-130%2F130%20passing-brightgreen.svg)](./docs/TESTING.md)
 [![Security](https://img.shields.io/badge/security-A+-brightgreen.svg)](./P%23_REVIEW_CLEAN_SUMMARY.md)
 [![Production Ready](https://img.shields.io/badge/status-production%20ready-success.svg)](./RELEASE_NOTES.md)
@@ -22,16 +22,16 @@
 
 ---
 
-## 🎉 v1.2.0 Released - Tables, Includes, and Enterprise-Grade Security!
+## 🎉 v1.3.0 Released - Export Parity, Blockquotes, and Preview Alignment!
 
-OmniScript Format v1.2.0 brings **major new features and security hardening**:
+OmniScript Format v1.3.0 brings **export parity, richer previews, and tighter UX alignment**:
 
 ### 🆕 New Features
 
-- ✨ **@table** - Markdown-style tables with alignment, captions, and styling
-- ✨ **@include** - Modular documents with file composition
-- 🏗️ **Refactored Architecture** - 85-91% code reduction, highly modular
-- 📊 **130 tests** - 70% more test coverage including 19 security tests
+- ✨ **@table export parity** - Tables render across PDF/DOCX/PPTX/XLSX
+- ✨ **Blockquote styling** - Consistent quotes in exports and preview
+- ✨ **Preview alignment** - Playground/exports now render the same
+- 🧪 **Stability polish** - Alignments and bug fixes across renderers
 
 ### 🔒 Security (Grade A+)
 
@@ -174,11 +174,11 @@ const result = await converter.convert(doc);
 
 | Package                                              | Version | Description                      | Status      |
 | ---------------------------------------------------- | ------- | -------------------------------- | ----------- |
-| [**omniscript-parser**](./omniscript-core/parser)    | 1.2.0   | TypeScript parser engine         | ✅ Stable   |
-| [**omniscript-converters**](./omniscript-converters) | 1.2.0   | PDF, DOCX, PPTX, XLSX converters | ✅ Stable   |
-| [**omniscript-cli**](./omniscript-core/cli)          | 1.2.0   | Command-line tools               | ✅ Stable   |
-| [**omniscript-vscode**](./omniscript-vscode)         | 0.1.0   | VSCode extension                 | ✅ Stable   |
-| [**omniscript-examples**](./omniscript-examples)     | 1.2.0   | Professional examples            | ✅ Complete |
+| [**omniscript-parser**](./omniscript-core/parser)    | 1.3.0   | TypeScript parser engine         | ✅ Stable   |
+| [**omniscript-converters**](./omniscript-converters) | 1.3.0   | PDF, DOCX, PPTX, XLSX converters | ✅ Stable   |
+| [**omniscript-cli**](./omniscript-core/cli)          | 1.3.0   | Command-line tools               | ✅ Stable   |
+| [**omniscript-vscode**](./omniscript-vscode)         | 0.2.0   | VSCode extension                 | ✅ Stable   |
+| [**omniscript-examples**](./omniscript-examples)     | 1.3.0   | Professional examples            | ✅ Complete |
 
 ### Package Details
 
@@ -275,6 +275,7 @@ npm install -g omniscript-cli
 
 ### Specification
 
+- [v1.2 Specification](./omniscript-core/spec/v1.2/README.md) - Current OSF spec
 - [v1.0 Specification](./omniscript-core/spec/v1.0/osf-spec.md) - Complete OSF
   v1.0 spec
 - [v0.5 Specification](./omniscript-core/spec/v0.5/osf-spec.md) - Legacy spec

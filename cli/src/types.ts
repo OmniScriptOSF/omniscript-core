@@ -37,13 +37,13 @@ export const commands: CliCommand[] = [
   {
     name: 'parse',
     description: 'Parse and validate OSF file syntax',
-    usage: 'osf parse <file>',
+    usage: 'osf parse <file> [--resolve-includes] [--max-depth <n>]',
     args: ['file'],
   },
   {
     name: 'lint',
     description: 'Style and structure checks',
-    usage: 'osf lint <file>',
+    usage: 'osf lint <file> [--resolve-includes] [--max-depth <n>]',
     args: ['file'],
   },
   {
@@ -56,19 +56,20 @@ export const commands: CliCommand[] = [
     name: 'render',
     description: 'Render OSF to various output formats',
     usage:
-      'osf render <file> [--format <html|pdf|docx|pptx|xlsx>] [--output <file>] [--theme <default|corporate|academic|modern>]',
+      'osf render <file> [--format <html|pdf|docx|pptx|xlsx>] [--output <file>] [--theme <default|corporate|academic|modern>] [--resolve-includes] [--max-depth <n>]',
     args: ['file'],
   },
   {
     name: 'export',
     description: 'Export OSF to other formats',
-    usage: 'osf export <file> [--target <md|json>] [--output <file>]',
+    usage:
+      'osf export <file> [--target <md|json>] [--output <file>] [--resolve-includes] [--max-depth <n>]',
     args: ['file'],
   },
   {
     name: 'format',
     description: 'Auto-format OSF for style consistency',
-    usage: 'osf format <file> [--output <file>]',
+    usage: 'osf format <file> [--output <file>] [--resolve-includes] [--max-depth <n>]',
     args: ['file'],
   },
 ];

@@ -3,12 +3,17 @@
 // Why: Handle the 'export' CLI command
 // Related: osf.ts, renderers/markdown.ts, renderers/json.ts
 
-import { parse } from 'omniscript-parser';
+import { parse, ParseOptions } from 'omniscript-parser';
 import { loadFile, saveFile } from '../utils/file-ops';
 import { exportMarkdown, exportJson } from '../renderers';
 
-export function exportCommand(file: string, target: string = 'md', outputFile?: string): void {
-  const doc = parse(loadFile(file));
+export function exportCommand(
+  file: string,
+  target: string = 'md',
+  outputFile?: string,
+  options: ParseOptions = {}
+): void {
+  const doc = parse(loadFile(file), options);
   let output: string;
 
   switch (target) {

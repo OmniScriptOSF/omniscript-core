@@ -3,7 +3,7 @@
 // Why: Handle the 'diff' CLI command with semantic comparison
 // Related: osf.ts
 
-import { parse, OSFDocument } from 'omniscript-parser';
+import { parse, OSFDocument, ParseOptions } from 'omniscript-parser';
 import { loadFile } from '../utils/file-ops';
 
 function diffDocs(a: OSFDocument, b: OSFDocument): string[] {
@@ -52,9 +52,14 @@ function diffDocs(a: OSFDocument, b: OSFDocument): string[] {
   return diffs;
 }
 
-export function diffCommand(fileA: string, fileB: string): void {
-  const docA = parse(loadFile(fileA));
-  const docB = parse(loadFile(fileB));
+export function diffCommand(
+  fileA: string,
+  fileB: string,
+  optionsA: ParseOptions = {},
+  optionsB: ParseOptions = {}
+): void {
+  const docA = parse(loadFile(fileA), optionsA);
+  const docB = parse(loadFile(fileB), optionsB);
   const diffs = diffDocs(docA, docB);
 
   if (diffs.length === 0) {
