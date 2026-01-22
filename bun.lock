@@ -25,14 +25,14 @@
     },
     "cli": {
       "name": "omniscript-cli",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "bin": {
         "osf": "bin/osf.js",
       },
       "dependencies": {
         "ajv": "^8.12.0",
-        "omniscript-converters": "^1.2.0",
-        "omniscript-parser": "^1.2.0",
+        "omniscript-converters": "^1.3.0",
+        "omniscript-parser": "^1.3.0",
       },
       "devDependencies": {
         "@types/node": "24.8.1",
@@ -43,7 +43,7 @@
     },
     "parser": {
       "name": "omniscript-parser",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "devDependencies": {
         "@types/node": "24.8.1",
         "rimraf": "^6.0.1",
@@ -677,7 +677,7 @@
 
     "omniscript-cli": ["omniscript-cli@workspace:cli"],
 
-    "omniscript-converters": ["omniscript-converters@1.2.0", "", { "dependencies": { "docx": "^9.5.1", "exceljs": "^4.4.0", "jszip": "^3.10.1", "omniscript-parser": "^1.0.0", "pptxgenjs": "^4.0.1", "puppeteer": "^24.25.0" }, "peerDependencies": { "omniscript-parser": "^1.0.0" } }, "sha512-j3pdrcdPFyZu03PdRj/5S+Z4PUcTeExb8D0CnAcM/DEtxina7i2IZpL7IJ8B/nniXDt8MY42cMtQlS6MMGFLRg=="],
+    "omniscript-converters": ["omniscript-converters@1.3.0", "", { "dependencies": { "docx": "^9.5.1", "exceljs": "^4.4.0", "jszip": "^3.10.1", "omniscript-parser": "^1.3.0", "pptxgenjs": "^4.0.1", "puppeteer": "^24.25.0" } }, "sha512-U7MZkVouFyBwiA3auQq/4J268yWAwnroQfbCrONaTA1KP5eGiglBfbZG5xo7szvClmHnDbDbFgpT6DWTQ7OMCA=="],
 
     "omniscript-parser": ["omniscript-parser@workspace:parser"],
 
