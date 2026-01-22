@@ -146,7 +146,7 @@ comprehensive security hardening.
 - Advanced blocks: @chart, @diagram, @code
 - Export formats: PDF, DOCX, PPTX, XLSX
 - CLI tools: parse, lint, render, export, format, diff
-- VSCode extension v0.1.0
+- Editor support (roadmap)
 - 16+ professional examples
 - 10+ themes
 

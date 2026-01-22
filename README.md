@@ -177,8 +177,9 @@ const result = await converter.convert(doc);
 | [**omniscript-parser**](./omniscript-core/parser)    | 1.3.0   | TypeScript parser engine         | ✅ Stable   |
 | [**omniscript-converters**](./omniscript-converters) | 1.3.0   | PDF, DOCX, PPTX, XLSX converters | ✅ Stable   |
 | [**omniscript-cli**](./omniscript-core/cli)          | 1.3.0   | Command-line tools               | ✅ Stable   |
-| [**omniscript-vscode**](./omniscript-vscode)         | 0.2.0   | VSCode extension                 | ✅ Stable   |
 | [**omniscript-examples**](./omniscript-examples)     | 1.3.0   | Professional examples            | ✅ Complete |
+
+> **Editor support is on the roadmap** (syntax highlighting, IntelliSense, diagnostics).
 
 ### Package Details
 
@@ -413,8 +414,8 @@ MIT License - see [LICENSE](./omniscript-core/LICENSE) for details.
 - **Website**: https://omniscript.dev
 - **GitHub**: https://github.com/OmniScriptOSF
 - **npm**: https://www.npmjs.com/search?q=omniscript
-- **VSCode Extension**:
-  [Marketplace](https://marketplace.visualstudio.com/items?itemName=omniscript.omniscript-vscode)
+- **Editor Support (Roadmap)**:
+  https://github.com/OmniScriptOSF/omniscript-core/blob/main/spec/roadmap.md
 
 ---
 
