@@ -59,7 +59,7 @@ See [LICENSE](LICENSE) for full terms.
 
 ## 🔗 Resources
 
-- **Latest Spec**: [v1.1/osf-spec.md](v1.1/osf-spec.md)
+- **Latest Spec**: [v1.2/README.md](v1.2/README.md)
 - **Roadmap**: [roadmap.md](roadmap.md)
 - **Website**: https://omniscriptosf.github.io
 - **Implementation**: https://github.com/OmniScriptOSF/omniscript-core
