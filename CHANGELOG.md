@@ -8,6 +8,23 @@ and this project adheres to
 
 ---
 
+## [1.3.0] - 2026-01-22
+
+### ✨ Ecosystem Alignment Release
+
+This release aligns documentation and package metadata with the v1.3 ecosystem updates.
+
+### Changed
+
+- Documentation clarifies editor tooling as a roadmap item.
+- Release notes updated for consistency with v1.3 ecosystem behavior.
+
+### Compatibility
+
+- No breaking changes from v1.2.
+
+---
+
 ## [1.2.0] - 2025-10-16
 
 ### 🎉 Major Release - Tables, Includes & Enterprise Security
